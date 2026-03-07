@@ -6,6 +6,7 @@ import (
 
 	"github.com/aleodoni/voting-go/internal/config"
 	"github.com/aleodoni/voting-go/internal/database"
+	"github.com/aleodoni/voting-go/internal/middleware"
 	"github.com/aleodoni/voting-go/internal/router"
 )
 
@@ -15,8 +16,11 @@ func main() {
 
 	database.Connect(cfg)
 
+	// Create middlewares
+	jwtMiddleware := middleware.NewJWTMiddleware(cfg)
+
 	// Setup router
-	r := router.SetupRouter()
+	r := router.SetupRouter(jwtMiddleware)
 
 	// Start server
 	log.Printf("🚀 %s running on port %s", cfg.AppName, cfg.AppPort)

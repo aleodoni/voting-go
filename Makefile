@@ -7,6 +7,9 @@ DB_URL=postgres://postgres:postgres@localhost:15432/voting_db?sslmode=disable
 # Run local
 # -------------------------
 
+dev:
+	air
+
 run:
 	go run ./cmd/api/main.go
 
@@ -29,7 +32,17 @@ docker-build-arm64:
 docker-build-multi:
 	docker buildx build \
 	--platform linux/amd64,linux/arm64 \
-	-t $(IMAGE_NAME):latest .	
+	-t $(IMAGE_NAME):latest .
+
+# -------------------------
+# Docker compose
+# -------------------------
+docker-compose-up:
+	docker compose -f ./infra/docker-compose.yml up -d
+
+docker-compose-down:
+	docker compose -f ./infra/docker-compose.yml down
+
 
 # -------------------------
 # Migrations

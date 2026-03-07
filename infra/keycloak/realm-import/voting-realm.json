@@ -1,0 +1,61 @@
+{
+  "realm": "voting-realm",
+  "enabled": true,
+
+  "clients": [
+    {
+      "clientId": "voting-api",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true
+    }
+  ],
+
+  "users": [
+    {
+      "username": "usuario.vereador",
+      "enabled": true,
+      "email": "usuario.vereador@test.com",
+      "emailVerified": true,
+      "firstName": "Usuario",
+      "lastName": "Vereador",
+      "requiredActions": [],
+
+      "attributes": {
+        "cpf": "12345678901"
+      },
+
+      "credentials": [
+        {
+          "type": "password",
+          "value": "123456",
+          "temporary": false
+        }
+      ]
+    },
+
+    {
+      "username": "usuario.admin",
+      "enabled": true,
+      "email": "usuario.admin@test.com",
+      "emailVerified": true,
+      "firstName": "Usuario",
+      "lastName": "Admin",
+      "requiredActions": [],
+
+      "attributes": {
+        "cpf": "98765432100"
+      },
+
+      "credentials": [
+        {
+          "type": "password",
+          "value": "123456",
+          "temporary": false
+        }
+      ]
+    }
+  ]
+}
