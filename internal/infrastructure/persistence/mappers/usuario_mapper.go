@@ -2,7 +2,6 @@
 package mappers
 
 import (
-	"github.com/aleodoni/voting-go/internal/domain/credencial"
 	"github.com/aleodoni/voting-go/internal/domain/usuario"
 	"github.com/aleodoni/voting-go/internal/infrastructure/persistence/models"
 )
@@ -21,15 +20,7 @@ func ToDomainUsuario(m *models.UsuarioModel) *usuario.Usuario {
 	}
 
 	if m.Credencial != nil {
-		u.Credencial = &credencial.Credencial{
-			ID:              m.Credencial.ID,
-			UsuarioID:       m.Credencial.UsuarioID,
-			Ativo:           m.Credencial.Ativo,
-			PodeAdministrar: m.Credencial.PodeAdministrar,
-			PodeVotar:       m.Credencial.PodeVotar,
-			CreatedAt:       m.Credencial.CreatedAt,
-			UpdatedAt:       m.Credencial.UpdatedAt,
-		}
+		u.Credencial = ToDomainCredencial(m.Credencial)
 	}
 
 	return u
