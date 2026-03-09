@@ -2,13 +2,15 @@
 package router
 
 import (
+	credencialHandler "github.com/aleodoni/voting-go/internal/handler/credencial"
 	usuarioHandler "github.com/aleodoni/voting-go/internal/handler/usuario"
 	"github.com/aleodoni/voting-go/internal/middleware"
 	"github.com/gin-gonic/gin"
 )
 
 type Handlers struct {
-	Me *usuarioHandler.MeHandler
+	Me                *usuarioHandler.MeHandler
+	UpdateCredenciais *credencialHandler.UpdateCredencialHandler
 }
 
 func SetupRouter(jwtMiddleware *middleware.JWTMiddleware, h *Handlers) *gin.Engine {

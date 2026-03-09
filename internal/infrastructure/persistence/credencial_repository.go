@@ -39,3 +39,9 @@ func (r *credencialRepository) FindByUsuarioID(ctx context.Context, usuarioID st
 func (r *credencialRepository) Create(ctx context.Context, cred *credencial.Credencial) error {
 	return DBFromCtx(ctx, r.db).Create(mappers.ToModelCredencial(cred)).Error
 }
+
+func (r *credencialRepository) Update(ctx context.Context, cred *credencial.Credencial) error {
+	return DBFromCtx(ctx, r.db).
+		Model(mappers.ToModelCredencial(cred)).
+		Updates(mappers.ToModelCredencial(cred)).Error
+}

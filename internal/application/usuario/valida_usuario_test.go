@@ -41,11 +41,15 @@ type fakeCredencialRepo struct {
 }
 
 func (f *fakeCredencialRepo) FindByUsuarioID(ctx context.Context, usuarioID string) (*domainCredencial.Credencial, error) {
-	return nil, nil
+	return nil, domainCredencial.ErrNotFound
 }
 
 func (f *fakeCredencialRepo) Create(ctx context.Context, cred *domainCredencial.Credencial) error {
 	f.credenciais = append(f.credenciais, cred)
+	return nil
+}
+
+func (f *fakeCredencialRepo) Update(ctx context.Context, cred *domainCredencial.Credencial) error {
 	return nil
 }
 
@@ -109,5 +113,54 @@ func TestEnsureUsuario_UsuarioNaoExiste_CriaUsuarioECredencial(t *testing.T) {
 	}
 	if credencialRepo.credenciais[0].UsuarioID != u.ID {
 		t.Error("credencial não pertence ao usuario criado")
+	}
+}
+
+func TestEnsureUsuario_UsuarioNaoExiste_CredencialComDefaultsCorretos(t *testing.T) {
+	credencialRepo := &fakeCredencialRepo{}
+	uc := usecase.NewEnsureUsuarioUseCase(newFakeUsuarioRepo(), credencialRepo, &fakeTransactor{})
+
+	_, err := uc.Execute(context.Background(), usecase.EnsureUsuarioInput{
+		KeycloakID: "keycloak-789",
+		Username:   "pedro",
+		Email:      "pedro@email.com",
+		Nome:       "Pedro",
+	})
+
+	if err != nil {
+		t.Fatalf("esperava nil, got %v", err)
+	}
+
+	cred := credencialRepo.credenciais[0]
+	if !cred.Ativo {
+		t.Error("esperava Ativo = true")
+	}
+	if cred.PodeVotar {
+		t.Error("esperava PodeVotar = false")
+	}
+	if cred.PodeAdministrar {
+		t.Error("esperava PodeAdministrar = false")
+	}
+}
+
+func TestEnsureUsuario_UsuarioNaoExiste_IDsGerados(t *testing.T) {
+	credencialRepo := &fakeCredencialRepo{}
+	uc := usecase.NewEnsureUsuarioUseCase(newFakeUsuarioRepo(), credencialRepo, &fakeTransactor{})
+
+	u, err := uc.Execute(context.Background(), usecase.EnsureUsuarioInput{
+		KeycloakID: "keycloak-abc",
+		Username:   "ana",
+		Email:      "ana@email.com",
+		Nome:       "Ana",
+	})
+
+	if err != nil {
+		t.Fatalf("esperava nil, got %v", err)
+	}
+	if u.ID == "" {
+		t.Error("esperava ID do usuario preenchido")
+	}
+	if credencialRepo.credenciais[0].ID == "" {
+		t.Error("esperava ID da credencial preenchido")
 	}
 }

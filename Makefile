@@ -62,3 +62,21 @@ migrate-create:
 
 migrate-force:
 	migrate -path migrations -database "$(DB_URL)" force $(version)
+
+# -------------------------
+# Tests
+# -------------------------	
+test:
+	gotestsum --format-hide-empty-pkg --format testname ./...
+
+get-token-admin:
+	@./scripts/get-token.sh usuario.admin 123456
+
+test-me:
+	@TOKEN=$$(./scripts/get-token.sh usuario.vereador 123456); \
+	k6 run -e TOKEN=$$TOKEN tests/api/me.test.js
+
+test-health:
+	k6 run tests/api/health.test.js
+
+test-api: test-health test-me

@@ -8,6 +8,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 
 	ucUsuario "github.com/aleodoni/voting-go/internal/application/usuario"
+	jwtutil "github.com/aleodoni/voting-go/internal/platform/jwt"
 )
 
 type MeHandler struct {
@@ -26,10 +27,10 @@ func (h *MeHandler) Handle(c *gin.Context) {
 	}
 
 	input := ucUsuario.EnsureUsuarioInput{
-		KeycloakID: claimString(claims, "sub"),
-		Username:   claimString(claims, "preferred_username"),
-		Email:      claimString(claims, "email"),
-		Nome:       claimString(claims, "name"),
+		KeycloakID: jwtutil.ClaimString(claims, "sub"),
+		Username:   jwtutil.ClaimString(claims, "preferred_username"),
+		Email:      jwtutil.ClaimString(claims, "email"),
+		Nome:       jwtutil.ClaimString(claims, "name"),
 	}
 
 	usuario, err := h.ensureUseCase.Execute(c.Request.Context(), input)
@@ -39,9 +40,4 @@ func (h *MeHandler) Handle(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, usuario)
-}
-
-func claimString(claims jwt.MapClaims, key string) string {
-	val, _ := claims[key].(string)
-	return val
 }
