@@ -1,7 +1,17 @@
 import http from "k6/http";
-import { check } from "k6";
+import { check, sleep } from "k6";
 
 const BASE_URL = "http://localhost:8080";
+
+export const options = {
+  scenarios: {
+    smoke_test: {
+      executor: "shared-iterations",
+      vus: 1,
+      iterations: 10,
+    }  
+  }
+};
 
 export default function () {
 
@@ -12,8 +22,6 @@ export default function () {
       Authorization: `Bearer ${token}`,
     },
   });
-
-  console.log(res.body);
 
   check(res, {
     "status is 200": (r) => r.status === 200,
