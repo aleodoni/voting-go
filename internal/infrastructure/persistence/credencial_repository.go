@@ -1,8 +1,13 @@
-// Package persistence provides repository implementations for persistence layer.
+// Package persistence provides the persistence layer for the application.
 package persistence
 
 import (
+	"context"
+	"errors"
+
 	"github.com/aleodoni/voting-go/internal/domain/credencial"
+	"github.com/aleodoni/voting-go/internal/infrastructure/persistence/mappers"
+	"github.com/aleodoni/voting-go/internal/infrastructure/persistence/models"
 	"gorm.io/gorm"
 )
 
@@ -14,21 +19,23 @@ func NewCredencialRepository(db *gorm.DB) credencial.CredencialRepository {
 	return &credencialRepository{db: db}
 }
 
-func (r *credencialRepository) FindByUsuarioID(usuarioID string) (*credencial.Credencial, error) {
+func (r *credencialRepository) FindByUsuarioID(ctx context.Context, usuarioID string) (*credencial.Credencial, error) {
+	var model models.CredencialModel
 
-	var cred credencial.Credencial
-
-	err := r.db.
+	err := DBFromCtx(ctx, r.db).
 		Where("usuario_id = ?", usuarioID).
-		First(&cred).Error
+		First(&model).Error
 
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, credencial.ErrNotFound
+	}
 	if err != nil {
 		return nil, err
 	}
 
-	return &cred, nil
+	return mappers.ToDomainCredencial(&model), nil
 }
 
-func (r *credencialRepository) Create(cred *credencial.Credencial) error {
-	return r.db.Create(cred).Error
+func (r *credencialRepository) Create(ctx context.Context, cred *credencial.Credencial) error {
+	return DBFromCtx(ctx, r.db).Create(mappers.ToModelCredencial(cred)).Error
 }

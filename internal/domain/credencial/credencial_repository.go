@@ -1,7 +1,9 @@
 // Package credencial defines the interfaces for data access and manipulation.
 package credencial
 
+import "context"
+
 type CredencialRepository interface {
-	FindByUsuarioID(usuarioID string) (*Credencial, error)
-	Create(cred *Credencial) error
+	FindByUsuarioID(ctx context.Context, usuarioID string) (*Credencial, error)
+	Create(ctx context.Context, cred *Credencial) error
 }

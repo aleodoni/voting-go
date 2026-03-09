@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func registerProtectedRoutes(api *gin.RouterGroup, jwtMiddleware *middleware.JWTMiddleware) {
+func registerProtectedRoutes(api *gin.RouterGroup, jwtMiddleware *middleware.JWTMiddleware, h *Handlers) {
 
 	protected := api.Group("")
 	protected.Use(jwtMiddleware.Handler())
@@ -16,9 +16,6 @@ func registerProtectedRoutes(api *gin.RouterGroup, jwtMiddleware *middleware.JWT
 		})
 	})
 
-	protected.GET("/me", func(c *gin.Context) {
-		claims := c.MustGet("claims")
-		c.JSON(200, claims)
-	})
+	registerUsuarioRoutes(protected, h)
 
 }

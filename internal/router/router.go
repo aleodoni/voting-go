@@ -2,11 +2,16 @@
 package router
 
 import (
+	usuarioHandler "github.com/aleodoni/voting-go/internal/handler/usuario"
 	"github.com/aleodoni/voting-go/internal/middleware"
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(jwtMiddleware *middleware.JWTMiddleware) *gin.Engine {
+type Handlers struct {
+	Me *usuarioHandler.MeHandler
+}
+
+func SetupRouter(jwtMiddleware *middleware.JWTMiddleware, h *Handlers) *gin.Engine {
 	r := gin.New()
 
 	r.Use(gin.Logger())
@@ -15,7 +20,7 @@ func SetupRouter(jwtMiddleware *middleware.JWTMiddleware) *gin.Engine {
 	api := r.Group("/api/v1")
 
 	registerHealthRoutes(api)
-	registerProtectedRoutes(api, jwtMiddleware)
+	registerProtectedRoutes(api, jwtMiddleware, h)
 
 	return r
 }
