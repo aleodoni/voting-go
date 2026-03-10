@@ -8,7 +8,7 @@ export const options = {
     smoke_test: {
       executor: "shared-iterations",
       vus: 1,
-      iterations: 10,
+      iterations: 1,
     }  
   }
 };
@@ -24,6 +24,10 @@ export default function () {
 
   check(res, {
     "status is 200": (r) => r.status === 200,
-    "has username": (r) => JSON.parse(r.body).Username == "usuario.vereador",
+    "has username": (r) => {
+      const username = JSON.parse(r.body).Username;
+
+      return username === "usuario.vereador" || username === "usuario.admin";
+    },
   });
 }

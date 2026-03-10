@@ -106,14 +106,18 @@ test:
 get-token-admin:
 	@./scripts/get-token.sh usuario.admin 123456
 
-test-me:
+test-me-vereador:
 	@TOKEN=$$(./scripts/get-token.sh usuario.vereador 123456); \
+	k6 run -e TOKEN=$$TOKEN tests/api/me.test.js
+
+test-me-admin:
+	@TOKEN=$$(./scripts/get-token.sh usuario.admin 123456); \
 	k6 run -e TOKEN=$$TOKEN tests/api/me.test.js
 
 test-health:
 	k6 run tests/api/health.test.js
 
-test-api: test-health test-me 
+test-api: test-health test-me-vereador test-me-admin
 
 test-betha: test-betha-matricula test-betha-pessoa-fisica
 
