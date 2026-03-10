@@ -4,6 +4,29 @@ IMAGE_NAME=aleodoni/voting-api
 DB_URL=postgres://postgres:postgres@localhost:15432/voting_db?sslmode=disable
 
 # -------------------------
+# Arquivo .env
+# -------------------------
+ENV_FILE=.env
+
+# -------------------------
+# Helper para rodar k6 com .env
+# -------------------------
+# Usa a variável SCRIPT para indicar qual arquivo k6 rodar
+.PHONY: k6-run
+k6-run:
+	@if [ -f $(CURDIR)/.env ]; then \
+		PUBLIC_KEY=$$(grep PUBLIC_KEY $(CURDIR)/.env | cut -d '=' -f2- | tr -d '[:space:]'); \
+		USER_ACCESS=$$(grep USER_ACCESS $(CURDIR)/.env | cut -d '=' -f2- | tr -d '[:space:]'); \
+		CPF=$$(grep CPF $(CURDIR)/.env | cut -d '=' -f2- | tr -d '[:space:]'); \
+		echo "DEBUG PUBLIC_KEY: '$$PUBLIC_KEY'"; \
+		echo "DEBUG USER_ACCESS: '$$USER_ACCESS'"; \
+		echo "DEBUG CPF: '$$CPF'"; \
+		k6 run -e PUBLIC_KEY="$$PUBLIC_KEY" -e USER_ACCESS="$$USER_ACCESS" -e CPF="$$CPF" $(SCRIPT); \
+	else \
+		k6 run $(SCRIPT); \
+	fi
+
+# -------------------------
 # Run local
 # -------------------------
 
@@ -65,7 +88,9 @@ migrate-force:
 
 # -------------------------
 # Tests
-# -------------------------	
+# -------------------------
+.PHONY: test test-health test-me test-api test-betha test-betha-matricula test-betha-pessoa-fisica
+
 test:
 	gotestsum --format-hide-empty-pkg --format testname ./...
 
@@ -84,8 +109,8 @@ test-api: test-health test-me
 test-betha: test-betha-matricula test-betha-pessoa-fisica
 
 test-betha-matricula:
-	k6 run tests/api/betha-matricula.test.js
+	SCRIPT=tests/api/betha-matricula.test.js make k6-run
 
 test-betha-pessoa-fisica:
-	k6 run tests/api/betha-pessoa-fisica.test.js
+	SCRIPT=tests/api/betha-pessoa-fisica.test.js make k6-run
  
