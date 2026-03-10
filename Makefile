@@ -9,6 +9,15 @@ DB_URL=postgres://postgres:postgres@localhost:15432/voting_db?sslmode=disable
 ENV_FILE=.env
 
 # -------------------------
+# Seed
+# -------------------------
+.PHONY: seed
+seed:
+	@echo "Rodando seeds SQL..."
+	psql $(DB_URL) \
+		-f migrations/seeds/seed.sql
+
+# -------------------------
 # Helper para rodar k6 com .env
 # -------------------------
 # Usa a variável SCRIPT para indicar qual arquivo k6 rodar
