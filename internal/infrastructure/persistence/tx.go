@@ -6,10 +6,12 @@ import (
 	"gorm.io/gorm"
 )
 
-type txKey struct{}
+type txKeyType struct{}
+
+var txKey = txKeyType{}
 
 func DBFromCtx(ctx context.Context, fallback *gorm.DB) *gorm.DB {
-	if tx, ok := ctx.Value(txKey{}).(*gorm.DB); ok {
+	if tx, ok := ctx.Value(txKey).(*gorm.DB); ok {
 		return tx
 	}
 	return fallback

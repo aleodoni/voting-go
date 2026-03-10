@@ -79,4 +79,13 @@ test-me:
 test-health:
 	k6 run tests/api/health.test.js
 
-test-api: test-health test-me
+test-api: test-health test-me 
+
+test-betha: test-betha-matricula test-betha-pessoa-fisica
+
+test-betha-matricula:
+	k6 run tests/api/betha-matricula.test.js
+
+test-betha-pessoa-fisica:
+	k6 run tests/api/betha-pessoa-fisica.test.js
+ 

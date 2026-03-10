@@ -21,7 +21,9 @@ func NewUsuarioRepository(db *gorm.DB) usuario.UsuarioRepository {
 func (r *usuarioRepository) FindByKeycloakID(ctx context.Context, keycloakID string) (*usuario.Usuario, error) {
 	var model models.UsuarioModel
 
-	err := DBFromCtx(ctx, r.db).
+	db := DBFromCtx(ctx, r.db)
+
+	err := db.
 		Preload("Credencial").
 		Where("keycloak_id = ?", keycloakID).
 		First(&model).Error
@@ -39,7 +41,9 @@ func (r *usuarioRepository) FindByKeycloakID(ctx context.Context, keycloakID str
 func (r *usuarioRepository) FindByUsername(ctx context.Context, username string) (*usuario.Usuario, error) {
 	var model models.UsuarioModel
 
-	err := DBFromCtx(ctx, r.db).
+	db := DBFromCtx(ctx, r.db)
+
+	err := db.
 		Preload("Credencial").
 		Where("username = ?", username).
 		First(&model).Error
@@ -55,6 +59,8 @@ func (r *usuarioRepository) FindByUsername(ctx context.Context, username string)
 }
 
 func (r *usuarioRepository) Create(ctx context.Context, u *usuario.Usuario) error {
+	db := DBFromCtx(ctx, r.db)
+
 	model := &models.UsuarioModel{
 		ID:           u.ID,
 		KeycloakID:   u.KeycloakID,
@@ -65,5 +71,5 @@ func (r *usuarioRepository) Create(ctx context.Context, u *usuario.Usuario) erro
 		CreatedAt:    u.CreatedAt,
 		UpdatedAt:    u.UpdatedAt,
 	}
-	return DBFromCtx(ctx, r.db).Create(model).Error
+	return db.Create(model).Error
 }

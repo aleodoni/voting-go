@@ -22,7 +22,9 @@ func NewCredencialRepository(db *gorm.DB) credencial.CredencialRepository {
 func (r *credencialRepository) FindByUsuarioID(ctx context.Context, usuarioID string) (*credencial.Credencial, error) {
 	var model models.CredencialModel
 
-	err := DBFromCtx(ctx, r.db).
+	db := DBFromCtx(ctx, r.db)
+
+	err := db.
 		Where("usuario_id = ?", usuarioID).
 		First(&model).Error
 
@@ -37,11 +39,17 @@ func (r *credencialRepository) FindByUsuarioID(ctx context.Context, usuarioID st
 }
 
 func (r *credencialRepository) Create(ctx context.Context, cred *credencial.Credencial) error {
-	return DBFromCtx(ctx, r.db).Create(mappers.ToModelCredencial(cred)).Error
+	db := DBFromCtx(ctx, r.db)
+
+	return db.Create(mappers.ToModelCredencial(cred)).Error
 }
 
 func (r *credencialRepository) Update(ctx context.Context, cred *credencial.Credencial) error {
-	return DBFromCtx(ctx, r.db).
-		Model(mappers.ToModelCredencial(cred)).
-		Updates(mappers.ToModelCredencial(cred)).Error
+	db := DBFromCtx(ctx, r.db)
+	model := mappers.ToModelCredencial(cred)
+
+	return db.
+		Model(&models.CredencialModel{}).
+		Where("usuario_id = ?", cred.UsuarioID).
+		Updates(model).Error
 }

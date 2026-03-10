@@ -14,7 +14,6 @@ export const options = {
 };
 
 export default function () {
-
   const token = __ENV.TOKEN;
 
   const res = http.get(`${BASE_URL}/api/v1/me`, {

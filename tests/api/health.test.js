@@ -13,8 +13,6 @@ export default function () {
     },
   });
 
-  console.log(`Response body: ${res.body}`);
-
   check(res, {
     "status is 200": (r) => r.status === 200,
     "status is ok": (r) => JSON.parse(r.body).status === "ok",
