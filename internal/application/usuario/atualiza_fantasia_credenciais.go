@@ -32,21 +32,17 @@ func (uc *UpdateDisplayNamePermissionsUseCase) Execute(
 	input UpdateDisplayNamePermissionsInput,
 ) error {
 
-	println("----------------1")
+	// Verificar se o usuário logado é admin
 	loggedUser, err := uc.repo.FindByKeycloakID(ctx, input.LoggedInUserKeycloakID)
-	println(loggedUser.Nome)
 	if err != nil {
-		println("----------------2")
 		return err
 	}
 
-	println("----------------3")
 	if loggedUser.Credencial == nil || !loggedUser.Credencial.IsAdmin() || !loggedUser.Credencial.IsActive() {
-		println("----------------4")
 		return domainUsuario.ErrNotAdmin
 	}
 
-	println("----------------5")
+	// Atualizar o display name e as permissões do usuário
 	return uc.repo.UpdateDisplayNamePermissions(
 		ctx,
 		input.UserID,
