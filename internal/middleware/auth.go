@@ -53,6 +53,11 @@ func (m *JWTMiddleware) Handler() gin.HandlerFunc {
 
 		claims := token.Claims.(jwt.MapClaims)
 
+		loggedUserKeycloakID := claims["sub"].(string)
+		loggedUserName := claims["preferred_username"].(string)
+
+		c.Set("loggedUserKeycloakID", loggedUserKeycloakID)
+		c.Set("loggedUserName", loggedUserName)
 		c.Set("claims", claims)
 
 		c.Next()

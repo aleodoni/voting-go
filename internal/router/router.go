@@ -9,8 +9,9 @@ import (
 )
 
 type Handlers struct {
-	Me                *usuarioHandler.MeHandler
-	UpdateCredenciais *credencialHandler.UpdateCredencialHandler
+	Me                        *usuarioHandler.MeHandler
+	UpdateCredenciais         *credencialHandler.UpdateCredencialHandler
+	UpdateFantasiaCredenciais *usuarioHandler.AtualizaFantasiaCredenciaisHandler
 }
 
 func SetupRouter(jwtMiddleware *middleware.JWTMiddleware, h *Handlers) *gin.Engine {

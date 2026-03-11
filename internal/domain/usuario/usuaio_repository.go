@@ -7,4 +7,12 @@ type UsuarioRepository interface {
 	FindByKeycloakID(ctx context.Context, keycloakID string) (*Usuario, error)
 	FindByUsername(ctx context.Context, username string) (*Usuario, error)
 	Create(ctx context.Context, usuario *Usuario) error
+	UpdateDisplayNamePermissions(
+		ctx context.Context,
+		userID string,
+		displayName *string,
+		isActive bool,
+		canAdmin bool,
+		canVote bool,
+	) error
 }

@@ -37,6 +37,34 @@ func (f *fakeUsuarioRepo) Create(ctx context.Context, u *domainUsuario.Usuario) 
 	return nil
 }
 
+func (f *fakeUsuarioRepo) UpdateDisplayNamePermissions(
+	ctx context.Context,
+	userID string,
+	displayName *string,
+	isActive bool,
+	canAdmin bool,
+	canVote bool,
+) error {
+
+	for _, u := range f.usuarios {
+
+		if u.ID == userID {
+
+			if displayName != nil {
+				u.NomeFantasia = displayName
+			}
+
+			if u.Credencial != nil {
+				u.Credencial.Ativo = isActive
+				u.Credencial.PodeAdministrar = canAdmin
+				u.Credencial.PodeVotar = canVote
+			}
+		}
+	}
+
+	return nil
+}
+
 type fakeCredencialRepo struct {
 	credenciais map[string]*domainCredencial.Credencial
 }

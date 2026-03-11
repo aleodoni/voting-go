@@ -73,3 +73,24 @@ func (r *usuarioRepository) Create(ctx context.Context, u *usuario.Usuario) erro
 	}
 	return db.Create(model).Error
 }
+
+func (r *usuarioRepository) UpdateDisplayNamePermissions(
+	ctx context.Context,
+	userID string,
+	displayName *string,
+	isActive bool,
+	canAdmin bool,
+	canVote bool,
+) error {
+	db := DBFromCtx(ctx, r.db)
+
+	return db.Exec(`
+		SELECT public.f_update_user_with_permissions(?, ?, ?, ?, ?)
+	`,
+		userID,
+		displayName,
+		isActive,
+		canAdmin,
+		canVote,
+	).Error
+}

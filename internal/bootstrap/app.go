@@ -46,6 +46,10 @@ func NewApp() *App {
 		transactor,
 	)
 
+	atualizaFantasiaCredencialUC := ucUsuario.NewUpdateDisplayNamePermissionsUseCase(
+		usuarioRepo,
+	)
+
 	updateCredencialUC := ucCredencial.NewUpdateCredencialUseCase(
 		usuarioRepo,
 		credencialRepo,
@@ -58,13 +62,18 @@ func NewApp() *App {
 		updateCredencialUC,
 	)
 
+	updateFantasiaCredencialHandler := usuarioHandler.NewAtualizaFantasiaCredenciaisHandler(
+		atualizaFantasiaCredencialUC,
+	)
+
 	// middleware
 	jwtMiddleware := middleware.NewJWTMiddleware(cfg)
 
 	// router
 	r := router.SetupRouter(jwtMiddleware, &router.Handlers{
-		Me:                meHandler,
-		UpdateCredenciais: updateCredencialHandler,
+		Me:                        meHandler,
+		UpdateCredenciais:         updateCredencialHandler,
+		UpdateFantasiaCredenciais: updateFantasiaCredencialHandler,
 	})
 
 	return &App{

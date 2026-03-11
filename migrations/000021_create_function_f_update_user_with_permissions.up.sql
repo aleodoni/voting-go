@@ -19,11 +19,11 @@ BEGIN
   WHERE id = p_user_id;
 
   -- Atualiza permissões associadas
-  UPDATE public.permissoes_usuario
+  UPDATE public.credencial
     SET ativo = p_is_active,
         pode_administrar = p_can_admin,
         pode_votar = p_can_vote,
         updated_at = now()
   WHERE usuario_id = p_user_id;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql;
