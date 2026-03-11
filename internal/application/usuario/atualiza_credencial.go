@@ -4,18 +4,17 @@ import (
 	"context"
 
 	domain "github.com/aleodoni/voting-go/internal/domain"
-	domainCredencial "github.com/aleodoni/voting-go/internal/domain/credencial"
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 )
 
 type UpdateCredencialUseCase struct {
 	usuarioRepo    domainUsuario.UsuarioRepository
-	credencialRepo domainCredencial.CredencialRepository
+	credencialRepo domainUsuario.CredencialRepository
 }
 
 func NewUpdateCredencialUseCase(
 	usuarioRepo domainUsuario.UsuarioRepository,
-	credencialRepo domainCredencial.CredencialRepository,
+	credencialRepo domainUsuario.CredencialRepository,
 ) *UpdateCredencialUseCase {
 	return &UpdateCredencialUseCase{
 		usuarioRepo:    usuarioRepo,
@@ -31,7 +30,7 @@ type UpdateCredencialInput struct {
 	PodeAdministrar bool
 }
 
-func (uc *UpdateCredencialUseCase) Execute(ctx context.Context, input UpdateCredencialInput) (*domainCredencial.Credencial, error) {
+func (uc *UpdateCredencialUseCase) Execute(ctx context.Context, input UpdateCredencialInput) (*domainUsuario.Credencial, error) {
 	admin, err := uc.usuarioRepo.FindByKeycloakID(ctx, input.AdminKeycloakID)
 	if err != nil {
 		return nil, err

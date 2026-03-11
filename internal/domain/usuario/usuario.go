@@ -3,8 +3,6 @@ package usuario
 
 import (
 	"time"
-
-	"github.com/aleodoni/voting-go/internal/domain/credencial"
 )
 
 type Usuario struct {
@@ -15,7 +13,7 @@ type Usuario struct {
 	Nome         string
 	NomeFantasia *string
 
-	Credencial *credencial.Credencial
+	Credencial *Credencial
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

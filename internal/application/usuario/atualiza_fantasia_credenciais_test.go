@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	usecase "github.com/aleodoni/voting-go/internal/application/usuario"
-	domainCredencial "github.com/aleodoni/voting-go/internal/domain/credencial"
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 	"github.com/aleodoni/voting-go/internal/test/fakes"
 )
@@ -19,7 +18,7 @@ func adminUsuario(keycloakID, userID string) *domainUsuario.Usuario {
 		ID:         userID,
 		KeycloakID: keycloakID,
 		Username:   "admin",
-		Credencial: &domainCredencial.Credencial{
+		Credencial: &domainUsuario.Credencial{
 			ID:              "cred-admin",
 			UsuarioID:       userID,
 			Ativo:           true,
@@ -97,8 +96,8 @@ func TestUpdateDisplayNamePermissions_UsuarioLogadoSemCredencial(t *testing.T) {
 		UserID:                 "user-alvo",
 	})
 
-	if err != domainUsuario.ErrNotAdmin {
-		t.Fatalf("esperava ErrNotAdmin, got %v", err)
+	if err != domainUsuario.ErrUserNotAdmin {
+		t.Fatalf("esperava ErrUserNotAdmin, got %v", err)
 	}
 }
 
@@ -110,7 +109,7 @@ func TestUpdateDisplayNamePermissions_UsuarioLogadoNaoEAdmin(t *testing.T) {
 		ID:         "user-comum",
 		KeycloakID: "keycloak-comum",
 		Username:   "comum",
-		Credencial: &domainCredencial.Credencial{
+		Credencial: &domainUsuario.Credencial{
 			ID:              "cred-comum",
 			UsuarioID:       "user-comum",
 			Ativo:           true,
@@ -125,7 +124,7 @@ func TestUpdateDisplayNamePermissions_UsuarioLogadoNaoEAdmin(t *testing.T) {
 		UserID:                 "user-alvo",
 	})
 
-	if err != domainUsuario.ErrNotAdmin {
+	if err != domainUsuario.ErrUserNotAdmin {
 		t.Fatalf("esperava ErrNotAdmin, got %v", err)
 	}
 }
@@ -138,7 +137,7 @@ func TestUpdateDisplayNamePermissions_UsuarioLogadoInativo(t *testing.T) {
 		ID:         "user-inativo",
 		KeycloakID: "keycloak-inativo",
 		Username:   "inativo",
-		Credencial: &domainCredencial.Credencial{
+		Credencial: &domainUsuario.Credencial{
 			ID:              "cred-inativo",
 			UsuarioID:       "user-inativo",
 			Ativo:           false,
@@ -153,7 +152,7 @@ func TestUpdateDisplayNamePermissions_UsuarioLogadoInativo(t *testing.T) {
 		UserID:                 "user-alvo",
 	})
 
-	if err != domainUsuario.ErrNotAdmin {
+	if err != domainUsuario.ErrUserNotAdmin {
 		t.Fatalf("esperava ErrNotAdmin, got %v", err)
 	}
 }
@@ -163,7 +162,7 @@ func TestUpdateDisplayNamePermissions_ErroNoRepositorio(t *testing.T) {
 	repo := fakes.NewFakeUsuarioRepository()
 
 	repo.Seed(adminUsuario("keycloak-admin", "user-admin"))
-	repo.UpdateDisplayNamePermissionsErr = domainUsuario.ErrNotFound
+	repo.UpdateDisplayNamePermissionsErr = domainUsuario.ErrUserNotFound
 
 	uc := usecase.NewUpdateDisplayNamePermissionsUseCase(repo)
 

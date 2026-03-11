@@ -29,7 +29,7 @@ func (r *usuarioRepository) FindByKeycloakID(ctx context.Context, keycloakID str
 		First(&model).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, usuario.ErrNotFound
+		return nil, usuario.ErrUserNotFound
 	}
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (r *usuarioRepository) FindByUsername(ctx context.Context, username string)
 		First(&model).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, usuario.ErrNotFound
+		return nil, usuario.ErrUserNotFound
 	}
 	if err != nil {
 		return nil, err

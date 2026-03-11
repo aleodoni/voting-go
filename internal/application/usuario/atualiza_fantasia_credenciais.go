@@ -39,7 +39,7 @@ func (uc *UpdateDisplayNamePermissionsUseCase) Execute(
 	}
 
 	if loggedUser.Credencial == nil || !loggedUser.Credencial.IsAdmin() || !loggedUser.Credencial.IsActive() {
-		return domainUsuario.ErrNotAdmin
+		return domainUsuario.ErrUserNotAdmin
 	}
 
 	// Atualizar o display name e as permissões do usuário

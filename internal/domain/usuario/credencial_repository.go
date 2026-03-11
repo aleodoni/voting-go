@@ -1,5 +1,5 @@
 // Package credencial defines the interfaces for data access and manipulation.
-package credencial
+package usuario
 
 import "context"
 

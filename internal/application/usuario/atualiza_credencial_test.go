@@ -6,7 +6,6 @@ import (
 
 	usecase "github.com/aleodoni/voting-go/internal/application/usuario"
 	domain "github.com/aleodoni/voting-go/internal/domain"
-	domainCredencial "github.com/aleodoni/voting-go/internal/domain/credencial"
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 )
 
@@ -23,13 +22,13 @@ func newFakeUsuarioRepo() *fakeUsuarioRepo {
 func (f *fakeUsuarioRepo) FindByKeycloakID(ctx context.Context, keycloakID string) (*domainUsuario.Usuario, error) {
 	u, ok := f.usuarios[keycloakID]
 	if !ok {
-		return nil, domainUsuario.ErrNotFound
+		return nil, domainUsuario.ErrUserNotFound
 	}
 	return u, nil
 }
 
 func (f *fakeUsuarioRepo) FindByUsername(ctx context.Context, username string) (*domainUsuario.Usuario, error) {
-	return nil, domainUsuario.ErrNotFound
+	return nil, domainUsuario.ErrUserNotFound
 }
 
 func (f *fakeUsuarioRepo) Create(ctx context.Context, u *domainUsuario.Usuario) error {
@@ -66,27 +65,27 @@ func (f *fakeUsuarioRepo) UpdateDisplayNamePermissions(
 }
 
 type fakeCredencialRepo struct {
-	credenciais map[string]*domainCredencial.Credencial
+	credenciais map[string]*domainUsuario.Credencial
 }
 
 func newFakeCredencialRepo() *fakeCredencialRepo {
-	return &fakeCredencialRepo{credenciais: make(map[string]*domainCredencial.Credencial)}
+	return &fakeCredencialRepo{credenciais: make(map[string]*domainUsuario.Credencial)}
 }
 
-func (f *fakeCredencialRepo) FindByUsuarioID(ctx context.Context, usuarioID string) (*domainCredencial.Credencial, error) {
+func (f *fakeCredencialRepo) FindByUsuarioID(ctx context.Context, usuarioID string) (*domainUsuario.Credencial, error) {
 	cred, ok := f.credenciais[usuarioID]
 	if !ok {
-		return nil, domainCredencial.ErrNotFound
+		return nil, domainUsuario.ErrUserNotFound
 	}
 	return cred, nil
 }
 
-func (f *fakeCredencialRepo) Create(ctx context.Context, cred *domainCredencial.Credencial) error {
+func (f *fakeCredencialRepo) Create(ctx context.Context, cred *domainUsuario.Credencial) error {
 	f.credenciais[cred.UsuarioID] = cred
 	return nil
 }
 
-func (f *fakeCredencialRepo) Update(ctx context.Context, cred *domainCredencial.Credencial) error {
+func (f *fakeCredencialRepo) Update(ctx context.Context, cred *domainUsuario.Credencial) error {
 	f.credenciais[cred.UsuarioID] = cred
 	return nil
 }
@@ -97,14 +96,14 @@ func adminAtivo() *domainUsuario.Usuario {
 	return &domainUsuario.Usuario{
 		ID:         "admin-1",
 		KeycloakID: "keycloak-admin",
-		Credencial: &domainCredencial.Credencial{
+		Credencial: &domainUsuario.Credencial{
 			Ativo:           true,
 			PodeAdministrar: true,
 		},
 	}
 }
 
-func usuarioAlvo(credencial *domainCredencial.Credencial) *domainUsuario.Usuario {
+func usuarioAlvo(credencial *domainUsuario.Credencial) *domainUsuario.Usuario {
 	return &domainUsuario.Usuario{
 		ID:         "user-1",
 		KeycloakID: "keycloak-user",
@@ -119,7 +118,7 @@ func TestUpdateCredencial_Sucesso(t *testing.T) {
 	usuarioRepo.usuarios["keycloak-admin"] = adminAtivo()
 
 	credencialRepo := newFakeCredencialRepo()
-	credencialRepo.credenciais["user-1"] = &domainCredencial.Credencial{
+	credencialRepo.credenciais["user-1"] = &domainUsuario.Credencial{
 		ID:        "cred-1",
 		UsuarioID: "user-1",
 		Ativo:     false,
@@ -155,7 +154,7 @@ func TestUpdateCredencial_AdminInativo_Forbidden(t *testing.T) {
 	usuarioRepo.usuarios["keycloak-admin"] = &domainUsuario.Usuario{
 		ID:         "admin-1",
 		KeycloakID: "keycloak-admin",
-		Credencial: &domainCredencial.Credencial{
+		Credencial: &domainUsuario.Credencial{
 			Ativo:           false,
 			PodeAdministrar: true,
 		},
@@ -178,7 +177,7 @@ func TestUpdateCredencial_AdminSemPermissao_Forbidden(t *testing.T) {
 	usuarioRepo.usuarios["keycloak-admin"] = &domainUsuario.Usuario{
 		ID:         "admin-1",
 		KeycloakID: "keycloak-admin",
-		Credencial: &domainCredencial.Credencial{
+		Credencial: &domainUsuario.Credencial{
 			Ativo:           true,
 			PodeAdministrar: false,
 		},
@@ -204,8 +203,8 @@ func TestUpdateCredencial_AdminNaoEncontrado(t *testing.T) {
 		UsuarioID:       "user-1",
 	})
 
-	if err != domainUsuario.ErrNotFound {
-		t.Errorf("esperava ErrNotFound, got %v", err)
+	if err != domainUsuario.ErrUserNotFound {
+		t.Errorf("esperava ErrUserNotFound, got %v", err)
 	}
 }
 
@@ -220,7 +219,7 @@ func TestUpdateCredencial_UsuarioAlvoNaoEncontrado(t *testing.T) {
 		UsuarioID:       "user-inexistente",
 	})
 
-	if err != domainCredencial.ErrNotFound {
+	if err != domainUsuario.ErrUserNotFound {
 		t.Errorf("esperava ErrNotFound, got %v", err)
 	}
 }

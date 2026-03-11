@@ -60,7 +60,7 @@ func (f *FakeUsuarioRepository) FindByKeycloakID(ctx context.Context, keycloakID
 
 	u, ok := f.usuarios[keycloakID]
 	if !ok {
-		return nil, usuario.ErrNotFound
+		return nil, usuario.ErrUserNotFound
 	}
 
 	return u, nil
@@ -80,7 +80,7 @@ func (f *FakeUsuarioRepository) FindByUsername(ctx context.Context, username str
 		}
 	}
 
-	return nil, usuario.ErrNotFound
+	return nil, usuario.ErrUserNotFound
 }
 
 // Create armazena o usuário internamente ou retorna o erro configurado.
@@ -132,5 +132,5 @@ func (f *FakeUsuarioRepository) UpdateDisplayNamePermissions(
 		}
 	}
 
-	return usuario.ErrNotFound
+	return usuario.ErrUserNotFound
 }

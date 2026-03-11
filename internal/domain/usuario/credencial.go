@@ -1,5 +1,5 @@
 // Package credencial defines the Credencial entity and its related methods.
-package credencial
+package usuario
 
 import "time"
 

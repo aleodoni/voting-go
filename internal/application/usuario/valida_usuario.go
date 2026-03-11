@@ -6,7 +6,6 @@ import (
 	"errors"
 	"time"
 
-	domainCredencial "github.com/aleodoni/voting-go/internal/domain/credencial"
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 	"github.com/aleodoni/voting-go/internal/platform/id"
 	"github.com/aleodoni/voting-go/internal/platform/transaction"
@@ -14,13 +13,13 @@ import (
 
 type EnsureUsuarioUseCase struct {
 	usuarioRepo    domainUsuario.UsuarioRepository
-	credencialRepo domainCredencial.CredencialRepository
+	credencialRepo domainUsuario.CredencialRepository
 	transactor     transaction.Transactor
 }
 
 func NewEnsureUsuarioUseCase(
 	usuarioRepo domainUsuario.UsuarioRepository,
-	credencialRepo domainCredencial.CredencialRepository,
+	credencialRepo domainUsuario.CredencialRepository,
 	transactor transaction.Transactor,
 ) *EnsureUsuarioUseCase {
 	return &EnsureUsuarioUseCase{
@@ -42,7 +41,7 @@ func (uc *EnsureUsuarioUseCase) Execute(ctx context.Context, input EnsureUsuario
 	if err == nil {
 		return u, nil
 	}
-	if !errors.Is(err, domainUsuario.ErrNotFound) {
+	if !errors.Is(err, domainUsuario.ErrUserNotFound) {
 		return nil, err
 	}
 
@@ -57,7 +56,7 @@ func (uc *EnsureUsuarioUseCase) Execute(ctx context.Context, input EnsureUsuario
 		UpdatedAt:  now,
 	}
 
-	cred := &domainCredencial.Credencial{
+	cred := &domainUsuario.Credencial{
 		ID:              id.New(),
 		UsuarioID:       u.ID,
 		Ativo:           true,
