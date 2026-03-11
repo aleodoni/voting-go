@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
-	ucCredencial "github.com/aleodoni/voting-go/internal/application/credencial"
 	ucUsuario "github.com/aleodoni/voting-go/internal/application/usuario"
 	"github.com/aleodoni/voting-go/internal/middleware"
 	"github.com/aleodoni/voting-go/internal/router"
@@ -16,7 +15,6 @@ import (
 	"github.com/aleodoni/voting-go/internal/database"
 	"github.com/aleodoni/voting-go/internal/infrastructure/persistence"
 
-	credencialHandler "github.com/aleodoni/voting-go/internal/handler/credencial"
 	usuarioHandler "github.com/aleodoni/voting-go/internal/handler/usuario"
 )
 
@@ -50,7 +48,7 @@ func NewApp() *App {
 		usuarioRepo,
 	)
 
-	updateCredencialUC := ucCredencial.NewUpdateCredencialUseCase(
+	updateCredencialUC := ucUsuario.NewUpdateCredencialUseCase(
 		usuarioRepo,
 		credencialRepo,
 	)
@@ -58,7 +56,7 @@ func NewApp() *App {
 	// handlers
 	meHandler := usuarioHandler.NewMeHandler(validaUsuarioUC)
 
-	updateCredencialHandler := credencialHandler.NewUpdateCredencialHandler(
+	updateCredencialHandler := usuarioHandler.NewUpdateCredencialHandler(
 		updateCredencialUC,
 	)
 

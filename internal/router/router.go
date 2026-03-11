@@ -2,7 +2,6 @@
 package router
 
 import (
-	credencialHandler "github.com/aleodoni/voting-go/internal/handler/credencial"
 	usuarioHandler "github.com/aleodoni/voting-go/internal/handler/usuario"
 	"github.com/aleodoni/voting-go/internal/middleware"
 	"github.com/gin-gonic/gin"
@@ -10,7 +9,7 @@ import (
 
 type Handlers struct {
 	Me                        *usuarioHandler.MeHandler
-	UpdateCredenciais         *credencialHandler.UpdateCredencialHandler
+	UpdateCredenciais         *usuarioHandler.UpdateCredencialHandler
 	UpdateFantasiaCredenciais *usuarioHandler.AtualizaFantasiaCredenciaisHandler
 }
 

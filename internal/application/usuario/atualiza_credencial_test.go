@@ -1,10 +1,10 @@
-package credencial_test
+package usuario_test
 
 import (
 	"context"
 	"testing"
 
-	usecase "github.com/aleodoni/voting-go/internal/application/credencial"
+	usecase "github.com/aleodoni/voting-go/internal/application/usuario"
 	domain "github.com/aleodoni/voting-go/internal/domain"
 	domainCredencial "github.com/aleodoni/voting-go/internal/domain/credencial"
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"

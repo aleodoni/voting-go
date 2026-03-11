@@ -1,5 +1,4 @@
-// Package credencial contains the use cases related to credencial management.
-package credencial
+package usuario
 
 import (
 	"context"

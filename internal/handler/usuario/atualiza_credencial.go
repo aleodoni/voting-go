@@ -1,5 +1,4 @@
-// Package credencial provides HTTP handlers for credencial management.
-package credencial
+package usuario
 
 import (
 	"net/http"
@@ -7,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 
-	ucCredencial "github.com/aleodoni/voting-go/internal/application/credencial"
+	ucCredencial "github.com/aleodoni/voting-go/internal/application/usuario"
 	domain "github.com/aleodoni/voting-go/internal/domain"
 	jwtutil "github.com/aleodoni/voting-go/internal/platform/jwt"
 )
