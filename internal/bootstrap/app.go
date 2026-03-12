@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 
 	ucUsuario "github.com/aleodoni/voting-go/internal/application/usuario"
+	ucVotacao "github.com/aleodoni/voting-go/internal/application/votacao"
 	"github.com/aleodoni/voting-go/internal/middleware"
 	"github.com/aleodoni/voting-go/internal/router"
 
@@ -15,6 +16,7 @@ import (
 	"github.com/aleodoni/voting-go/internal/database"
 	"github.com/aleodoni/voting-go/internal/infrastructure/persistence"
 
+	reuniaoHandler "github.com/aleodoni/voting-go/internal/handler/reuniao"
 	usuarioHandler "github.com/aleodoni/voting-go/internal/handler/usuario"
 )
 
@@ -36,6 +38,7 @@ func NewApp() *App {
 	usuarioRepo := persistence.NewUsuarioRepository(db)
 	credencialRepo := persistence.NewCredencialRepository(db)
 	transactor := persistence.NewGormTransactor(db)
+	reuniaoRepo := persistence.NewReuniaoRepository(db)
 
 	// use cases
 	validaUsuarioUC := ucUsuario.NewEnsureUsuarioUseCase(
@@ -53,6 +56,11 @@ func NewApp() *App {
 		credencialRepo,
 	)
 
+	ucRetornaReunioesDiaUC := ucVotacao.NewRetornaReunioesDiaUseCase(
+		usuarioRepo,
+		reuniaoRepo,
+	)
+
 	// handlers
 	meHandler := usuarioHandler.NewMeHandler(validaUsuarioUC)
 
@@ -64,6 +72,10 @@ func NewApp() *App {
 		atualizaFantasiaCredencialUC,
 	)
 
+	retornaReunioesDiaHandler := reuniaoHandler.NewRetornaReunioesDiaHandler(
+		ucRetornaReunioesDiaUC,
+	)
+
 	// middleware
 	jwtMiddleware := middleware.NewJWTMiddleware(cfg)
 
@@ -72,6 +84,7 @@ func NewApp() *App {
 		Me:                        meHandler,
 		UpdateCredenciais:         updateCredencialHandler,
 		UpdateFantasiaCredenciais: updateFantasiaCredencialHandler,
+		RetornaReunioesDia:        retornaReunioesDiaHandler,
 	})
 
 	return &App{

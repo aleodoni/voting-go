@@ -14,7 +14,13 @@ func VerificarAdmin(ctx context.Context, repo domainUsuario.UsuarioRepository, k
 		return err
 	}
 
-	if loggedUser.Credencial == nil || !loggedUser.Credencial.IsAdmin() || !loggedUser.Credencial.IsActive() {
+	erroInativo := VerificarAtivo(ctx, repo, keycloakID)
+
+	if erroInativo != nil {
+		return erroInativo
+	}
+
+	if loggedUser.Credencial == nil || !loggedUser.Credencial.IsAdmin() {
 		return domainUsuario.ErrUserNotAdmin
 	}
 
@@ -28,8 +34,27 @@ func VerificarVota(ctx context.Context, repo domainUsuario.UsuarioRepository, ke
 		return err
 	}
 
-	if loggedUser.Credencial == nil || !loggedUser.Credencial.CanVote() || !loggedUser.Credencial.IsActive() {
+	erroInativo := VerificarAtivo(ctx, repo, keycloakID)
+
+	if erroInativo != nil {
+		return erroInativo
+	}
+
+	if loggedUser.Credencial == nil || !loggedUser.Credencial.CanVote() {
 		return domainUsuario.ErrUserNotVoter
+	}
+
+	return nil
+}
+
+func VerificarAtivo(ctx context.Context, repo domainUsuario.UsuarioRepository, keycloakID string) error {
+	loggedUser, err := repo.FindByKeycloakID(ctx, keycloakID)
+	if err != nil {
+		return err
+	}
+
+	if loggedUser.Credencial == nil || !loggedUser.Credencial.IsActive() {
+		return domainUsuario.ErrUserNotActive
 	}
 
 	return nil

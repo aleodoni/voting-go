@@ -18,4 +18,5 @@ func registerProtectedRoutes(api *gin.RouterGroup, jwtMiddleware *middleware.JWT
 
 	registerUsuarioRoutes(protected, h)
 	registerCredencialRoutes(protected, h)
+	registerReuniaoRoutes(protected, h)
 }

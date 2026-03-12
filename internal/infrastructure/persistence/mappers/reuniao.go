@@ -47,3 +47,11 @@ func ToDomainReuniao(m *models.Reuniao) *votacao.Reuniao {
 
 	return r
 }
+
+func ToDomainReunioes(models []*models.Reuniao) []*votacao.Reuniao {
+	reunioes := make([]*votacao.Reuniao, len(models))
+	for i, m := range models {
+		reunioes[i] = ToDomainReuniao(m)
+	}
+	return reunioes
+}

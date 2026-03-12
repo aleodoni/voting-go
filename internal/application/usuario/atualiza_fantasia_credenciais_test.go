@@ -96,8 +96,8 @@ func TestUpdateDisplayNamePermissions_UsuarioLogadoSemCredencial(t *testing.T) {
 		UserID:                 "user-alvo",
 	})
 
-	if err != domainUsuario.ErrUserNotAdmin {
-		t.Fatalf("esperava ErrUserNotAdmin, got %v", err)
+	if err != domainUsuario.ErrUserNotActive {
+		t.Fatalf("esperava ErrUserNotActive, got %v", err)
 	}
 }
 
@@ -152,8 +152,8 @@ func TestUpdateDisplayNamePermissions_UsuarioLogadoInativo(t *testing.T) {
 		UserID:                 "user-alvo",
 	})
 
-	if err != domainUsuario.ErrUserNotAdmin {
-		t.Fatalf("esperava ErrNotAdmin, got %v", err)
+	if err != domainUsuario.ErrUserNotActive {
+		t.Fatalf("esperava ErrUserNotActive, got %v", err)
 	}
 }
 

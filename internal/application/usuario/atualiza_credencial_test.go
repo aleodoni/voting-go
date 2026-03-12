@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	usecase "github.com/aleodoni/voting-go/internal/application/usuario"
-	domain "github.com/aleodoni/voting-go/internal/domain"
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 )
 
@@ -149,7 +148,7 @@ func TestUpdateCredencial_Sucesso(t *testing.T) {
 	}
 }
 
-func TestUpdateCredencial_AdminInativo_Forbidden(t *testing.T) {
+func TestUpdateCredencial_AdminInativo_Inativo(t *testing.T) {
 	usuarioRepo := newFakeUsuarioRepo()
 	usuarioRepo.usuarios["keycloak-admin"] = &domainUsuario.Usuario{
 		ID:         "admin-1",
@@ -167,8 +166,8 @@ func TestUpdateCredencial_AdminInativo_Forbidden(t *testing.T) {
 		UsuarioID:       "user-1",
 	})
 
-	if err != domain.ErrForbidden {
-		t.Errorf("esperava ErrForbidden, got %v", err)
+	if err != domainUsuario.ErrUserNotActive {
+		t.Errorf("esperava ErrUserNotActive, got %v", err)
 	}
 }
 
@@ -190,8 +189,8 @@ func TestUpdateCredencial_AdminSemPermissao_Forbidden(t *testing.T) {
 		UsuarioID:       "user-1",
 	})
 
-	if err != domain.ErrForbidden {
-		t.Errorf("esperava ErrForbidden, got %v", err)
+	if err != domainUsuario.ErrUserNotAdmin {
+		t.Errorf("esperava ErrUserNotAdmin, got %v", err)
 	}
 }
 
