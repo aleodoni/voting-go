@@ -3,7 +3,7 @@ package usuario
 import (
 	"context"
 
-	domain "github.com/aleodoni/voting-go/internal/domain"
+	"github.com/aleodoni/voting-go/internal/application/shared"
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 )
 
@@ -31,12 +31,9 @@ type UpdateCredencialInput struct {
 }
 
 func (uc *UpdateCredencialUseCase) Execute(ctx context.Context, input UpdateCredencialInput) (*domainUsuario.Credencial, error) {
-	admin, err := uc.usuarioRepo.FindByKeycloakID(ctx, input.AdminKeycloakID)
-	if err != nil {
+	// Verificar se o usuário logado é admin
+	if err := shared.VerificarAdmin(ctx, uc.usuarioRepo, input.AdminKeycloakID); err != nil {
 		return nil, err
-	}
-	if !admin.Credencial.IsActive() || !admin.Credencial.IsAdmin() {
-		return nil, domain.ErrForbidden
 	}
 
 	cred, err := uc.credencialRepo.FindByUsuarioID(ctx, input.UsuarioID)

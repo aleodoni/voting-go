@@ -3,6 +3,7 @@ package usuario
 import (
 	"context"
 
+	"github.com/aleodoni/voting-go/internal/application/shared"
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 )
 
@@ -33,13 +34,8 @@ func (uc *UpdateDisplayNamePermissionsUseCase) Execute(
 ) error {
 
 	// Verificar se o usuário logado é admin
-	loggedUser, err := uc.repo.FindByKeycloakID(ctx, input.LoggedInUserKeycloakID)
-	if err != nil {
+	if err := shared.VerificarAdmin(ctx, uc.repo, input.LoggedInUserKeycloakID); err != nil {
 		return err
-	}
-
-	if loggedUser.Credencial == nil || !loggedUser.Credencial.IsAdmin() || !loggedUser.Credencial.IsActive() {
-		return domainUsuario.ErrUserNotAdmin
 	}
 
 	// Atualizar o display name e as permissões do usuário
