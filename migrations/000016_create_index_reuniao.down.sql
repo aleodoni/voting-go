@@ -1,0 +1,1 @@
+DROP INDEX IF EXISTS "rec_id_con_id_pac_id_idx";

@@ -9,16 +9,18 @@ import (
 )
 
 type Config struct {
-	AppName    string
-	AppVersion string
-	AppPort    string
-	AppEnv     string
-	DBHost     string
-	DBPort     string
-	DBUser     string
-	DBPassword string
-	DBName     string
-	DBSSLMODE  string
+	AppName        string
+	AppVersion     string
+	AppPort        string
+	AppEnv         string
+	DBHost         string
+	DBPort         string
+	DBUser         string
+	DBPassword     string
+	DBName         string
+	DBSSLMODE      string
+	JWKSURL        string
+	KeycloakIssuer string
 }
 
 func LoadConfig() *Config {
@@ -28,16 +30,18 @@ func LoadConfig() *Config {
 	}
 
 	return &Config{
-		AppName:    getEnv("APPNAME", "Voting API"),
-		AppVersion: getEnv("APPVERSION", "1.0.0"),
-		AppPort:    getEnv("APPPORT", "8080"),
-		AppEnv:     getEnv("APPENV", "development"),
-		DBHost:     getEnv("DBHOST", "localhost"),
-		DBPort:     getEnv("DBPORT", "15432"),
-		DBUser:     getEnv("DBUSER", "postgres"),
-		DBPassword: getEnv("DBPASSWORD", "postgres"),
-		DBName:     getEnv("DBNAME", "voting_db"),
-		DBSSLMODE:  getEnv("DBSSLMODE", "disable"),
+		AppName:        getEnv("APPNAME", "Voting API"),
+		AppVersion:     getEnv("APPVERSION", "1.0.0"),
+		AppPort:        getEnv("APPPORT", "8080"),
+		AppEnv:         getEnv("APPENV", "development"),
+		DBHost:         getEnv("DBHOST", "localhost"),
+		DBPort:         getEnv("DBPORT", "15432"),
+		DBUser:         getEnv("DBUSER", "postgres"),
+		DBPassword:     getEnv("DBPASSWORD", "postgres"),
+		DBName:         getEnv("DBNAME", "voting_db"),
+		DBSSLMODE:      getEnv("DBSSLMODE", "disable"),
+		JWKSURL:        getEnv("JWKSURL", "http://localhost:8081/realms/voting-realm/protocol/openid-connect/certs"),
+		KeycloakIssuer: getEnv("KEYCLOAK_ISSUER", "http://localhost:8081/realms/voting-realm"),
 	}
 }
 

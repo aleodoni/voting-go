@@ -1,0 +1,50 @@
+package usuario
+
+import (
+	"context"
+
+	"github.com/aleodoni/voting-go/internal/application/shared"
+	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
+)
+
+type UpdateDisplayNamePermissionsInput struct {
+	LoggedInUserKeycloakID string
+	UserID                 string
+	DisplayName            *string
+	IsActive               bool
+	CanAdmin               bool
+	CanVote                bool
+}
+
+type UpdateDisplayNamePermissionsUseCase struct {
+	repo domainUsuario.UsuarioRepository
+}
+
+func NewUpdateDisplayNamePermissionsUseCase(
+	repo domainUsuario.UsuarioRepository,
+) *UpdateDisplayNamePermissionsUseCase {
+	return &UpdateDisplayNamePermissionsUseCase{
+		repo: repo,
+	}
+}
+
+func (uc *UpdateDisplayNamePermissionsUseCase) Execute(
+	ctx context.Context,
+	input UpdateDisplayNamePermissionsInput,
+) error {
+
+	// Verificar se o usuário logado é admin
+	if err := shared.VerificarAdmin(ctx, uc.repo, input.LoggedInUserKeycloakID); err != nil {
+		return err
+	}
+
+	// Atualizar o display name e as permissões do usuário
+	return uc.repo.UpdateDisplayNamePermissions(
+		ctx,
+		input.UserID,
+		input.DisplayName,
+		input.IsActive,
+		input.CanAdmin,
+		input.CanVote,
+	)
+}

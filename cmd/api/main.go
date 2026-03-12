@@ -4,23 +4,16 @@ package main
 import (
 	"log"
 
-	"github.com/aleodoni/voting-go/internal/config"
-	"github.com/aleodoni/voting-go/internal/database"
-	"github.com/aleodoni/voting-go/internal/router"
+	"github.com/aleodoni/voting-go/internal/bootstrap"
 )
 
 func main() {
-	// Load configuration
-	cfg := config.LoadConfig()
 
-	database.Connect(cfg)
-
-	// Setup router
-	r := router.SetupRouter()
+	app := bootstrap.NewApp()
 
 	// Start server
-	log.Printf("🚀 %s running on port %s", cfg.AppName, cfg.AppPort)
-	err := r.Run(":" + cfg.AppPort)
+	log.Printf("🚀 %s running on port %s", app.Config.AppName, app.Config.AppPort)
+	err := app.Router.Run(":" + app.Config.AppPort)
 	if err != nil {
 		log.Fatal("Failed to start server:", err)
 	}

@@ -1,22 +1,32 @@
 // Package router provides routing functionality for the application.
 package router
 
-import "github.com/gin-gonic/gin"
+import (
+	reuniaoHandler "github.com/aleodoni/voting-go/internal/handler/reuniao"
+	usuarioHandler "github.com/aleodoni/voting-go/internal/handler/usuario"
+	"github.com/aleodoni/voting-go/internal/middleware"
+	"github.com/gin-gonic/gin"
+)
 
-func SetupRouter() *gin.Engine {
+type Handlers struct {
+	Me                        *usuarioHandler.MeHandler
+	UpdateCredenciais         *usuarioHandler.UpdateCredencialHandler
+	UpdateFantasiaCredenciais *usuarioHandler.AtualizaFantasiaCredenciaisHandler
+
+	RetornaReunioesDia       *reuniaoHandler.RetornaReunioesDiaHandler
+	RetornaProjetosCompletos *reuniaoHandler.RetornaProjetosCompletosHandler
+}
+
+func SetupRouter(jwtMiddleware *middleware.JWTMiddleware, h *Handlers) *gin.Engine {
 	r := gin.New()
 
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 
 	api := r.Group("/api/v1")
-	{
-		api.GET("/health", func(c *gin.Context) {
-			c.JSON(200, gin.H{
-				"status": "ok",
-			})
-		})
-	}
+
+	registerHealthRoutes(api)
+	registerProtectedRoutes(api, jwtMiddleware, h)
 
 	return r
 }
