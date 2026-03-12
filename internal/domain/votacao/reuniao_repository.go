@@ -7,4 +7,5 @@ import (
 type ReuniaoRepository interface {
 	FindReuniaoByID(ctx context.Context, reuniaoID string) (*Reuniao, error)
 	GetReunioesDia(ctx context.Context) ([]*Reuniao, error)
+	GetProjetosCompleto(ctx context.Context, reuniaoID string) ([]*Projeto, error)
 }

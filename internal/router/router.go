@@ -13,7 +13,8 @@ type Handlers struct {
 	UpdateCredenciais         *usuarioHandler.UpdateCredencialHandler
 	UpdateFantasiaCredenciais *usuarioHandler.AtualizaFantasiaCredenciaisHandler
 
-	RetornaReunioesDia *reuniaoHandler.RetornaReunioesDiaHandler
+	RetornaReunioesDia       *reuniaoHandler.RetornaReunioesDiaHandler
+	RetornaProjetosCompletos *reuniaoHandler.RetornaProjetosCompletosHandler
 }
 
 func SetupRouter(jwtMiddleware *middleware.JWTMiddleware, h *Handlers) *gin.Engine {

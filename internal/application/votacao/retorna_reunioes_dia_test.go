@@ -45,6 +45,10 @@ func (f *fakeReuniaoRepository) GetReunioesDia(ctx context.Context) ([]*domainVo
 	return f.reunioes, nil
 }
 
+func (f *fakeReuniaoRepository) GetProjetosCompleto(ctx context.Context, reuniaoID string) ([]*domainVotacao.Projeto, error) {
+	return nil, nil
+}
+
 //
 // helpers
 //

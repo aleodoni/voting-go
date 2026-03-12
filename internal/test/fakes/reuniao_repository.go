@@ -10,15 +10,18 @@ import (
 
 type FakeReuniaoRepository struct {
 	// Dados armazenados internamente (simulam o banco)
-	reunioes map[string]*votacao.Reuniao // chave: reuniaoID
+	reunioes map[string]*votacao.Reuniao   // chave: reuniaoID
+	projetos map[string][]*votacao.Projeto // chave: reuniaoID
 
 	// Erros configuráveis por método
-	FindReuniaoByIDErr error
-	GetReunioesDiaErr  error
+	FindReuniaoByIDErr     error
+	GetReunioesDiaErr      error
+	GetProjetosCompletoErr error
 
 	// Chamadas registradas para asserção nos testes
-	FindReuniaoByIDCalls []string
-	GetReunioesDiaCalls  []time.Time
+	FindReuniaoByIDCalls     []string
+	GetReunioesDiaCalls      []time.Time
+	GetProjetosCompletoCalls []string
 }
 
 // Verificação em tempo de compilação: garante que FakeReuniaoRepository implementa ReuniaoRepository.
@@ -34,6 +37,13 @@ func NewFakeReuniaoRepository() *FakeReuniaoRepository {
 // Seed insere usuários diretamente no fake (útil para preparar cenários de teste).
 func (f *FakeReuniaoRepository) Seed(r *votacao.Reuniao) {
 	f.reunioes[r.ID] = r
+}
+
+func (f *FakeReuniaoRepository) SeedProjetos(reuniaoID string, projetos []*votacao.Projeto) {
+	if f.projetos == nil {
+		f.projetos = make(map[string][]*votacao.Projeto)
+	}
+	f.projetos[reuniaoID] = projetos
 }
 
 func (f *FakeReuniaoRepository) FindReuniaoByID(ctx context.Context, reuniaoID string) (*votacao.Reuniao, error) {
@@ -65,4 +75,18 @@ func (f *FakeReuniaoRepository) GetReunioesDia(ctx context.Context) ([]*votacao.
 		}
 	}
 	return reunioes, nil
+}
+
+func (f *FakeReuniaoRepository) GetProjetosCompleto(ctx context.Context, reuniaoID string) ([]*votacao.Projeto, error) {
+	f.GetProjetosCompletoCalls = append(f.GetProjetosCompletoCalls, reuniaoID)
+
+	if f.GetProjetosCompletoErr != nil {
+		return nil, f.GetProjetosCompletoErr
+	}
+
+	projetos, ok := f.projetos[reuniaoID]
+	if !ok {
+		return []*votacao.Projeto{}, nil
+	}
+	return projetos, nil
 }

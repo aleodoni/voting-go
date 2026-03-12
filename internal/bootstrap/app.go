@@ -61,6 +61,11 @@ func NewApp() *App {
 		reuniaoRepo,
 	)
 
+	ucRetornaProjetosCompletosUC := ucVotacao.NewRetornaProjetosCompletosUseCase(
+		usuarioRepo,
+		reuniaoRepo,
+	)
+
 	// handlers
 	meHandler := usuarioHandler.NewMeHandler(validaUsuarioUC)
 
@@ -76,6 +81,10 @@ func NewApp() *App {
 		ucRetornaReunioesDiaUC,
 	)
 
+	retornaProjetosCompletosHandler := reuniaoHandler.NewRetornaProjetosCompletosHandler(
+		ucRetornaProjetosCompletosUC,
+	)
+
 	// middleware
 	jwtMiddleware := middleware.NewJWTMiddleware(cfg)
 
@@ -85,6 +94,7 @@ func NewApp() *App {
 		UpdateCredenciais:         updateCredencialHandler,
 		UpdateFantasiaCredenciais: updateFantasiaCredencialHandler,
 		RetornaReunioesDia:        retornaReunioesDiaHandler,
+		RetornaProjetosCompletos:  retornaProjetosCompletosHandler,
 	})
 
 	return &App{

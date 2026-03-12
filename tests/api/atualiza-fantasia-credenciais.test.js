@@ -37,8 +37,6 @@ export default function () {
     params
   );
 
-  console.log(res)
-
   check(res, {
     "status is 204": (r) => r.status === 204,
   });
