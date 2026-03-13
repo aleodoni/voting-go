@@ -19,6 +19,7 @@ type ProjetoModel struct {
 	UpdatedAt         time.Time `gorm:"column:updated_at;autoUpdateTime"`
 
 	Pareceres *[]ParecerModel `gorm:"foreignKey:ProjetoID"`
+	Votacao   *VotacaoModel   `gorm:"foreignKey:ProjetoID"`
 }
 
 func (ProjetoModel) TableName() string {

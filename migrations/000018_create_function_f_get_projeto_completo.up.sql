@@ -11,7 +11,7 @@ FROM (
     SELECT jsonb_build_object(
         'projeto', p.*,
         'pareceres', coalesce(pareceres.pareceres_array, '[]'::jsonb),
-        'votacoes', coalesce(votacoes.votacoes_array, '[]'::jsonb)
+        'votacao', votacao.votacao_obj
     ) AS projeto_json
     FROM public.projeto p
 
@@ -22,16 +22,14 @@ FROM (
         WHERE pa.projeto_id = p.id
     ) pareceres ON true
 
-    -- Votações + votos + restrições + votoContrário
+    -- Votação única + votos + restrições + voto contrário
     LEFT JOIN LATERAL (
-        SELECT jsonb_agg(
-            jsonb_build_object(
-                'id', v.id,
-                'projeto_id', v.projeto_id,
-                'status', v.status,
-                'votos', coalesce(votos.votos_array, '[]'::jsonb)
-            )
-        ) AS votacoes_array
+        SELECT jsonb_build_object(
+            'id', v.id,
+            'projeto_id', v.projeto_id,
+            'status', v.status,
+            'votos', coalesce(votos.votos_array, '[]'::jsonb)
+        ) AS votacao_obj
         FROM public.votacao v
 
         LEFT JOIN LATERAL (
@@ -49,6 +47,7 @@ FROM (
                 )
             ) AS votos_array
             FROM public.voto vo
+
             LEFT JOIN public.usuario u ON u.id = vo.usuario_id
 
             -- Restrições por voto
@@ -78,7 +77,8 @@ FROM (
         ) votos ON true
 
         WHERE v.projeto_id = p.id
-    ) votacoes ON true
+        LIMIT 1
+    ) votacao ON true
 
     WHERE p.id = p_projeto_id
 ) t;

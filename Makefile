@@ -125,7 +125,7 @@ test-reunioes-dia:
 	@TOKEN=$$(./scripts/get-token.sh usuario.admin 123456); \
 	k6 run -e TOKEN=$$TOKEN tests/api/reunioes-dia.test.js
 
-test-api: test-health test-me-vereador test-me-admin test-update-fantasia-credenciais test-reunioes-dia
+test-api: seed test-health test-me-vereador test-me-admin test-update-fantasia-credenciais test-reunioes-dia
 
 test-betha: test-betha-matricula test-betha-pessoa-fisica
 

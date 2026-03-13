@@ -17,11 +17,15 @@ type FakeReuniaoRepository struct {
 	FindReuniaoByIDErr     error
 	GetReunioesDiaErr      error
 	GetProjetosCompletoErr error
+	GetProjetoCompletoErr  error
+	CriaVotacaoErr         error
 
 	// Chamadas registradas para asserção nos testes
 	FindReuniaoByIDCalls     []string
 	GetReunioesDiaCalls      []time.Time
 	GetProjetosCompletoCalls []string
+	GetProjetoCompletoCalls  []string
+	CriaVotacaoCalls         []votacao.Votacao
 }
 
 // Verificação em tempo de compilação: garante que FakeReuniaoRepository implementa ReuniaoRepository.
@@ -89,4 +93,26 @@ func (f *FakeReuniaoRepository) GetProjetosCompleto(ctx context.Context, reuniao
 		return []*votacao.Projeto{}, nil
 	}
 	return projetos, nil
+}
+
+func (f *FakeReuniaoRepository) GetProjetoCompleto(ctx context.Context, projetoID string) (*votacao.Projeto, error) {
+	f.GetProjetoCompletoCalls = append(f.GetProjetoCompletoCalls, projetoID) // registrar a chamada
+
+	for _, projetos := range f.projetos {
+		for _, p := range projetos {
+			if p.ID == projetoID {
+				return p, nil
+			}
+		}
+	}
+	return nil, votacao.ErrProjetoNotFound
+}
+
+func (f *FakeReuniaoRepository) CriaVotacao(ctx context.Context, votacao *votacao.Votacao) error {
+	if f.CriaVotacaoErr != nil {
+		return f.CriaVotacaoErr
+	}
+
+	f.CriaVotacaoCalls = append(f.CriaVotacaoCalls, *votacao)
+	return nil
 }

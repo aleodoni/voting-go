@@ -14,7 +14,7 @@ import (
 type ProjetoCompletoJSON struct {
 	Projeto   json.RawMessage `json:"projeto"`
 	Pareceres json.RawMessage `json:"pareceres"`
-	Votacoes  json.RawMessage `json:"votacoes"`
+	Votacao   json.RawMessage `json:"votacao"`
 }
 
 type projetoJSON struct {
@@ -105,9 +105,13 @@ func ToDomainProjetoFromJSON(raw ProjetoCompletoJSON) (*votacao.Projeto, error) 
 		return nil, fmt.Errorf("unmarshal pareceres: %w", err)
 	}
 
-	var votacoesRaw []votacaoJSON
-	if err := json.Unmarshal(raw.Votacoes, &votacoesRaw); err != nil {
-		return nil, fmt.Errorf("unmarshal votacoes: %w", err)
+	var votacaoPtr *votacao.Votacao
+	if len(raw.Votacao) > 0 && string(raw.Votacao) != "null" {
+		var votacaoRaw votacaoJSON
+		if err := json.Unmarshal(raw.Votacao, &votacaoRaw); err != nil {
+			return nil, fmt.Errorf("unmarshal votacao: %w", err)
+		}
+		votacaoPtr = mapVotacao(votacaoRaw)
 	}
 
 	return &votacao.Projeto{
@@ -125,7 +129,7 @@ func ToDomainProjetoFromJSON(raw ProjetoCompletoJSON) (*votacao.Projeto, error) 
 		CreatedAt:         pj.CreatedAt.Time,
 		UpdatedAt:         pj.UpdatedAt.Time,
 		Pareceres:         mapParecerSlice(pareceres),
-		Votacoes:          mapVotacaoSlice(votacoesRaw),
+		Votacao:           votacaoPtr,
 	}, nil
 }
 
@@ -135,6 +139,7 @@ func mapParecerSlice(js []parecerJSONRaw) *[]votacao.Parecer {
 	if len(js) == 0 {
 		return nil
 	}
+
 	out := make([]votacao.Parecer, len(js))
 	for i, j := range js {
 		out[i] = votacao.Parecer{
@@ -148,29 +153,28 @@ func mapParecerSlice(js []parecerJSONRaw) *[]votacao.Parecer {
 			UpdatedAt:        j.UpdatedAt.Time,
 		}
 	}
+
 	return &out
 }
 
-func mapVotacaoSlice(js []votacaoJSON) *[]votacao.Votacao {
-	if len(js) == 0 {
+func mapVotacao(j votacaoJSON) *votacao.Votacao {
+	if j.ID == "" {
 		return nil
 	}
-	out := make([]votacao.Votacao, len(js))
-	for i, j := range js {
-		out[i] = votacao.Votacao{
-			ID:        j.ID,
-			ProjetoID: j.ProjetoID,
-			Status:    votacao.StatusVotacao(j.Status),
-			Votos:     mapVotoSlice(j.Votos),
-		}
+
+	return &votacao.Votacao{
+		ID:        j.ID,
+		ProjetoID: j.ProjetoID,
+		Status:    votacao.StatusVotacao(j.Status),
+		Votos:     mapVotoSlice(j.Votos),
 	}
-	return &out
 }
 
 func mapVotoSlice(js []votoJSON) *[]votacao.Voto {
 	if len(js) == 0 {
 		return nil
 	}
+
 	out := make([]votacao.Voto, len(js))
 	for i, j := range js {
 		out[i] = votacao.Voto{
@@ -184,6 +188,7 @@ func mapVotoSlice(js []votoJSON) *[]votacao.Voto {
 			VotoContrario: mapVotoContrario(j.VotoContrario),
 		}
 	}
+
 	return &out
 }
 
@@ -191,7 +196,9 @@ func mapRestricao(js []restricaoJSON) *votacao.Restricao {
 	if len(js) == 0 {
 		return nil
 	}
+
 	j := js[0]
+
 	return &votacao.Restricao{
 		ID:        j.ID,
 		Restricao: j.Restricao,
@@ -205,7 +212,9 @@ func mapVotoContrario(js []votoContrarioJSON) *votacao.VotoContrario {
 	if len(js) == 0 {
 		return nil
 	}
+
 	j := js[0]
+
 	var parecer *votacao.Parecer
 	if j.Parecer != nil {
 		parecer = &votacao.Parecer{
@@ -215,10 +224,11 @@ func mapVotoContrario(js []votoContrarioJSON) *votacao.VotoContrario {
 			Vereador:         j.Parecer.Vereador,
 			IDTexto:          j.Parecer.IDTexto,
 			ProjetoID:        j.Parecer.ProjetoID,
-			CreatedAt:        j.CreatedAt.Time,
-			UpdatedAt:        j.UpdatedAt.Time,
+			CreatedAt:        j.Parecer.CreatedAt.Time,
+			UpdatedAt:        j.Parecer.UpdatedAt.Time,
 		}
 	}
+
 	return &votacao.VotoContrario{
 		ID:        j.ID,
 		IDTexto:   j.IDTexto,
@@ -228,7 +238,7 @@ func mapVotoContrario(js []votoContrarioJSON) *votacao.VotoContrario {
 	}
 }
 
-// no arquivo de structs JSON
+// ── Time parser ───────────────────────────────────────────────────
 
 type pgTime struct {
 	time.Time

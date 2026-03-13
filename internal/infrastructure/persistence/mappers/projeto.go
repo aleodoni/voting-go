@@ -1,4 +1,3 @@
-// Package mappers provides functions to convert between domain and persistence models.
 package mappers
 
 import (
@@ -7,7 +6,7 @@ import (
 )
 
 func ToModelProjeto(p *votacao.Projeto) *models.ProjetoModel {
-	return &models.ProjetoModel{
+	model := &models.ProjetoModel{
 		ID:                p.ID,
 		Sumula:            p.Sumula,
 		Relator:           p.Relator,
@@ -22,6 +21,12 @@ func ToModelProjeto(p *votacao.Projeto) *models.ProjetoModel {
 		CreatedAt:         p.CreatedAt,
 		UpdatedAt:         p.UpdatedAt,
 	}
+
+	if p.Votacao != nil {
+		model.Votacao = ToModelVotacao(p.Votacao)
+	}
+
+	return model
 }
 
 func ToDomainProjeto(m *models.ProjetoModel) *votacao.Projeto {
@@ -47,6 +52,10 @@ func ToDomainProjeto(m *models.ProjetoModel) *votacao.Projeto {
 			pareceres[i] = *ToDomainParecer(&par)
 		}
 		p.Pareceres = &pareceres
+	}
+
+	if m.Votacao != nil {
+		p.Votacao = ToDomainVotacao(m.Votacao)
 	}
 
 	return p

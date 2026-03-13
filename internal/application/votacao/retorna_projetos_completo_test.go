@@ -15,7 +15,12 @@ func TestRetornaProjetosCompletos_AdminRetornaProjetos(t *testing.T) {
 	reuniaoRepo := fakes.NewFakeReuniaoRepository()
 
 	usuarioRepo.Seed(adminUsuario("keycloak-admin", "user-admin"))
-	reuniaoRepo.Seed(&domainVotacao.Reuniao{ID: "reuniao-1"})
+
+	// Seed da reunião
+	reuniao := &domainVotacao.Reuniao{ID: "reuniao-1"}
+	reuniaoRepo.Seed(reuniao)
+
+	// Seed dos projetos
 	reuniaoRepo.SeedProjetos("reuniao-1", []*domainVotacao.Projeto{
 		{ID: "projeto-1", CodigoProposicao: "001"},
 		{ID: "projeto-2", CodigoProposicao: "002"},
@@ -41,6 +46,7 @@ func TestRetornaProjetosCompletos_AdminSemProjetos(t *testing.T) {
 	reuniaoRepo := fakes.NewFakeReuniaoRepository()
 
 	usuarioRepo.Seed(adminUsuario("keycloak-admin", "user-admin"))
+
 	reuniaoRepo.Seed(&domainVotacao.Reuniao{ID: "reuniao-1"})
 
 	uc := usecase.NewRetornaProjetosCompletosUseCase(usuarioRepo, reuniaoRepo)
