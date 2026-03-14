@@ -10,6 +10,7 @@ import (
 	ucUsuario "github.com/aleodoni/voting-go/internal/application/usuario"
 	ucVotacao "github.com/aleodoni/voting-go/internal/application/votacao"
 	"github.com/aleodoni/voting-go/internal/middleware"
+	"github.com/aleodoni/voting-go/internal/platform/event"
 	"github.com/aleodoni/voting-go/internal/router"
 
 	"github.com/aleodoni/voting-go/internal/config"
@@ -18,6 +19,7 @@ import (
 
 	reuniaoHandler "github.com/aleodoni/voting-go/internal/handler/reuniao"
 	usuarioHandler "github.com/aleodoni/voting-go/internal/handler/usuario"
+	votacaoHandler "github.com/aleodoni/voting-go/internal/handler/votacao"
 )
 
 type App struct {
@@ -34,11 +36,15 @@ func NewApp() *App {
 		log.Fatal(err)
 	}
 
+	// event bus
+	bus := event.NewBus()
+
 	// repositories
 	usuarioRepo := persistence.NewUsuarioRepository(db)
 	credencialRepo := persistence.NewCredencialRepository(db)
 	transactor := persistence.NewGormTransactor(db)
 	reuniaoRepo := persistence.NewReuniaoRepository(db)
+	votacaoRepo := persistence.NewVotacaoRepository(db)
 
 	// use cases
 	validaUsuarioUC := ucUsuario.NewEnsureUsuarioUseCase(
@@ -66,6 +72,10 @@ func NewApp() *App {
 		reuniaoRepo,
 	)
 
+	ucAbreVotacaoUC := ucVotacao.NewAbreVotacaoUseCase(usuarioRepo, reuniaoRepo, votacaoRepo, bus)
+	ucFechaVotacaoUC := ucVotacao.NewFechaVotacaoUseCase(usuarioRepo, reuniaoRepo, votacaoRepo, bus)
+	ucCancelaVotacaoUC := ucVotacao.NewCancelaVotacaoUseCase(usuarioRepo, reuniaoRepo, votacaoRepo, bus)
+
 	// handlers
 	meHandler := usuarioHandler.NewMeHandler(validaUsuarioUC)
 
@@ -85,6 +95,12 @@ func NewApp() *App {
 		ucRetornaProjetosCompletosUC,
 	)
 
+	abreVotacaoHandler := votacaoHandler.NewAbreVotacaoHandler(ucAbreVotacaoUC)
+	fechaVotacaoHandler := votacaoHandler.NewFechaVotacaoHandler(ucFechaVotacaoUC)
+	cancelaVotacaoHandler := votacaoHandler.NewCancelaVotacaoHandler(ucCancelaVotacaoUC)
+
+	sseHandler := votacaoHandler.NewSSEHandler(bus)
+
 	// middleware
 	jwtMiddleware := middleware.NewJWTMiddleware(cfg)
 
@@ -95,6 +111,10 @@ func NewApp() *App {
 		UpdateFantasiaCredenciais: updateFantasiaCredencialHandler,
 		RetornaReunioesDia:        retornaReunioesDiaHandler,
 		RetornaProjetosCompletos:  retornaProjetosCompletosHandler,
+		AbreVotacao:               abreVotacaoHandler,
+		FechaVotacao:              fechaVotacaoHandler,
+		CancelaVotacao:            cancelaVotacaoHandler,
+		SSE:                       sseHandler,
 	})
 
 	return &App{
@@ -102,5 +122,4 @@ func NewApp() *App {
 		DB:     db,
 		Router: r,
 	}
-
 }

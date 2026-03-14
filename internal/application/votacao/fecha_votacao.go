@@ -7,33 +7,32 @@ import (
 	"github.com/aleodoni/voting-go/internal/domain/usuario"
 	"github.com/aleodoni/voting-go/internal/domain/votacao"
 	"github.com/aleodoni/voting-go/internal/platform/event"
-	"github.com/aleodoni/voting-go/internal/platform/id"
 )
 
-type AbreVotacaoInput struct {
+type FechaVotacaoInput struct {
 	LoggedInUserKeycloakID string
 	ProjetoID              string
 }
 
-type AbreVotacaoPayload struct {
+type FechaVotacaoPayload struct {
 	ProjetoID string `json:"projetoId"`
 	VotacaoID string `json:"votacaoId"`
 }
 
-type AbreVotacaoUseCase struct {
+type FechaVotacaoUseCase struct {
 	repoUsuario usuario.UsuarioRepository
 	repoReuniao votacao.ReuniaoRepository
 	repoVotacao votacao.VotacaoRepository
 	bus         *event.Bus
 }
 
-func NewAbreVotacaoUseCase(
+func NewFechaVotacaoUseCase(
 	repoUsuario usuario.UsuarioRepository,
 	repoReuniao votacao.ReuniaoRepository,
 	repoVotacao votacao.VotacaoRepository,
 	bus *event.Bus,
-) *AbreVotacaoUseCase {
-	return &AbreVotacaoUseCase{
+) *FechaVotacaoUseCase {
+	return &FechaVotacaoUseCase{
 		repoUsuario: repoUsuario,
 		repoReuniao: repoReuniao,
 		repoVotacao: repoVotacao,
@@ -41,9 +40,9 @@ func NewAbreVotacaoUseCase(
 	}
 }
 
-func (uc *AbreVotacaoUseCase) Execute(
+func (uc *FechaVotacaoUseCase) Execute(
 	ctx context.Context,
-	input AbreVotacaoInput,
+	input FechaVotacaoInput,
 ) error {
 	if err := shared.VerificarAdmin(ctx, uc.repoUsuario, input.LoggedInUserKeycloakID); err != nil {
 		return err
@@ -54,21 +53,25 @@ func (uc *AbreVotacaoUseCase) Execute(
 		return err
 	}
 
-	votacaoNova := &votacao.Votacao{
-		ID:        id.New(),
-		ProjetoID: &projeto.ID,
-		Status:    votacao.StatusVotacaoA,
+	if projeto.Votacao == nil {
+		return votacao.ErrVotacaoNaoEncontrada
 	}
 
-	if err := uc.repoVotacao.SalvaVotacao(ctx, votacaoNova); err != nil {
+	if projeto.Votacao.Status != votacao.StatusVotacaoA {
+		return votacao.ErrVotacaoNaoAberta
+	}
+
+	projeto.Votacao.Status = votacao.StatusVotacaoF
+
+	if err := uc.repoVotacao.SalvaVotacao(ctx, projeto.Votacao); err != nil {
 		return err
 	}
 
 	uc.bus.Publish(event.Event{
-		Type: event.VotacaoAberta,
-		Payload: AbreVotacaoPayload{
+		Type: event.VotacaoFechada,
+		Payload: FechaVotacaoPayload{
 			ProjetoID: projeto.ID,
-			VotacaoID: votacaoNova.ID,
+			VotacaoID: projeto.Votacao.ID,
 		},
 	})
 

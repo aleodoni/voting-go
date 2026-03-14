@@ -7,23 +7,21 @@ import (
 	ucVotacao "github.com/aleodoni/voting-go/internal/application/votacao"
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 	"github.com/aleodoni/voting-go/internal/domain/votacao"
+	"github.com/aleodoni/voting-go/internal/platform/event"
 	"github.com/aleodoni/voting-go/internal/test/fakes"
 )
-
-// helper para criar usuário admin
 
 func TestAbreVotacao_Sucesso(t *testing.T) {
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
 	reuniaoRepo := fakes.NewFakeReuniaoRepository()
+	votacaoRepo := fakes.NewFakeVotacaoRepository()
 
-	// adiciona usuário admin
 	usuarioRepo.Seed(adminUsuario("keycloak-admin", "user-admin"))
 
-	// adiciona um projeto no fake
 	projeto := &votacao.Projeto{ID: "projeto-1", CodigoProposicao: "001"}
 	reuniaoRepo.SeedProjetos("reuniao-1", []*votacao.Projeto{projeto})
 
-	uc := ucVotacao.NewAbreVotacaoUseCase(usuarioRepo, reuniaoRepo)
+	uc := ucVotacao.NewAbreVotacaoUseCase(usuarioRepo, reuniaoRepo, votacaoRepo, event.NewBus())
 
 	err := uc.Execute(context.Background(), ucVotacao.AbreVotacaoInput{
 		LoggedInUserKeycloakID: "keycloak-admin",
@@ -34,28 +32,27 @@ func TestAbreVotacao_Sucesso(t *testing.T) {
 		t.Fatalf("esperava nil, got %v", err)
 	}
 
-	// verifica se GetProjetoCompleto foi chamado
 	if len(reuniaoRepo.GetProjetoCompletoCalls) != 1 {
 		t.Fatalf("esperava que GetProjetoCompleto fosse chamado")
 	}
 	if reuniaoRepo.GetProjetoCompletoCalls[0] != "projeto-1" {
-		t.Errorf("esperava que GetProjetoCompleto fosse chamado com projeto-1, got %s", reuniaoRepo.GetProjetoCompletoCalls[0])
+		t.Errorf("esperava projeto-1, got %s", reuniaoRepo.GetProjetoCompletoCalls[0])
 	}
 
-	// verifica se CriaVotacao foi chamado
-	if len(reuniaoRepo.CriaVotacaoCalls) != 1 {
-		t.Fatalf("esperava que CriaVotacao fosse chamado")
+	if len(votacaoRepo.SalvaVotacaoCalls) != 1 {
+		t.Fatalf("esperava que SalvaVotacao fosse chamado")
 	}
-	if reuniaoRepo.CriaVotacaoCalls[0].ProjetoID == nil || *reuniaoRepo.CriaVotacaoCalls[0].ProjetoID != "projeto-1" {
-		t.Errorf("esperava que CriaVotacao fosse criado com projeto-1, got %+v", reuniaoRepo.CriaVotacaoCalls[0])
+	if votacaoRepo.SalvaVotacaoCalls[0].ProjetoID == nil || *votacaoRepo.SalvaVotacaoCalls[0].ProjetoID != "projeto-1" {
+		t.Errorf("esperava ProjetoID projeto-1, got %+v", votacaoRepo.SalvaVotacaoCalls[0])
 	}
 }
 
 func TestAbreVotacao_UsuarioNaoEncontrado(t *testing.T) {
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
 	reuniaoRepo := fakes.NewFakeReuniaoRepository()
+	votacaoRepo := fakes.NewFakeVotacaoRepository()
 
-	uc := ucVotacao.NewAbreVotacaoUseCase(usuarioRepo, reuniaoRepo)
+	uc := ucVotacao.NewAbreVotacaoUseCase(usuarioRepo, reuniaoRepo, votacaoRepo, event.NewBus())
 
 	err := uc.Execute(context.Background(), ucVotacao.AbreVotacaoInput{
 		LoggedInUserKeycloakID: "keycloak-inexistente",
@@ -70,6 +67,7 @@ func TestAbreVotacao_UsuarioNaoEncontrado(t *testing.T) {
 func TestAbreVotacao_UsuarioNaoAdmin(t *testing.T) {
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
 	reuniaoRepo := fakes.NewFakeReuniaoRepository()
+	votacaoRepo := fakes.NewFakeVotacaoRepository()
 
 	usuarioRepo.Seed(&domainUsuario.Usuario{
 		ID:         "user-comum",
@@ -80,7 +78,7 @@ func TestAbreVotacao_UsuarioNaoAdmin(t *testing.T) {
 		},
 	})
 
-	uc := ucVotacao.NewAbreVotacaoUseCase(usuarioRepo, reuniaoRepo)
+	uc := ucVotacao.NewAbreVotacaoUseCase(usuarioRepo, reuniaoRepo, votacaoRepo, event.NewBus())
 
 	err := uc.Execute(context.Background(), ucVotacao.AbreVotacaoInput{
 		LoggedInUserKeycloakID: "keycloak-comum",
@@ -95,6 +93,7 @@ func TestAbreVotacao_UsuarioNaoAdmin(t *testing.T) {
 func TestAbreVotacao_UsuarioInativo(t *testing.T) {
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
 	reuniaoRepo := fakes.NewFakeReuniaoRepository()
+	votacaoRepo := fakes.NewFakeVotacaoRepository()
 
 	usuarioRepo.Seed(&domainUsuario.Usuario{
 		ID:         "user-inativo",
@@ -105,7 +104,7 @@ func TestAbreVotacao_UsuarioInativo(t *testing.T) {
 		},
 	})
 
-	uc := ucVotacao.NewAbreVotacaoUseCase(usuarioRepo, reuniaoRepo)
+	uc := ucVotacao.NewAbreVotacaoUseCase(usuarioRepo, reuniaoRepo, votacaoRepo, event.NewBus())
 
 	err := uc.Execute(context.Background(), ucVotacao.AbreVotacaoInput{
 		LoggedInUserKeycloakID: "keycloak-inativo",
@@ -120,10 +119,11 @@ func TestAbreVotacao_UsuarioInativo(t *testing.T) {
 func TestAbreVotacao_ProjetoNaoEncontrado(t *testing.T) {
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
 	reuniaoRepo := fakes.NewFakeReuniaoRepository()
+	votacaoRepo := fakes.NewFakeVotacaoRepository()
 
 	usuarioRepo.Seed(adminUsuario("keycloak-admin", "user-admin"))
 
-	uc := ucVotacao.NewAbreVotacaoUseCase(usuarioRepo, reuniaoRepo)
+	uc := ucVotacao.NewAbreVotacaoUseCase(usuarioRepo, reuniaoRepo, votacaoRepo, event.NewBus())
 
 	err := uc.Execute(context.Background(), ucVotacao.AbreVotacaoInput{
 		LoggedInUserKeycloakID: "keycloak-admin",
@@ -135,20 +135,19 @@ func TestAbreVotacao_ProjetoNaoEncontrado(t *testing.T) {
 	}
 }
 
-func TestAbreVotacao_ErroCriaVotacao(t *testing.T) {
+func TestAbreVotacao_ErroSalvaVotacao(t *testing.T) {
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
 	reuniaoRepo := fakes.NewFakeReuniaoRepository()
+	votacaoRepo := fakes.NewFakeVotacaoRepository()
 
 	usuarioRepo.Seed(adminUsuario("keycloak-admin", "user-admin"))
 
-	// adiciona projeto
 	projeto := &votacao.Projeto{ID: "projeto-1", CodigoProposicao: "001"}
 	reuniaoRepo.SeedProjetos("reuniao-1", []*votacao.Projeto{projeto})
 
-	// força erro ao criar votação
-	reuniaoRepo.CriaVotacaoErr = votacao.ErrVotacaoAlreadyExists
+	votacaoRepo.SalvaVotacaoErr = votacao.ErrVotacaoAlreadyExists
 
-	uc := ucVotacao.NewAbreVotacaoUseCase(usuarioRepo, reuniaoRepo)
+	uc := ucVotacao.NewAbreVotacaoUseCase(usuarioRepo, reuniaoRepo, votacaoRepo, event.NewBus())
 
 	err := uc.Execute(context.Background(), ucVotacao.AbreVotacaoInput{
 		LoggedInUserKeycloakID: "keycloak-admin",

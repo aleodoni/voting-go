@@ -9,7 +9,6 @@ import (
 	"github.com/aleodoni/voting-go/internal/domain/votacao"
 	"github.com/aleodoni/voting-go/internal/infrastructure/persistence/mappers"
 	"github.com/aleodoni/voting-go/internal/infrastructure/persistence/models"
-	"github.com/jackc/pgx/v5/pgconn"
 	"gorm.io/gorm"
 )
 
@@ -100,21 +99,4 @@ func (r *reuniaoRepository) GetProjetoCompleto(ctx context.Context, projetoID st
 	}
 
 	return projeto, nil
-}
-
-func (r *reuniaoRepository) CriaVotacao(ctx context.Context, votacao *votacao.Votacao) error {
-	db := DBFromCtx(ctx, r.db)
-
-	model := mappers.ToModelVotacao(votacao)
-
-	if err := db.Create(&model).Error; err != nil {
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) && pgErr.ConstraintName == "uq_votacao_projeto" {
-			return fmt.Errorf("já existe votação para este projeto")
-		}
-
-		return fmt.Errorf("CriaVotacao: %w", err)
-	}
-
-	return nil
 }
