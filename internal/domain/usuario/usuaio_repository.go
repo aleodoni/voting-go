@@ -15,4 +15,5 @@ type UsuarioRepository interface {
 		canAdmin bool,
 		canVote bool,
 	) error
+	ListUsers(ctx context.Context, search string, page, limit int) ([]*Usuario, int64, error)
 }

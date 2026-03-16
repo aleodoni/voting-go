@@ -11,9 +11,11 @@ type FakeVotacaoRepository struct {
 
 	SalvaVotacaoErr  error
 	DeletaVotacaoErr error
+	SalvaVotoErr     error
 
 	SalvaVotacaoCalls  []votacao.Votacao
 	DeletaVotacaoCalls []string
+	SalvaVotoCalls     []votacao.Voto
 }
 
 var _ votacao.VotacaoRepository = (*FakeVotacaoRepository)(nil)
@@ -39,5 +41,13 @@ func (f *FakeVotacaoRepository) DeletaVotacao(ctx context.Context, votacaoID str
 	}
 	f.DeletaVotacaoCalls = append(f.DeletaVotacaoCalls, votacaoID)
 	delete(f.votacoes, votacaoID)
+	return nil
+}
+
+func (f *FakeVotacaoRepository) SalvaVoto(ctx context.Context, v *votacao.Voto) error {
+	if f.SalvaVotoErr != nil {
+		return f.SalvaVotoErr
+	}
+	f.SalvaVotoCalls = append(f.SalvaVotoCalls, *v)
 	return nil
 }

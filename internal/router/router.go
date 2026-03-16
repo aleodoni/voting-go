@@ -13,6 +13,7 @@ type Handlers struct {
 	Me                        *usuarioHandler.MeHandler
 	UpdateCredenciais         *usuarioHandler.UpdateCredencialHandler
 	UpdateFantasiaCredenciais *usuarioHandler.AtualizaFantasiaCredenciaisHandler
+	PesquisaUsuarios          *usuarioHandler.PesquisaUsuariosHandler
 
 	RetornaReunioesDia       *reuniaoHandler.RetornaReunioesDiaHandler
 	RetornaProjetosCompletos *reuniaoHandler.RetornaProjetosCompletosHandler
@@ -20,6 +21,7 @@ type Handlers struct {
 	AbreVotacao    *votacaoHandler.AbreVotacaoHandler
 	FechaVotacao   *votacaoHandler.FechaVotacaoHandler
 	CancelaVotacao *votacaoHandler.CancelaVotacaoHandler
+	RegistraVoto   *votacaoHandler.RegistraVotoHandler
 
 	SSE *votacaoHandler.SSEHandler
 }

@@ -72,9 +72,12 @@ func NewApp() *App {
 		reuniaoRepo,
 	)
 
+	ucPesquisaUsuariosUC := ucUsuario.NewListUsuariosUseCase(usuarioRepo)
+
 	ucAbreVotacaoUC := ucVotacao.NewAbreVotacaoUseCase(usuarioRepo, reuniaoRepo, votacaoRepo, bus)
 	ucFechaVotacaoUC := ucVotacao.NewFechaVotacaoUseCase(usuarioRepo, reuniaoRepo, votacaoRepo, bus)
 	ucCancelaVotacaoUC := ucVotacao.NewCancelaVotacaoUseCase(usuarioRepo, reuniaoRepo, votacaoRepo, bus)
+	ucRegistraVotoUC := ucVotacao.NewRegistraVotoUseCase(usuarioRepo, votacaoRepo, bus)
 
 	// handlers
 	meHandler := usuarioHandler.NewMeHandler(validaUsuarioUC)
@@ -85,6 +88,10 @@ func NewApp() *App {
 
 	updateFantasiaCredencialHandler := usuarioHandler.NewAtualizaFantasiaCredenciaisHandler(
 		atualizaFantasiaCredencialUC,
+	)
+
+	pesquisaUsuariosHandler := usuarioHandler.NewPesquisaUsuariosHandler(
+		ucPesquisaUsuariosUC,
 	)
 
 	retornaReunioesDiaHandler := reuniaoHandler.NewRetornaReunioesDiaHandler(
@@ -98,6 +105,7 @@ func NewApp() *App {
 	abreVotacaoHandler := votacaoHandler.NewAbreVotacaoHandler(ucAbreVotacaoUC)
 	fechaVotacaoHandler := votacaoHandler.NewFechaVotacaoHandler(ucFechaVotacaoUC)
 	cancelaVotacaoHandler := votacaoHandler.NewCancelaVotacaoHandler(ucCancelaVotacaoUC)
+	registraVotoHandler := votacaoHandler.NewRegistraVotoHandler(ucRegistraVotoUC)
 
 	sseHandler := votacaoHandler.NewSSEHandler(bus)
 
@@ -114,6 +122,8 @@ func NewApp() *App {
 		AbreVotacao:               abreVotacaoHandler,
 		FechaVotacao:              fechaVotacaoHandler,
 		CancelaVotacao:            cancelaVotacaoHandler,
+		RegistraVoto:              registraVotoHandler,
+		PesquisaUsuarios:          pesquisaUsuariosHandler,
 		SSE:                       sseHandler,
 	})
 

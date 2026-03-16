@@ -39,3 +39,40 @@ func (r *votacaoRepository) DeletaVotacao(ctx context.Context, votacaoID string)
 
 	return nil
 }
+
+func (r *votacaoRepository) SalvaVoto(ctx context.Context, v *votacao.Voto) error {
+	db := DBFromCtx(ctx, r.db)
+
+	var restricao interface{}
+	if v.Restricao != nil {
+		restricao = map[string]interface{}{
+			"restricao_id": v.Restricao.ID,
+			"restricao":    v.Restricao.Restricao,
+		}
+	}
+
+	var votoContrario interface{}
+	if v.VotoContrario != nil {
+		votoContrario = map[string]interface{}{
+			"id_voto_contrario": v.VotoContrario.ID,
+			"id_texto":          v.VotoContrario.IDTexto,
+			"opinion": map[string]interface{}{
+				"parecer_id": v.VotoContrario.ParecerID,
+			},
+		}
+	}
+
+	if err := db.WithContext(ctx).Exec(
+		"SELECT f_save_vote(?, ?, ?, ?, ?, ?)",
+		v.ID,
+		v.UsuarioID,
+		v.VotacaoID,
+		v.Voto,
+		restricao,
+		votoContrario,
+	).Error; err != nil {
+		return fmt.Errorf("SalvaVoto: %w", err)
+	}
+
+	return nil
+}
