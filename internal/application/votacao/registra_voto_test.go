@@ -2,21 +2,19 @@ package votacao_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	ucVotacao "github.com/aleodoni/voting-go/internal/application/votacao"
-
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 	"github.com/aleodoni/voting-go/internal/domain/votacao"
 	"github.com/aleodoni/voting-go/internal/platform/event"
 	"github.com/aleodoni/voting-go/internal/test/fakes"
 )
 
-func TestRegistraVoto_Sucesso(t *testing.T) {
-	usuarioRepo := fakes.NewFakeUsuarioRepository()
-	votacaoRepo := fakes.NewFakeVotacaoRepository()
-
-	usuarioRepo.Seed(&domainUsuario.Usuario{
+// helper para evitar repetição nos testes
+func setupUsuarioVereador(repo *fakes.FakeUsuarioRepository) {
+	repo.Seed(&domainUsuario.Usuario{
 		ID:         "user-vereador",
 		KeycloakID: "keycloak-vereador",
 		Credencial: &domainUsuario.Credencial{
@@ -24,6 +22,25 @@ func TestRegistraVoto_Sucesso(t *testing.T) {
 			PodeVotar: true,
 		},
 	})
+}
+
+func setupVotacaoAberta(t *testing.T, repo *fakes.FakeVotacaoRepository) {
+	t.Helper()
+	if err := repo.SalvaVotacao(context.Background(), &votacao.Votacao{
+		ID:     "votacao-1",
+		Status: votacao.StatusVotacaoA,
+	}); err != nil {
+		t.Fatalf("setupVotacaoAberta: %v", err)
+	}
+}
+
+// ── testes existentes (corrigidos com seed da votação) ────────────────────────
+
+func TestRegistraVoto_Sucesso(t *testing.T) {
+	usuarioRepo := fakes.NewFakeUsuarioRepository()
+	votacaoRepo := fakes.NewFakeVotacaoRepository()
+	setupUsuarioVereador(usuarioRepo)
+	setupVotacaoAberta(t, votacaoRepo)
 
 	uc := ucVotacao.NewRegistraVotoUseCase(usuarioRepo, votacaoRepo, event.NewBus())
 
@@ -36,7 +53,6 @@ func TestRegistraVoto_Sucesso(t *testing.T) {
 	if err != nil {
 		t.Fatalf("esperava nil, got %v", err)
 	}
-
 	if len(votacaoRepo.SalvaVotoCalls) != 1 {
 		t.Fatalf("esperava que SalvaVoto fosse chamado")
 	}
@@ -56,15 +72,8 @@ func TestRegistraVoto_Sucesso(t *testing.T) {
 func TestRegistraVoto_ComRestricao(t *testing.T) {
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
 	votacaoRepo := fakes.NewFakeVotacaoRepository()
-
-	usuarioRepo.Seed(&domainUsuario.Usuario{
-		ID:         "user-vereador",
-		KeycloakID: "keycloak-vereador",
-		Credencial: &domainUsuario.Credencial{
-			Ativo:     true,
-			PodeVotar: true,
-		},
-	})
+	setupUsuarioVereador(usuarioRepo)
+	setupVotacaoAberta(t, votacaoRepo)
 
 	uc := ucVotacao.NewRegistraVotoUseCase(usuarioRepo, votacaoRepo, event.NewBus())
 
@@ -72,9 +81,7 @@ func TestRegistraVoto_ComRestricao(t *testing.T) {
 		LoggedInUserKeycloakID: "keycloak-vereador",
 		VotacaoID:              "votacao-1",
 		Voto:                   votacao.OpcaoVotoR,
-		Restricao: &votacao.Restricao{
-			Restricao: "minha restrição",
-		},
+		Restricao:              &votacao.Restricao{Restricao: "minha restrição"},
 	})
 
 	if err != nil {
@@ -96,15 +103,8 @@ func TestRegistraVoto_ComRestricao(t *testing.T) {
 func TestRegistraVoto_ComVotoContrario(t *testing.T) {
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
 	votacaoRepo := fakes.NewFakeVotacaoRepository()
-
-	usuarioRepo.Seed(&domainUsuario.Usuario{
-		ID:         "user-vereador",
-		KeycloakID: "keycloak-vereador",
-		Credencial: &domainUsuario.Credencial{
-			Ativo:     true,
-			PodeVotar: true,
-		},
-	})
+	setupUsuarioVereador(usuarioRepo)
+	setupVotacaoAberta(t, votacaoRepo)
 
 	uc := ucVotacao.NewRegistraVotoUseCase(usuarioRepo, votacaoRepo, event.NewBus())
 
@@ -140,6 +140,7 @@ func TestRegistraVoto_ComVotoContrario(t *testing.T) {
 func TestRegistraVoto_UsuarioNaoEncontrado(t *testing.T) {
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
 	votacaoRepo := fakes.NewFakeVotacaoRepository()
+	// sem seed de usuário — não precisa de votação seedada pois falha antes
 
 	uc := ucVotacao.NewRegistraVotoUseCase(usuarioRepo, votacaoRepo, event.NewBus())
 
@@ -157,17 +158,10 @@ func TestRegistraVoto_UsuarioNaoEncontrado(t *testing.T) {
 func TestRegistraVoto_ErroSalvaVoto(t *testing.T) {
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
 	votacaoRepo := fakes.NewFakeVotacaoRepository()
+	setupUsuarioVereador(usuarioRepo)
+	setupVotacaoAberta(t, votacaoRepo)
 
-	usuarioRepo.Seed(&domainUsuario.Usuario{
-		ID:         "user-vereador",
-		KeycloakID: "keycloak-vereador",
-		Credencial: &domainUsuario.Credencial{
-			Ativo:     true,
-			PodeVotar: true,
-		},
-	})
-
-	votacaoRepo.SalvaVotoErr = votacao.ErrVotacaoNaoEncontrada
+	votacaoRepo.SalvaVotoErr = errors.New("db error")
 
 	uc := ucVotacao.NewRegistraVotoUseCase(usuarioRepo, votacaoRepo, event.NewBus())
 
@@ -177,7 +171,77 @@ func TestRegistraVoto_ErroSalvaVoto(t *testing.T) {
 		Voto:                   votacao.OpcaoVotoF,
 	})
 
-	if err != votacao.ErrVotacaoNaoEncontrada {
+	if err == nil {
+		t.Fatal("esperava erro, got nil")
+	}
+}
+
+// ── novos testes para as 2 validações ────────────────────────────────────────
+
+func TestRegistraVoto_VotacaoNaoEncontrada(t *testing.T) {
+	usuarioRepo := fakes.NewFakeUsuarioRepository()
+	votacaoRepo := fakes.NewFakeVotacaoRepository()
+	setupUsuarioVereador(usuarioRepo)
+	// sem seed de votação — BuscaVotacao retorna ErrVotacaoNaoEncontrada
+
+	uc := ucVotacao.NewRegistraVotoUseCase(usuarioRepo, votacaoRepo, event.NewBus())
+
+	err := uc.Execute(context.Background(), ucVotacao.RegistraVotoInput{
+		LoggedInUserKeycloakID: "keycloak-vereador",
+		VotacaoID:              "votacao-inexistente",
+		Voto:                   votacao.OpcaoVotoF,
+	})
+
+	if !errors.Is(err, votacao.ErrVotacaoNaoEncontrada) {
 		t.Fatalf("esperava ErrVotacaoNaoEncontrada, got %v", err)
+	}
+}
+
+func TestRegistraVoto_VotacaoFechada(t *testing.T) {
+	usuarioRepo := fakes.NewFakeUsuarioRepository()
+	votacaoRepo := fakes.NewFakeVotacaoRepository()
+	setupUsuarioVereador(usuarioRepo)
+
+	votacaoRepo.SalvaVotacao(context.Background(), &votacao.Votacao{
+		ID:     "votacao-1",
+		Status: votacao.StatusVotacaoF, // ← fechada
+	})
+
+	uc := ucVotacao.NewRegistraVotoUseCase(usuarioRepo, votacaoRepo, event.NewBus())
+
+	err := uc.Execute(context.Background(), ucVotacao.RegistraVotoInput{
+		LoggedInUserKeycloakID: "keycloak-vereador",
+		VotacaoID:              "votacao-1",
+		Voto:                   votacao.OpcaoVotoF,
+	})
+
+	if !errors.Is(err, votacao.ErrVotacaoNaoAberta) {
+		t.Fatalf("esperava ErrVotacaoNaoAberta, got %v", err)
+	}
+}
+
+func TestRegistraVoto_UsuarioJaVotou(t *testing.T) {
+	usuarioRepo := fakes.NewFakeUsuarioRepository()
+	votacaoRepo := fakes.NewFakeVotacaoRepository()
+	setupUsuarioVereador(usuarioRepo)
+	setupVotacaoAberta(t, votacaoRepo)
+
+	uc := ucVotacao.NewRegistraVotoUseCase(usuarioRepo, votacaoRepo, event.NewBus())
+
+	input := ucVotacao.RegistraVotoInput{
+		LoggedInUserKeycloakID: "keycloak-vereador",
+		VotacaoID:              "votacao-1",
+		Voto:                   votacao.OpcaoVotoF,
+	}
+
+	// primeiro voto — deve passar
+	if err := uc.Execute(context.Background(), input); err != nil {
+		t.Fatalf("primeiro voto: esperava nil, got %v", err)
+	}
+
+	// segundo voto — deve falhar
+	err := uc.Execute(context.Background(), input)
+	if !errors.Is(err, votacao.ErrUsuarioJaVotou) {
+		t.Fatalf("esperava ErrUsuarioJaVotou, got %v", err)
 	}
 }

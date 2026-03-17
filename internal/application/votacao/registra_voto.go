@@ -40,14 +40,28 @@ func NewRegistraVotoUseCase(
 	}
 }
 
-func (uc *RegistraVotoUseCase) Execute(
-	ctx context.Context,
-	input RegistraVotoInput,
-) error {
+func (uc *RegistraVotoUseCase) Execute(ctx context.Context, input RegistraVotoInput) error {
 	u, err := shared.VerificarVota(ctx, uc.repoUsuario, input.LoggedInUserKeycloakID)
-
 	if err != nil {
 		return err
+	}
+
+	// 1. Votação existe e está aberta?
+	v, err := uc.repoVotacao.BuscaVotacao(ctx, input.VotacaoID)
+	if err != nil {
+		return err
+	}
+	if v.Status != votacao.StatusVotacaoA {
+		return votacao.ErrVotacaoNaoAberta
+	}
+
+	// 2. Usuário já votou?
+	jaVotou, err := uc.repoVotacao.UsuarioJaVotou(ctx, u.ID, input.VotacaoID)
+	if err != nil {
+		return err
+	}
+	if jaVotou {
+		return votacao.ErrUsuarioJaVotou
 	}
 
 	voto := &votacao.Voto{
@@ -62,7 +76,6 @@ func (uc *RegistraVotoUseCase) Execute(
 	if voto.Restricao != nil {
 		voto.Restricao.ID = id.New()
 	}
-
 	if voto.VotoContrario != nil {
 		voto.VotoContrario.ID = id.New()
 	}

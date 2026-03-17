@@ -1,4 +1,4 @@
-CREATE VIEW v_usuario_permissoes AS
+CREATE VIEW v_usuarios_permissoes AS
     SELECT 
       u.id,
       u.keycloak_id,

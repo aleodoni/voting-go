@@ -2,6 +2,7 @@ package persistence
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/aleodoni/voting-go/internal/domain/votacao"
@@ -62,7 +63,7 @@ func (r *votacaoRepository) SalvaVoto(ctx context.Context, v *votacao.Voto) erro
 		}
 	}
 
-	if err := db.WithContext(ctx).Exec(
+	if err := db.Exec(
 		"SELECT f_save_vote(?, ?, ?, ?, ?, ?)",
 		v.ID,
 		v.UsuarioID,
@@ -71,8 +72,38 @@ func (r *votacaoRepository) SalvaVoto(ctx context.Context, v *votacao.Voto) erro
 		restricao,
 		votoContrario,
 	).Error; err != nil {
+		if IsUniqueViolation(err) {
+			return votacao.ErrUsuarioJaVotou
+		}
 		return fmt.Errorf("SalvaVoto: %w", err)
 	}
 
 	return nil
+}
+
+func (r *votacaoRepository) BuscaVotacao(ctx context.Context, votacaoID string) (*votacao.Votacao, error) {
+	db := DBFromCtx(ctx, r.db)
+
+	var model models.VotacaoModel
+	if err := db.First(&model, "id = ?", votacaoID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, votacao.ErrVotacaoNaoEncontrada
+		}
+		return nil, fmt.Errorf("BuscaVotacao: %w", err)
+	}
+
+	return mappers.ToDomainVotacao(&model), nil
+}
+
+func (r *votacaoRepository) UsuarioJaVotou(ctx context.Context, usuarioID, votacaoID string) (bool, error) {
+	db := DBFromCtx(ctx, r.db)
+
+	var count int64
+	if err := db.Model(&models.VotoModel{}).
+		Where("usuario_id = ? AND votacao_id = ?", usuarioID, votacaoID).
+		Count(&count).Error; err != nil {
+		return false, fmt.Errorf("UsuarioJaVotou: %w", err)
+	}
+
+	return count > 0, nil
 }
