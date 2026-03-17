@@ -1,3 +1,4 @@
+DELETE FROM votacao;
 DELETE FROM reuniao;
 
 INSERT INTO reuniao(
