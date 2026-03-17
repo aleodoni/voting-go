@@ -33,7 +33,7 @@ export default function () {
     "status is 200": (r) => r.status === 200,
   });
 
-  // 2️⃣ Buscar projetos da reunião
+  // Buscar projetos da reunião
   const projetosRes = http.get(
     `${BASE_URL}/api/v1/reunioes/${reuniaoId}/projetos`,
     {
@@ -44,11 +44,24 @@ export default function () {
   );
 
   const projetos = JSON.parse(projetosRes.body);
+  const projetoId = projetos[0].ID;
+  console.log(`Projeto escolhido: ${projetoId}`);
 
-  console.log(`Projetos body: ${projetosRes.body}`);
+  // Abrir votação para o projeto
+  const abreVotacaoRes = http.post(
+  `${BASE_URL}/api/v1/projetos/${projetoId}/votacao/abrir`,
+  null, 
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
 
-  check(projetosRes, {
-    "status is 200": (r) => r.status === 200,
+  console.log(`Abre votação status: ${abreVotacaoRes.status}`);
+
+  check(abreVotacaoRes, {
+    "abre-votacao status is 204": (r) => r.status === 204,
   });
 
 }

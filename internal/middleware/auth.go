@@ -34,15 +34,12 @@ func NewJWTMiddleware(cfg *config.Config) *JWTMiddleware {
 
 func (m *JWTMiddleware) Handler() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		tokenString := extractToken(c)
 
-		authHeader := c.GetHeader("Authorization")
-
-		if authHeader == "" {
-			c.AbortWithStatusJSON(401, gin.H{"error": "Missing Authorization header"})
+		if tokenString == "" {
+			c.AbortWithStatusJSON(401, gin.H{"error": "Missing token"})
 			return
 		}
-
-		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
 		token, err := jwt.Parse(tokenString, m.jwks.Keyfunc)
 
@@ -62,4 +59,12 @@ func (m *JWTMiddleware) Handler() gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+func extractToken(c *gin.Context) string {
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		return ""
+	}
+	return strings.TrimPrefix(authHeader, "Bearer ")
 }

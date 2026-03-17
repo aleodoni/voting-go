@@ -9,32 +9,28 @@ import (
 )
 
 type FakeReuniaoRepository struct {
-	// Dados armazenados internamente (simulam o banco)
-	reunioes map[string]*votacao.Reuniao   // chave: reuniaoID
-	projetos map[string][]*votacao.Projeto // chave: reuniaoID
+	reunioes map[string]*votacao.Reuniao
+	projetos map[string][]*votacao.Projeto
 
-	// Erros configuráveis por método
 	FindReuniaoByIDErr     error
 	GetReunioesDiaErr      error
 	GetProjetosCompletoErr error
+	GetProjetoCompletoErr  error
 
-	// Chamadas registradas para asserção nos testes
 	FindReuniaoByIDCalls     []string
 	GetReunioesDiaCalls      []time.Time
 	GetProjetosCompletoCalls []string
+	GetProjetoCompletoCalls  []string
 }
 
-// Verificação em tempo de compilação: garante que FakeReuniaoRepository implementa ReuniaoRepository.
 var _ votacao.ReuniaoRepository = (*FakeReuniaoRepository)(nil)
 
-// NewFakeReuniaoRepository cria um novo FakeReuniaoRepository pronto para uso.
 func NewFakeReuniaoRepository() *FakeReuniaoRepository {
 	return &FakeReuniaoRepository{
 		reunioes: make(map[string]*votacao.Reuniao),
 	}
 }
 
-// Seed insere usuários diretamente no fake (útil para preparar cenários de teste).
 func (f *FakeReuniaoRepository) Seed(r *votacao.Reuniao) {
 	f.reunioes[r.ID] = r
 }
@@ -48,11 +44,9 @@ func (f *FakeReuniaoRepository) SeedProjetos(reuniaoID string, projetos []*votac
 
 func (f *FakeReuniaoRepository) FindReuniaoByID(ctx context.Context, reuniaoID string) (*votacao.Reuniao, error) {
 	f.FindReuniaoByIDCalls = append(f.FindReuniaoByIDCalls, reuniaoID)
-
 	if f.FindReuniaoByIDErr != nil {
 		return nil, f.FindReuniaoByIDErr
 	}
-
 	r, ok := f.reunioes[reuniaoID]
 	if !ok {
 		return nil, votacao.ErrReuniaoNotFound
@@ -63,11 +57,9 @@ func (f *FakeReuniaoRepository) FindReuniaoByID(ctx context.Context, reuniaoID s
 func (f *FakeReuniaoRepository) GetReunioesDia(ctx context.Context) ([]*votacao.Reuniao, error) {
 	f.GetReunioesDiaCalls = append(f.GetReunioesDiaCalls, shared.GetCurrentDate())
 	hoje := shared.GetCurrentDate()
-
 	if f.GetReunioesDiaErr != nil {
 		return nil, f.GetReunioesDiaErr
 	}
-
 	var reunioes []*votacao.Reuniao
 	for _, r := range f.reunioes {
 		if r.RecData.Equal(hoje) {
@@ -79,14 +71,24 @@ func (f *FakeReuniaoRepository) GetReunioesDia(ctx context.Context) ([]*votacao.
 
 func (f *FakeReuniaoRepository) GetProjetosCompleto(ctx context.Context, reuniaoID string) ([]*votacao.Projeto, error) {
 	f.GetProjetosCompletoCalls = append(f.GetProjetosCompletoCalls, reuniaoID)
-
 	if f.GetProjetosCompletoErr != nil {
 		return nil, f.GetProjetosCompletoErr
 	}
-
 	projetos, ok := f.projetos[reuniaoID]
 	if !ok {
 		return []*votacao.Projeto{}, nil
 	}
 	return projetos, nil
+}
+
+func (f *FakeReuniaoRepository) GetProjetoCompleto(ctx context.Context, projetoID string) (*votacao.Projeto, error) {
+	f.GetProjetoCompletoCalls = append(f.GetProjetoCompletoCalls, projetoID)
+	for _, projetos := range f.projetos {
+		for _, p := range projetos {
+			if p.ID == projetoID {
+				return p, nil
+			}
+		}
+	}
+	return nil, votacao.ErrProjetoNotFound
 }

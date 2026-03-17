@@ -8,4 +8,5 @@ func registerUsuarioRoutes(rg *gin.RouterGroup, h *Handlers) {
 		"/usuarios/fantasia-credenciais",
 		h.UpdateFantasiaCredenciais.Handle,
 	)
+	rg.GET("/usuarios", h.PesquisaUsuarios.Handle)
 }

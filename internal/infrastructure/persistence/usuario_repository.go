@@ -3,6 +3,8 @@ package persistence
 import (
 	"context"
 	"errors"
+	"fmt"
+	"time"
 
 	"github.com/aleodoni/voting-go/internal/domain/usuario"
 	"github.com/aleodoni/voting-go/internal/infrastructure/persistence/mappers"
@@ -93,4 +95,58 @@ func (r *usuarioRepository) UpdateDisplayNamePermissions(
 		canAdmin,
 		canVote,
 	).Error
+}
+
+func (r *usuarioRepository) ListUsers(ctx context.Context, search string, page, limit int) ([]*usuario.Usuario, int64, error) {
+	db := DBFromCtx(ctx, r.db)
+
+	type row struct {
+		ID              string    `gorm:"column:id"`
+		keycloakID      string    `gorm:"column:keycloak_id"`
+		Nome            string    `gorm:"column:nome"`
+		NomeFantasia    string    `gorm:"column:nome_fantasia"`
+		Email           string    `gorm:"column:email"`
+		Ativo           bool      `gorm:"column:ativo"`
+		PodeAdministrar bool      `gorm:"column:pode_administrar"`
+		PodeVotar       bool      `gorm:"column:pode_votar"`
+		UpdatedAt       time.Time `gorm:"column:updated_at"`
+		TotalCount      int64     `gorm:"column:total_count"`
+	}
+
+	var rows []row
+	offset := (page - 1) * limit
+
+	if err := db.Raw(`
+		SELECT * FROM public.f_get_users_paginated_with_total(?, ?, ?, ?)
+	`, search, search, offset, limit).Scan(&rows).Error; err != nil {
+		return nil, 0, fmt.Errorf("ListUsuarios: %w", err)
+	}
+
+	if len(rows) == 0 {
+		return []*usuario.Usuario{}, 0, nil
+	}
+
+	usuarios := make([]*usuario.Usuario, len(rows))
+	for i, r := range rows {
+		var nomeFantasia *string
+		if r.NomeFantasia != "" {
+			nomeFantasia = &r.NomeFantasia
+		}
+
+		usuarios[i] = &usuario.Usuario{
+			ID:           r.ID,
+			KeycloakID:   r.keycloakID,
+			Nome:         r.Nome,
+			NomeFantasia: nomeFantasia,
+			Email:        r.Email,
+			UpdatedAt:    r.UpdatedAt,
+			Credencial: &usuario.Credencial{
+				Ativo:           r.Ativo,
+				PodeAdministrar: r.PodeAdministrar,
+				PodeVotar:       r.PodeVotar,
+			},
+		}
+	}
+
+	return usuarios, rows[0].TotalCount, nil
 }

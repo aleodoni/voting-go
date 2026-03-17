@@ -3,6 +3,7 @@ package fakes
 
 import (
 	"context"
+	"strings"
 
 	"github.com/aleodoni/voting-go/internal/domain/usuario"
 )
@@ -18,12 +19,14 @@ type FakeUsuarioRepository struct {
 	FindByUsernameErr               error
 	CreateErr                       error
 	UpdateDisplayNamePermissionsErr error
+	ListUsersErr                    error
 
 	// Chamadas registradas para asserção nos testes
 	FindByKeycloakIDCalls             []string
 	FindByUsernameCalls               []string
 	CreateCalls                       []*usuario.Usuario
 	UpdateDisplayNamePermissionsCalls []UpdateDisplayNamePermissionsArgs
+	ListUsersCalls                    []ListUsersArgs
 }
 
 // UpdateDisplayNamePermissionsArgs registra os argumentos de cada chamada ao método.
@@ -33,6 +36,13 @@ type UpdateDisplayNamePermissionsArgs struct {
 	IsActive    bool
 	CanAdmin    bool
 	CanVote     bool
+}
+
+// ListUsersArgs registra os argumentos de cada chamada ao método.
+type ListUsersArgs struct {
+	Search string
+	Page   int
+	Limit  int
 }
 
 // Verificação em tempo de compilação: garante que FakeUsuarioRepository implementa UsuarioRepository.
@@ -133,4 +143,26 @@ func (f *FakeUsuarioRepository) UpdateDisplayNamePermissions(
 	}
 
 	return usuario.ErrUserNotFound
+}
+
+// ListUsers retorna os usuários filtrados pelo search ou o erro configurado.
+func (f *FakeUsuarioRepository) ListUsers(ctx context.Context, search string, page, limit int) ([]*usuario.Usuario, int64, error) {
+	f.ListUsersCalls = append(f.ListUsersCalls, ListUsersArgs{
+		Search: search,
+		Page:   page,
+		Limit:  limit,
+	})
+
+	if f.ListUsersErr != nil {
+		return nil, 0, f.ListUsersErr
+	}
+
+	var result []*usuario.Usuario
+	for _, u := range f.usuarios {
+		if search == "" || strings.Contains(u.Username, search) {
+			result = append(result, u)
+		}
+	}
+
+	return result, int64(len(result)), nil
 }

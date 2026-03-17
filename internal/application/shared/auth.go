@@ -14,7 +14,7 @@ func VerificarAdmin(ctx context.Context, repo domainUsuario.UsuarioRepository, k
 		return err
 	}
 
-	erroInativo := VerificarAtivo(ctx, repo, keycloakID)
+	erroInativo := VerificarAtivo(loggedUser)
 
 	if erroInativo != nil {
 		return erroInativo
@@ -28,34 +28,28 @@ func VerificarAdmin(ctx context.Context, repo domainUsuario.UsuarioRepository, k
 }
 
 // VerificarVota verifica se o usuário logado pode votar.
-func VerificarVota(ctx context.Context, repo domainUsuario.UsuarioRepository, keycloakID string) error {
+func VerificarVota(ctx context.Context, repo domainUsuario.UsuarioRepository, keycloakID string) (*domainUsuario.Usuario, error) {
 	loggedUser, err := repo.FindByKeycloakID(ctx, keycloakID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	erroInativo := VerificarAtivo(ctx, repo, keycloakID)
+	erroInativo := VerificarAtivo(loggedUser)
 
 	if erroInativo != nil {
-		return erroInativo
+		return nil, erroInativo
 	}
 
 	if loggedUser.Credencial == nil || !loggedUser.Credencial.CanVote() {
-		return domainUsuario.ErrUserNotVoter
+		return nil, domainUsuario.ErrUserNotVoter
 	}
 
-	return nil
+	return loggedUser, nil
 }
 
-func VerificarAtivo(ctx context.Context, repo domainUsuario.UsuarioRepository, keycloakID string) error {
-	loggedUser, err := repo.FindByKeycloakID(ctx, keycloakID)
-	if err != nil {
-		return err
-	}
-
-	if loggedUser.Credencial == nil || !loggedUser.Credencial.IsActive() {
+func VerificarAtivo(u *domainUsuario.Usuario) error {
+	if u.Credencial == nil || !u.Credencial.IsActive() {
 		return domainUsuario.ErrUserNotActive
 	}
-
 	return nil
 }

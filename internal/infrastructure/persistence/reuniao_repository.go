@@ -51,20 +51,23 @@ func (r *reuniaoRepository) GetReunioesDia(ctx context.Context) ([]*votacao.Reun
 
 func (r *reuniaoRepository) GetProjetosCompleto(ctx context.Context, reuniaoID string) ([]*votacao.Projeto, error) {
 	var raw string
-	if err := r.db.WithContext(ctx).
+	db := DBFromCtx(ctx, r.db)
+
+	if err := db.
 		Raw("SELECT public.f_get_projetos_completo(?)", reuniaoID).
 		Scan(&raw).Error; err != nil {
 		return nil, fmt.Errorf("GetProjetosCompleto: %w", err)
 	}
 
 	var items []ProjetoCompletoJSON
+
 	if err := json.Unmarshal([]byte(raw), &items); err != nil {
 		return nil, fmt.Errorf("GetProjetosCompleto unmarshal: %w", err)
 	}
 
 	projetos := make([]*votacao.Projeto, 0, len(items))
 	for _, item := range items {
-		p, err := toDomainProjeto(item)
+		p, err := ToDomainProjetoFromJSON(item)
 		if err != nil {
 			return nil, err
 		}
@@ -74,37 +77,26 @@ func (r *reuniaoRepository) GetProjetosCompleto(ctx context.Context, reuniaoID s
 	return projetos, nil
 }
 
-func toDomainProjeto(raw ProjetoCompletoJSON) (*votacao.Projeto, error) {
-	var pj projetoJSON
-	if err := json.Unmarshal(raw.Projeto, &pj); err != nil {
-		return nil, fmt.Errorf("unmarshal projeto: %w", err)
+func (r *reuniaoRepository) GetProjetoCompleto(ctx context.Context, projetoID string) (*votacao.Projeto, error) {
+	var raw string
+	db := DBFromCtx(ctx, r.db)
+
+	if err := db.
+		Raw("SELECT public.f_get_projeto_completo(?)", projetoID).
+		Scan(&raw).Error; err != nil {
+		return nil, fmt.Errorf("GetProjetoCompleto: %w", err)
 	}
 
-	var pareceres []parecerJSONRaw
-	if err := json.Unmarshal(raw.Pareceres, &pareceres); err != nil {
-		return nil, fmt.Errorf("unmarshal pareceres: %w", err)
+	var item ProjetoCompletoJSON
+
+	if err := json.Unmarshal([]byte(raw), &item); err != nil {
+		return nil, fmt.Errorf("GetProjetoCompleto unmarshal: %w", err)
 	}
 
-	var votacoes []votacaoJSON
-	if err := json.Unmarshal(raw.Votacoes, &votacoes); err != nil {
-		return nil, fmt.Errorf("unmarshal votacoes: %w", err)
+	projeto, err := ToDomainProjetoFromJSON(item)
+	if err != nil {
+		return nil, err
 	}
 
-	return &votacao.Projeto{
-		ID:                pj.ID,
-		Sumula:            pj.Sumula,
-		Relator:           pj.Relator,
-		TemEmendas:        pj.TemEmendas,
-		PacID:             pj.PacID,
-		ParID:             pj.ParID,
-		CodigoProposicao:  pj.CodigoProposicao,
-		Iniciativa:        pj.Iniciativa,
-		ConclusaoComissao: pj.ConclusaoComissao,
-		ConclusaoRelator:  pj.ConclusaoRelator,
-		ReuniaoID:         pj.ReuniaoID,
-		CreatedAt:         pj.CreatedAt.Time,
-		UpdatedAt:         pj.UpdatedAt.Time,
-		Pareceres:         mapParecerSlice(pareceres),
-		Votacoes:          mapVotacaoSlice(votacoes),
-	}, nil
+	return projeto, nil
 }

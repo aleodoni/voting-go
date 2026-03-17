@@ -4,54 +4,12 @@ import (
 	"context"
 	"testing"
 
+	"github.com/aleodoni/voting-go/internal/application/shared"
 	usecase "github.com/aleodoni/voting-go/internal/application/votacao"
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 	domainVotacao "github.com/aleodoni/voting-go/internal/domain/votacao"
 	"github.com/aleodoni/voting-go/internal/test/fakes"
 )
-
-type fakeReuniaoRepository struct {
-	reunioes []*domainVotacao.Reuniao
-
-	GetReunioesDiaErr  error
-	FindReuniaoByIDErr error
-}
-
-var _ domainVotacao.ReuniaoRepository = (*fakeReuniaoRepository)(nil)
-
-func newFakeReuniaoRepository() *fakeReuniaoRepository {
-	return &fakeReuniaoRepository{}
-}
-
-func (f *fakeReuniaoRepository) FindReuniaoByID(ctx context.Context, reuniaoID string) (*domainVotacao.Reuniao, error) {
-	if f.FindReuniaoByIDErr != nil {
-		return nil, f.FindReuniaoByIDErr
-	}
-
-	for _, r := range f.reunioes {
-		if r.ID == reuniaoID {
-			return r, nil
-		}
-	}
-
-	return nil, domainVotacao.ErrReuniaoNotFound
-}
-
-func (f *fakeReuniaoRepository) GetReunioesDia(ctx context.Context) ([]*domainVotacao.Reuniao, error) {
-	if f.GetReunioesDiaErr != nil {
-		return nil, f.GetReunioesDiaErr
-	}
-
-	return f.reunioes, nil
-}
-
-func (f *fakeReuniaoRepository) GetProjetosCompleto(ctx context.Context, reuniaoID string) ([]*domainVotacao.Projeto, error) {
-	return nil, nil
-}
-
-//
-// helpers
-//
 
 func adminUsuario(keycloakID, userID string) *domainUsuario.Usuario {
 	return &domainUsuario.Usuario{
@@ -68,20 +26,18 @@ func adminUsuario(keycloakID, userID string) *domainUsuario.Usuario {
 }
 
 //
-// tests
+// TESTES
 //
 
 func TestRetornaReunioesDia_AdminRetornaReunioesDodia(t *testing.T) {
-
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
-	reuniaoRepo := newFakeReuniaoRepository()
+	reuniaoRepo := fakes.NewFakeReuniaoRepository()
 
 	usuarioRepo.Seed(adminUsuario("keycloak-admin", "user-admin"))
 
-	reuniaoRepo.reunioes = []*domainVotacao.Reuniao{
-		{ID: "reuniao-1", RecNumero: "001"},
-		{ID: "reuniao-2", RecNumero: "002"},
-	}
+	hoje := shared.GetCurrentDate()
+	reuniaoRepo.Seed(&domainVotacao.Reuniao{ID: "reuniao-1", RecNumero: "001", RecData: hoje})
+	reuniaoRepo.Seed(&domainVotacao.Reuniao{ID: "reuniao-2", RecNumero: "002", RecData: hoje})
 
 	uc := usecase.NewRetornaReunioesDiaUseCase(usuarioRepo, reuniaoRepo)
 
@@ -99,12 +55,12 @@ func TestRetornaReunioesDia_AdminRetornaReunioesDodia(t *testing.T) {
 }
 
 func TestRetornaReunioesDia_AdminSemReunioesNoDia(t *testing.T) {
-
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
-	reuniaoRepo := newFakeReuniaoRepository()
+	reuniaoRepo := fakes.NewFakeReuniaoRepository()
 
 	usuarioRepo.Seed(adminUsuario("keycloak-admin", "user-admin"))
 
+	// Nenhuma reunião semeada -> deve retornar 0
 	uc := usecase.NewRetornaReunioesDiaUseCase(usuarioRepo, reuniaoRepo)
 
 	result, err := uc.Execute(context.Background(), usecase.RetornaReunioesDiaInput{
@@ -121,9 +77,8 @@ func TestRetornaReunioesDia_AdminSemReunioesNoDia(t *testing.T) {
 }
 
 func TestRetornaReunioesDia_UsuarioNaoEncontrado(t *testing.T) {
-
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
-	reuniaoRepo := newFakeReuniaoRepository()
+	reuniaoRepo := fakes.NewFakeReuniaoRepository()
 
 	uc := usecase.NewRetornaReunioesDiaUseCase(usuarioRepo, reuniaoRepo)
 
@@ -137,9 +92,8 @@ func TestRetornaReunioesDia_UsuarioNaoEncontrado(t *testing.T) {
 }
 
 func TestRetornaReunioesDia_UsuarioSemCredencial(t *testing.T) {
-
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
-	reuniaoRepo := newFakeReuniaoRepository()
+	reuniaoRepo := fakes.NewFakeReuniaoRepository()
 
 	usuarioRepo.Seed(&domainUsuario.Usuario{
 		ID:         "user-sem-cred",
@@ -159,9 +113,8 @@ func TestRetornaReunioesDia_UsuarioSemCredencial(t *testing.T) {
 }
 
 func TestRetornaReunioesDia_UsuarioNaoEAdmin(t *testing.T) {
-
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
-	reuniaoRepo := newFakeReuniaoRepository()
+	reuniaoRepo := fakes.NewFakeReuniaoRepository()
 
 	usuarioRepo.Seed(&domainUsuario.Usuario{
 		ID:         "user-comum",
@@ -179,14 +132,13 @@ func TestRetornaReunioesDia_UsuarioNaoEAdmin(t *testing.T) {
 	})
 
 	if err != domainUsuario.ErrUserNotAdmin {
-		t.Fatalf("esperava ErrNotAdmin, got %v", err)
+		t.Fatalf("esperava ErrUserNotAdmin, got %v", err)
 	}
 }
 
 func TestRetornaReunioesDia_UsuarioInativo(t *testing.T) {
-
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
-	reuniaoRepo := newFakeReuniaoRepository()
+	reuniaoRepo := fakes.NewFakeReuniaoRepository()
 
 	usuarioRepo.Seed(&domainUsuario.Usuario{
 		ID:         "user-inativo",
@@ -209,9 +161,8 @@ func TestRetornaReunioesDia_UsuarioInativo(t *testing.T) {
 }
 
 func TestRetornaReunioesDia_ErroNoRepositorio(t *testing.T) {
-
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
-	reuniaoRepo := newFakeReuniaoRepository()
+	reuniaoRepo := fakes.NewFakeReuniaoRepository()
 
 	usuarioRepo.Seed(adminUsuario("keycloak-admin", "user-admin"))
 	reuniaoRepo.GetReunioesDiaErr = domainVotacao.ErrReuniaoNotFound

@@ -16,7 +16,7 @@ type Projeto struct {
 	ReuniaoID         string
 
 	Pareceres *[]Parecer
-	Votacoes  *[]Votacao
+	Votacao   *Votacao
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
