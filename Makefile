@@ -53,18 +53,18 @@ build:
 # -------------------------
 
 docker-build:
-	docker build -t $(IMAGE_NAME):latest .
+	docker build -t $(IMAGE_NAME):latest -f infra/docker/api/Dockerfile .
 
 docker-build-amd64:
-	docker buildx build --platform linux/amd64 -t $(IMAGE_NAME):amd64 .
+	docker buildx build --platform linux/amd64 -t $(IMAGE_NAME):amd64 -f infra/docker/api/Dockerfile . 
 
 docker-build-arm64:
-	docker buildx build --platform linux/arm64 -t $(IMAGE_NAME):arm64 .
+	docker buildx build --platform linux/arm64 -t $(IMAGE_NAME):arm64 -f infra/docker/api/Dockerfile . 
 
 docker-build-multi:
 	docker buildx build \
 	--platform linux/amd64,linux/arm64 \
-	-t $(IMAGE_NAME):latest .
+	-t $(IMAGE_NAME):latest -f infra/docker/api/Dockerfile . 
 
 # -------------------------
 # Docker compose
