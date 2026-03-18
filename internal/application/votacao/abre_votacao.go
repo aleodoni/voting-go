@@ -70,9 +70,20 @@ func (uc *AbreVotacaoUseCase) Execute(
 		return votacao.ErrVotacaoAberta
 	}
 
+	// Busca projeto para garantir que ele existe
 	projeto, err := uc.repoReuniao.GetProjetoCompleto(ctx, input.ProjetoID)
 	if err != nil {
 		return err
+	}
+
+	// Se nao encontrar o projeto, retorna erro
+	if projeto == nil {
+		return votacao.ErrProjetoNotFound
+	}
+
+	// Verifica se já existe uma votação associada a esse projeto
+	if projeto.Votacao != nil {
+		return votacao.ErrProjetoVoted
 	}
 
 	votacaoNova := &votacao.Votacao{
