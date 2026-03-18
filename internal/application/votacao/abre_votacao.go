@@ -28,6 +28,7 @@ type AbreVotacaoPayload struct {
 //   - o usuário autenticado deve ser administrador ativo
 //   - não pode existir nenhuma votação aberta no sistema
 //   - o projeto deve existir
+//   - o projeto não pode ter uma votação associada
 //
 // Ao concluir com sucesso, publica o evento [event.VotacaoAberta] no barramento.
 type AbreVotacaoUseCase struct {
