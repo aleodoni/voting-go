@@ -10,20 +10,20 @@ import (
 	"github.com/aleodoni/voting-go/internal/domain/votacao"
 )
 
-type RegistraVotoRequest struct {
-	Voto          votacao.OpcaoVoto             `json:"voto" binding:"required"`
-	Restricao     *RegistraRestricaoRequest     `json:"restricao"`
-	VotoContrario *RegistraVotoContrarioRequest `json:"votoContrario"`
-}
+// type RegistraVotoRequest struct {
+// 	Voto          votacao.OpcaoVoto             `json:"voto" binding:"required"`
+// 	Restricao     *RegistraRestricaoRequest     `json:"restricao"`
+// 	VotoContrario *RegistraVotoContrarioRequest `json:"votoContrario"`
+// }
 
-type RegistraRestricaoRequest struct {
-	Restricao string `json:"restricao" binding:"required"`
-}
+// type RegistraRestricaoRequest struct {
+// 	Restricao string `json:"restricao" binding:"required"`
+// }
 
-type RegistraVotoContrarioRequest struct {
-	IDTexto   int    `json:"idTexto" binding:"required"`
-	ParecerID string `json:"parecerId" binding:"required"`
-}
+// type RegistraVotoContrarioRequest struct {
+// 	IDTexto   int    `json:"idTexto" binding:"required"`
+// 	ParecerID string `json:"parecerId" binding:"required"`
+// }
 
 type RegistraVotoHandler struct {
 	registraVotoUseCase *ucVotacao.RegistraVotoUseCase
@@ -33,6 +33,19 @@ func NewRegistraVotoHandler(registraVotoUseCase *ucVotacao.RegistraVotoUseCase) 
 	return &RegistraVotoHandler{registraVotoUseCase: registraVotoUseCase}
 }
 
+// Handle godoc
+//
+//	@Summary		Registra um voto
+//	@Description	Registra o voto do usuário autenticado em uma votação
+//	@Tags			votação
+//	@Accept			json
+//	@Param			votacaoId	path	string				true	"ID da votação"
+//	@Param			body		body	RegistraVotoRequest	true	"Dados do voto"
+//	@Success		204
+//	@Failure		400	{object}	ErrorResponse
+//	@Failure		403	{object}	ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/votacao/{votacaoId}/voto [post]
 func (h *RegistraVotoHandler) Handle(c *gin.Context) {
 	loggedUserKeycloakID := c.GetString("loggedUserKeycloakID")
 	votacaoID := c.Param("votacaoId")

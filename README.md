@@ -11,6 +11,7 @@ Permite criar reuniões, registrar projetos em votação e contabilizar votos do
 * Keycloak (autenticação)
 * Docker
 * k6 (testes de carga)
+* Swagger (documentação)
 
 ## Funcionalidades
 
@@ -72,26 +73,21 @@ JWKSURL=http://localhost:8081/realms/voting-realm/protocol/openid-connect/certs
 | `KEYCLOAK_ISSUER` | URL do realm do Keycloak usado para autenticação        |
 | `JWKSURL`         | Endpoint de chaves públicas usado para validação do JWT |
 
-## Rodando a aplicação
-
-```bash
-go run cmd/api/main.go
-```
-
-A API ficará disponível em:
-
-```
-http://localhost:8080
-```
-
-
 ## 3. Rodar dependências (Docker)
 
 ```bash
 docker-compose up -d
 ```
 
-## 4. Rodar a aplicação
+## 4. Gerar documentação Swagger
+
+```bash
+make swagger
+```
+
+> A pasta `docs/` é gerada automaticamente e não é versionada. Execute este comando sempre que alterar as anotações dos handlers.
+
+## 5. Rodar a aplicação
 
 ```bash
 go run cmd/api/main.go
@@ -112,6 +108,16 @@ http://localhost:8080
 
 ---
 
+# Documentação
+
+A documentação interativa da API está disponível via Swagger UI após subir a aplicação:
+
+```
+http://localhost:8080/swagger/index.html
+```
+
+---
+
 # Autenticação
 
 A API utiliza **JWT emitido pelo Keycloak**.
@@ -122,67 +128,27 @@ Exemplo de header:
 Authorization: Bearer <token>
 ```
 
----
-
-# Endpoints principais
-
-## Health check
-
-```
-GET /api/v1/health
-```
-
-Resposta:
-
-```json
-{
-  "status": "ok"
-}
-```
+No Swagger UI, clique em **Authorize** e informe o token no formato `Bearer <token>`.
 
 ---
 
-## Listar reuniões do dia
+# Endpoints
 
-```
-GET /api/v1/reunioes-dia
-```
+| Método   | Rota                                        | Descrição                          | Auth |
+| -------- | ------------------------------------------- | ---------------------------------- | ---- |
+| `GET`    | `/api/v1/health`                            | Health check                       | ❌   |
+| `GET`    | `/api/v1/me`                                | Retorna o usuário autenticado      | ✅   |
+| `GET`    | `/api/v1/usuarios`                          | Pesquisa usuários (admin)          | ✅   |
+| `PUT`    | `/api/v1/usuarios/fantasia-credenciais`     | Atualiza nome fantasia e permissões| ✅   |
+| `PATCH`  | `/api/v1/usuarios/{id}/credencial`          | Atualiza credencial de um usuário  | ✅   |
+| `GET`    | `/api/v1/reunioes-dia`                      | Retorna reuniões do dia            | ✅   |
+| `GET`    | `/api/v1/reunioes/{reuniaoId}/projetos`     | Retorna projetos de uma reunião    | ✅   |
+| `POST`   | `/api/v1/projetos/{projetoId}/votacao/abrir`| Abre uma votação                   | ✅   |
+| `POST`   | `/api/v1/projetos/{projetoId}/votacao/fechar`| Fecha uma votação                 | ✅   |
+| `DELETE` | `/api/v1/projetos/{projetoId}/votacao`      | Cancela uma votação                | ✅   |
+| `POST`   | `/api/v1/votacao/{votacaoId}/voto`          | Registra um voto                   | ✅   |
 
-Resposta:
-
-```json
-[
-  {
-    "id": "123",
-    "data": "2026-03-12",
-    "descricao": "Reunião ordinária"
-  }
-]
-```
-
----
-
-## Listar projetos de uma reunião
-
-```
-GET /api/v1/reunioes/{reuniaoId}/projetos
-```
-
----
-
-## Registrar voto
-
-```
-POST /api/v1/projetos/{projetoId}/votos
-```
-
-Body:
-
-```json
-{
-  "voto": "SIM"
-}
-```
+Para detalhes completos de request/response, consulte o Swagger UI.
 
 ---
 
@@ -209,18 +175,22 @@ TOKEN=<jwt> k6 run tests/load/reunioes.js
 ```
 cmd/
   api/
-    main.go
+    main.go           # Entrypoint e anotações gerais do Swagger
 
 internal/
-  application/
-  domain/
-  infrastructure/
-  interfaces/
+  application/        # Casos de uso
+  domain/             # Entidades e interfaces de repositório
+  infrastructure/     # Implementações de persistência e mappers
+  handler/            # Handlers HTTP, DTOs e mappers de response
+  middleware/         # JWT e outros middlewares
+  router/             # Configuração de rotas
+  platform/           # Utilitários (JWT, ID, transações)
 
 pkg/
+  logger/
 
 tests/
-  load/
+  api/                # Testes de carga com k6
 ```
 
 Arquitetura baseada em **Clean Architecture**.

@@ -17,6 +17,16 @@ func NewAbreVotacaoHandler(abreVotacaoUseCase *ucVotacao.AbreVotacaoUseCase) *Ab
 	return &AbreVotacaoHandler{abreVotacaoUseCase: abreVotacaoUseCase}
 }
 
+// Handle godoc
+//
+//	@Summary		Abre uma votação
+//	@Description	Abre a sessão de votação para um projeto
+//	@Tags			votação
+//	@Param			projetoId	path	string	true	"ID do projeto"
+//	@Success		204
+//	@Failure		403	{object}	ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/projetos/{projetoId}/votacao/abrir [post]
 func (h *AbreVotacaoHandler) Handle(c *gin.Context) {
 	loggedUserKeycloakID := c.GetString("loggedUserKeycloakID")
 	projetoID := c.Param("projetoId")

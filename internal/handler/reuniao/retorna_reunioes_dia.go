@@ -17,6 +17,16 @@ func NewRetornaReunioesDiaHandler(retornaReunioesDiaUseCase *ucReuniao.RetornaRe
 	return &RetornaReunioesDiaHandler{retornaReunioesDiaUseCase: retornaReunioesDiaUseCase}
 }
 
+// Handle godoc
+//
+//	@Summary		Retorna reuniões do dia
+//	@Description	Retorna a lista de reuniões agendadas para o dia atual (requer admin)
+//	@Tags			reuniões
+//	@Produce		json
+//	@Success		200	{array}		ReuniaoResponse
+//	@Failure		403	{object}	ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/reunioes-dia [get]
 func (h *RetornaReunioesDiaHandler) Handle(c *gin.Context) {
 	loggedUserKeycloakID := c.GetString("loggedUserKeycloakID")
 
@@ -25,12 +35,10 @@ func (h *RetornaReunioesDiaHandler) Handle(c *gin.Context) {
 	}
 
 	reunioes, err := h.retornaReunioesDiaUseCase.Execute(c.Request.Context(), input)
-
 	if err != nil {
-		println("Error in handler:", err)
-		c.JSON(403, gin.H{"error": err.Error()})
+		c.JSON(http.StatusForbidden, ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, reunioes)
+	c.JSON(http.StatusOK, toReunioesDiaResponse(reunioes))
 }

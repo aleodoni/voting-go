@@ -135,3 +135,9 @@ test-betha-matricula:
 test-betha-pessoa-fisica:
 	SCRIPT=tests/api/betha-pessoa-fisica.test.js make k6-run
  
+# -------------------------
+# Swagger
+# ------------------------- 
+swagger:
+	swag fmt
+	swag init -g cmd/api/main.go --parseInternal

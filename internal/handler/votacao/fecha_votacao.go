@@ -15,6 +15,16 @@ func NewFechaVotacaoHandler(fechaVotacaoUseCase *votacao.FechaVotacaoUseCase) *F
 	return &FechaVotacaoHandler{fechaVotacaoUseCase: fechaVotacaoUseCase}
 }
 
+// Handle godoc
+//
+//	@Summary		Fecha uma votação
+//	@Description	Encerra a sessão de votação de um projeto
+//	@Tags			votação
+//	@Param			projetoId	path	string	true	"ID do projeto"
+//	@Success		204
+//	@Failure		403	{object}	ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/projetos/{projetoId}/votacao/fechar [post]
 func (h *FechaVotacaoHandler) Handle(c *gin.Context) {
 	loggedUserKeycloakID := c.GetString("loggedUserKeycloakID")
 	projetoID := c.Param("projetoId")

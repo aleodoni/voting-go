@@ -1,4 +1,6 @@
+DELETE FROM votacao;
 DELETE FROM reuniao;
+-- DELETE FROM usuario;
 
 INSERT INTO reuniao(
   id, 

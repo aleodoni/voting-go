@@ -17,6 +17,17 @@ func NewRetornaProjetosCompletosHandler(retornaProjetosCompletosUseCase *ucReuni
 	return &RetornaProjetosCompletosHandler{retornaProjetosCompletosUseCase: retornaProjetosCompletosUseCase}
 }
 
+// Handle godoc
+//
+//	@Summary		Retorna projetos de uma reunião
+//	@Description	Retorna a lista completa de projetos de uma reunião (requer admin)
+//	@Tags			reuniões
+//	@Produce		json
+//	@Param			reuniaoId	path		string	true	"ID da reunião"
+//	@Success		200			{array}		ProjetoResponse
+//	@Failure		403			{object}	ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/reunioes/{reuniaoId}/projetos [get]
 func (h *RetornaProjetosCompletosHandler) Handle(c *gin.Context) {
 	loggedUserKeycloakID := c.GetString("loggedUserKeycloakID")
 	reuniaoID := c.Param("reuniaoId")
@@ -27,12 +38,10 @@ func (h *RetornaProjetosCompletosHandler) Handle(c *gin.Context) {
 	}
 
 	projetos, err := h.retornaProjetosCompletosUseCase.Execute(c.Request.Context(), input)
-
 	if err != nil {
-		println("Error in handler:", err)
-		c.JSON(403, gin.H{"error": err.Error()})
+		c.JSON(http.StatusForbidden, ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, projetos)
+	c.JSON(http.StatusOK, toProjetosResponse(projetos))
 }

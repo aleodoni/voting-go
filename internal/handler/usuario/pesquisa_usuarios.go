@@ -18,6 +18,19 @@ func NewPesquisaUsuariosHandler(listUsuariosUseCase *ucUsuario.ListUsuariosUseCa
 	return &PesquisaUsuariosHandler{listUsuariosUseCase: listUsuariosUseCase}
 }
 
+// Handle godoc
+//
+//	@Summary		Pesquisa usuários
+//	@Description	Retorna uma lista paginada de usuários (requer admin)
+//	@Tags			usuários
+//	@Produce		json
+//	@Param			search	query		string	false	"Termo de busca"
+//	@Param			page	query		int		false	"Página"	default(1)
+//	@Param			limit	query		int		false	"Limite"	default(20)
+//	@Success		200		{object}	ListUsuariosResponse
+//	@Failure		403		{object}	ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/usuarios [get]
 func (h *PesquisaUsuariosHandler) Handle(c *gin.Context) {
 	loggedUserKeycloakID := c.GetString("loggedUserKeycloakID")
 
@@ -40,10 +53,9 @@ func (h *PesquisaUsuariosHandler) Handle(c *gin.Context) {
 
 	output, err := h.listUsuariosUseCase.Execute(c.Request.Context(), input)
 	if err != nil {
-		println("Error in handler:", err)
-		c.JSON(403, gin.H{"error": err.Error()})
+		c.JSON(http.StatusForbidden, ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, output)
+	c.JSON(http.StatusOK, toListUsuariosResponse(output))
 }

@@ -19,22 +19,32 @@ func NewUpdateCredencialHandler(updateUseCase *ucCredencial.UpdateCredencialUseC
 	return &UpdateCredencialHandler{updateUseCase: updateUseCase}
 }
 
-type updateCredencialRequest struct {
-	Ativo           bool `json:"ativo"`
-	PodeVotar       bool `json:"pode_votar"`
-	PodeAdministrar bool `json:"pode_administrar"`
-}
-
+// Handle godoc
+//
+//	@Summary		Atualiza credencial de um usuário
+//	@Description	Atualiza as permissões de um usuário (requer admin)
+//	@Tags			usuários
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		string					true	"ID do usuário"
+//	@Param			body	body		UpdateCredencialRequest	true	"Dados da credencial"
+//	@Success		200		{object}	CredencialResponse
+//	@Failure		400		{object}	ErrorResponse
+//	@Failure		401		{object}	ErrorResponse
+//	@Failure		403		{object}	ErrorResponse
+//	@Failure		500		{object}	ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/usuarios/{id}/credencial [patch]
 func (h *UpdateCredencialHandler) Handle(c *gin.Context) {
 	claims, ok := c.MustGet("claims").(jwt.MapClaims)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid claims"})
+		c.JSON(http.StatusUnauthorized, ErrorResponse{Error: "invalid claims"})
 		return
 	}
 
-	var req updateCredencialRequest
+	var req UpdateCredencialRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "invalid request body"})
 		return
 	}
 
@@ -50,12 +60,12 @@ func (h *UpdateCredencialHandler) Handle(c *gin.Context) {
 	if err != nil {
 		switch err {
 		case domain.ErrForbidden:
-			c.JSON(http.StatusForbidden, gin.H{"error": "acesso negado"})
+			c.JSON(http.StatusForbidden, ErrorResponse{Error: "acesso negado"})
 		default:
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "erro ao atualizar credencial"})
+			c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "erro ao atualizar credencial"})
 		}
 		return
 	}
 
-	c.JSON(http.StatusOK, cred)
+	c.JSON(http.StatusOK, toCredencialResponse(cred))
 }
