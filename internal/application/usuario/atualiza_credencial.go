@@ -51,5 +51,6 @@ func (uc *UpdateCredencialUseCase) Execute(ctx context.Context, input UpdateCred
 		return nil, err
 	}
 
+	// Retornar a credencial atualizada
 	return cred, nil
 }
