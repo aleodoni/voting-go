@@ -107,3 +107,20 @@ func (r *votacaoRepository) UsuarioJaVotou(ctx context.Context, usuarioID, votac
 
 	return count > 0, nil
 }
+
+func (r *votacaoRepository) GetVotacaoAberta(ctx context.Context) (*votacao.Votacao, error) {
+	db := DBFromCtx(ctx, r.db)
+
+	var model models.VotacaoModel
+	err := db.Where("status = ?", votacao.StatusVotacaoA).
+		First(&model).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("GetVotacaoAberta: %w", err)
+	}
+
+	return mappers.ToDomainVotacao(&model), nil
+}

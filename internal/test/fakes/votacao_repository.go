@@ -10,11 +10,12 @@ type FakeVotacaoRepository struct {
 	votacoes map[string]*votacao.Votacao
 	votos    map[string][]string // votacaoID -> []usuarioID  ← novo
 
-	SalvaVotacaoErr   error
-	DeletaVotacaoErr  error
-	SalvaVotoErr      error
-	BuscaVotacaoErr   error // ← novo
-	UsuarioJaVotouErr error // ← novo
+	SalvaVotacaoErr     error
+	DeletaVotacaoErr    error
+	SalvaVotoErr        error
+	BuscaVotacaoErr     error
+	UsuarioJaVotouErr   error
+	GetVotacaoAbertaErr error
 
 	SalvaVotacaoCalls  []votacao.Votacao
 	DeletaVotacaoCalls []string
@@ -58,7 +59,6 @@ func (f *FakeVotacaoRepository) SalvaVoto(ctx context.Context, v *votacao.Voto) 
 	return nil
 }
 
-// ← novo
 func (f *FakeVotacaoRepository) BuscaVotacao(ctx context.Context, votacaoID string) (*votacao.Votacao, error) {
 	if f.BuscaVotacaoErr != nil {
 		return nil, f.BuscaVotacaoErr
@@ -70,7 +70,6 @@ func (f *FakeVotacaoRepository) BuscaVotacao(ctx context.Context, votacaoID stri
 	return v, nil
 }
 
-// ← novo
 func (f *FakeVotacaoRepository) UsuarioJaVotou(ctx context.Context, usuarioID, votacaoID string) (bool, error) {
 	if f.UsuarioJaVotouErr != nil {
 		return false, f.UsuarioJaVotouErr
@@ -81,4 +80,20 @@ func (f *FakeVotacaoRepository) UsuarioJaVotou(ctx context.Context, usuarioID, v
 		}
 	}
 	return false, nil
+}
+
+func (f *FakeVotacaoRepository) GetVotacaoAberta(ctx context.Context) (*votacao.Votacao, error) {
+	if f.GetVotacaoAbertaErr != nil {
+		return nil, f.GetVotacaoAbertaErr
+	}
+	for _, v := range f.votacoes {
+		if v.Status == votacao.StatusVotacaoA {
+			return v, nil
+		}
+	}
+	return nil, nil
+}
+
+func (f *FakeVotacaoRepository) Seed(v *votacao.Votacao) {
+	f.votacoes[v.ID] = v
 }

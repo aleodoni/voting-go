@@ -158,3 +158,31 @@ func TestAbreVotacao_ErroSalvaVotacao(t *testing.T) {
 		t.Fatalf("esperava ErrVotacaoAlreadyExists, got %v", err)
 	}
 }
+
+func TestAbreVotacao_VotacaoJaAberta(t *testing.T) {
+	usuarioRepo := fakes.NewFakeUsuarioRepository()
+	reuniaoRepo := fakes.NewFakeReuniaoRepository()
+	votacaoRepo := fakes.NewFakeVotacaoRepository()
+
+	usuarioRepo.Seed(adminUsuario("keycloak-admin", "user-admin"))
+
+	votacaoRepo.Seed(&votacao.Votacao{
+		ID:     "votacao-existente",
+		Status: votacao.StatusVotacaoA,
+	})
+
+	uc := ucVotacao.NewAbreVotacaoUseCase(usuarioRepo, reuniaoRepo, votacaoRepo, event.NewBus())
+
+	err := uc.Execute(context.Background(), ucVotacao.AbreVotacaoInput{
+		LoggedInUserKeycloakID: "keycloak-admin",
+		ProjetoID:              "projeto-1",
+	})
+
+	if err != votacao.ErrVotacaoAberta {
+		t.Fatalf("esperava ErrVotacaoAberta, got %v", err)
+	}
+
+	if len(votacaoRepo.SalvaVotacaoCalls) != 0 {
+		t.Errorf("esperava que SalvaVotacao não fosse chamado, mas foi chamado %d vez(es)", len(votacaoRepo.SalvaVotacaoCalls))
+	}
+}

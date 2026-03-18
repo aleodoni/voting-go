@@ -49,6 +49,15 @@ func (uc *AbreVotacaoUseCase) Execute(
 		return err
 	}
 
+	// Verifica se já existe votação aberta
+	votacaoExistente, err := uc.repoVotacao.GetVotacaoAberta(ctx)
+	if err != nil {
+		return err
+	}
+	if votacaoExistente != nil {
+		return votacao.ErrVotacaoAberta
+	}
+
 	projeto, err := uc.repoReuniao.GetProjetoCompleto(ctx, input.ProjetoID)
 	if err != nil {
 		return err
