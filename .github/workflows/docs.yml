@@ -36,7 +36,10 @@ jobs:
         run: swag fmt && swag init -g cmd/api/main.go --parseInternal --output _site
 
       - name: Gerar documentação gomarkdoc
-        run: gomarkdoc --output _site/casos-de-uso.md ./internal/application/...
+        run: |
+          gomarkdoc --output _site/casos-de-uso.md ./internal/application/...
+          pandoc _site/casos-de-uso.md -o _site/casos-de-uso.html \
+            --standalone --metadata title="Casos de uso"
 
       - name: Baixar Swagger UI
         run: |
@@ -63,7 +66,7 @@ jobs:
             <h2>Documentação</h2>
             <ul>
               <li><a href="./swagger-ui/index.html">API (Swagger UI)</a></li>
-              <li><a href="./casos-de-uso.md">Casos de uso</a></li>
+              <li><a href="./casos-de-uso.html">Casos de uso</a></li>
             </ul>
           </body>
           </html>
