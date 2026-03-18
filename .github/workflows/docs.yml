@@ -12,7 +12,13 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - uses: actions/checkout@v4
@@ -34,6 +40,7 @@ jobs:
 
       - name: Baixar Swagger UI
         run: |
+          mkdir -p _site/swagger-ui
           curl -sL https://github.com/swagger-api/swagger-ui/archive/refs/tags/v5.18.2.tar.gz \
             | tar -xz --strip-components=2 -C _site/swagger-ui \
                 swagger-ui-5.18.2/dist
@@ -62,8 +69,14 @@ jobs:
           </html>
           EOF
 
-      - name: Deploy no GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Configurar Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload do artefato
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./_site
+          path: ./_site
+
+      - name: Deploy no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
