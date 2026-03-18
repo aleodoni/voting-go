@@ -46,7 +46,7 @@ func (uc *UpdateCredencialUseCase) Execute(ctx context.Context, input UpdateCred
 	cred.PodeVotar = input.PodeVotar
 	cred.PodeAdministrar = input.PodeAdministrar
 
-	// Atualizar a credencial
+	// Atualizar a credencial no BD
 	if err := uc.credencialRepo.Update(ctx, cred); err != nil {
 		return nil, err
 	}
