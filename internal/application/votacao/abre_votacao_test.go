@@ -186,3 +186,79 @@ func TestAbreVotacao_VotacaoJaAberta(t *testing.T) {
 		t.Errorf("esperava que SalvaVotacao não fosse chamado, mas foi chamado %d vez(es)", len(votacaoRepo.SalvaVotacaoCalls))
 	}
 }
+
+func TestAbreVotacao_ProjetoJaVotado(t *testing.T) {
+	usuarioRepo := fakes.NewFakeUsuarioRepository()
+	reuniaoRepo := fakes.NewFakeReuniaoRepository()
+	votacaoRepo := fakes.NewFakeVotacaoRepository()
+
+	usuarioRepo.Seed(adminUsuario("keycloak-admin", "user-admin"))
+
+	votacaoExistente := &votacao.Votacao{
+		ID:     "votacao-projeto",
+		Status: votacao.StatusVotacaoA,
+	}
+	projeto := &votacao.Projeto{
+		ID:               "projeto-1",
+		CodigoProposicao: "001",
+		Votacao:          votacaoExistente,
+	}
+	reuniaoRepo.SeedProjetos("reuniao-1", []*votacao.Projeto{projeto})
+
+	uc := ucVotacao.NewAbreVotacaoUseCase(usuarioRepo, reuniaoRepo, votacaoRepo, event.NewBus())
+
+	err := uc.Execute(context.Background(), ucVotacao.AbreVotacaoInput{
+		LoggedInUserKeycloakID: "keycloak-admin",
+		ProjetoID:              "projeto-1",
+	})
+
+	if err != votacao.ErrProjetoVoted {
+		t.Fatalf("esperava ErrProjetoVoted, got %v", err)
+	}
+
+	if len(votacaoRepo.SalvaVotacaoCalls) != 0 {
+		t.Errorf("esperava que SalvaVotacao não fosse chamado, mas foi chamado %d vez(es)", len(votacaoRepo.SalvaVotacaoCalls))
+	}
+}
+
+func TestAbreVotacao_PublicaEventoAoAbrir(t *testing.T) {
+	usuarioRepo := fakes.NewFakeUsuarioRepository()
+	reuniaoRepo := fakes.NewFakeReuniaoRepository()
+	votacaoRepo := fakes.NewFakeVotacaoRepository()
+
+	usuarioRepo.Seed(adminUsuario("keycloak-admin", "user-admin"))
+
+	projeto := &votacao.Projeto{ID: "projeto-1", CodigoProposicao: "001"}
+	reuniaoRepo.SeedProjetos("reuniao-1", []*votacao.Projeto{projeto})
+
+	bus := event.NewBus()
+	ch := bus.Subscribe()
+	defer bus.Unsubscribe(ch)
+
+	uc := ucVotacao.NewAbreVotacaoUseCase(usuarioRepo, reuniaoRepo, votacaoRepo, bus)
+
+	err := uc.Execute(context.Background(), ucVotacao.AbreVotacaoInput{
+		LoggedInUserKeycloakID: "keycloak-admin",
+		ProjetoID:              "projeto-1",
+	})
+
+	if err != nil {
+		t.Fatalf("esperava nil, got %v", err)
+	}
+
+	select {
+	case e := <-ch:
+		if e.Type != event.VotacaoAberta {
+			t.Errorf("esperava VotacaoAberta, got %s", e.Type)
+		}
+		payload, ok := e.Payload.(ucVotacao.AbreVotacaoPayload)
+		if !ok {
+			t.Fatal("payload com tipo incorreto")
+		}
+		if payload.ProjetoID != "projeto-1" {
+			t.Errorf("esperava ProjetoID projeto-1, got %s", payload.ProjetoID)
+		}
+	default:
+		t.Fatal("esperava evento publicado, nenhum recebido")
+	}
+}
