@@ -4,6 +4,7 @@ import "errors"
 
 var ErrReuniaoNotFound = errors.New("reuniao não encontrada")
 var ErrProjetoNotFound = errors.New("projeto não encontrado")
+var ErrProjetoVoted = errors.New("projeto já votado")
 var ErrVotacaoNaoCriada = errors.New("votação não criada")
 var ErrVotacaoAlreadyExists = errors.New("votação já existe")
 var ErrVotacaoNaoAberta = errors.New("votação não está aberta")
