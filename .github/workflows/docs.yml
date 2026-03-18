@@ -1,0 +1,33 @@
+# .github/workflows/docs.yml
+name: Documentação
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'internal/application/**'
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Instalar gomarkdoc
+        run: go install github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest
+
+      - name: Gerar documentação
+        run: gomarkdoc --output docs/casos-de-uso.md ./internal/application/...
+
+      - name: Commit da documentação
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/casos-de-uso.md
+          git commit -m "docs: atualiza documentação dos casos de uso" || exit 0
+          git push

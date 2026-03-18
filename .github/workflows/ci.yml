@@ -1,0 +1,32 @@
+# .github/workflows/ci.yml
+name: CI
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Instalar swag
+        run: go install github.com/swaggo/swag/cmd/swag@latest
+
+      - name: Instalar gotestsum
+        run: go install gotest.tools/gotestsum@latest
+
+      - name: Gerar docs swaggo
+        run: make swagger
+
+      - name: Rodar testes
+        run: make test
