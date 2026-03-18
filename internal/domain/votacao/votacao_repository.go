@@ -8,4 +8,5 @@ type VotacaoRepository interface {
 	SalvaVoto(ctx context.Context, voto *Voto) error
 	BuscaVotacao(ctx context.Context, votacaoID string) (*Votacao, error)
 	UsuarioJaVotou(ctx context.Context, usuarioID, votacaoID string) (bool, error)
+	GetVotacaoAberta(ctx context.Context) (*Votacao, error)
 }

@@ -25,7 +25,7 @@ export default function () {
   const reunioes = JSON.parse(reunioesRes.body);
 
   // supondo que retorna um array
-  const reuniaoId = reunioes[0].ID;
+  const reuniaoId = reunioes[0].id;
 
   console.log(`Reunião escolhida: ${reuniaoId}`);
 
@@ -44,7 +44,7 @@ export default function () {
   );
 
   const projetos = JSON.parse(projetosRes.body);
-  const projetoId = projetos[0].ID;
+  const projetoId = projetos[0].id;
   console.log(`Projeto escolhido: ${projetoId}`);
 
   // Abrir votação para o projeto

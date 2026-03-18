@@ -10,16 +10,26 @@ import (
 	"github.com/aleodoni/voting-go/internal/platform/id"
 )
 
+// AbreVotacaoInput contém os dados necessários para abrir uma votação.
 type AbreVotacaoInput struct {
 	LoggedInUserKeycloakID string
 	ProjetoID              string
 }
 
+// AbreVotacaoPayload é publicado no barramento de eventos quando uma votação é aberta.
 type AbreVotacaoPayload struct {
 	ProjetoID string `json:"projetoId"`
 	VotacaoID string `json:"votacaoId"`
 }
 
+// AbreVotacaoUseCase abre uma votação para um projeto em uma reunião.
+//
+// Regras de negócio:
+//   - o usuário autenticado deve ser administrador ativo
+//   - não pode existir nenhuma votação aberta no sistema
+//   - o projeto deve existir
+//
+// Ao concluir com sucesso, publica o evento [event.VotacaoAberta] no barramento.
 type AbreVotacaoUseCase struct {
 	repoUsuario usuario.UsuarioRepository
 	repoReuniao votacao.ReuniaoRepository
@@ -27,6 +37,7 @@ type AbreVotacaoUseCase struct {
 	bus         *event.Bus
 }
 
+// NewAbreVotacaoUseCase cria uma nova instância de [AbreVotacaoUseCase].
 func NewAbreVotacaoUseCase(
 	repoUsuario usuario.UsuarioRepository,
 	repoReuniao votacao.ReuniaoRepository,
@@ -45,8 +56,18 @@ func (uc *AbreVotacaoUseCase) Execute(
 	ctx context.Context,
 	input AbreVotacaoInput,
 ) error {
+	// Verificar se o usuário logado é admin ativo
 	if err := shared.VerificarAdmin(ctx, uc.repoUsuario, input.LoggedInUserKeycloakID); err != nil {
 		return err
+	}
+
+	// Verifica se já existe votação aberta
+	votacaoExistente, err := uc.repoVotacao.GetVotacaoAberta(ctx)
+	if err != nil {
+		return err
+	}
+	if votacaoExistente != nil {
+		return votacao.ErrVotacaoAberta
 	}
 
 	projeto, err := uc.repoReuniao.GetProjetoCompleto(ctx, input.ProjetoID)
