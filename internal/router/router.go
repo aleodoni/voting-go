@@ -7,6 +7,11 @@ import (
 	votacaoHandler "github.com/aleodoni/voting-go/internal/handler/votacao"
 	"github.com/aleodoni/voting-go/internal/middleware"
 	"github.com/gin-gonic/gin"
+
+	// Swagger
+	_ "github.com/aleodoni/voting-go/docs"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Handlers struct {
@@ -31,6 +36,9 @@ func SetupRouter(jwtMiddleware *middleware.JWTMiddleware, h *Handlers) *gin.Engi
 
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
+
+	// Swagger UI — sem autenticação
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	api := r.Group("/api/v1")
 

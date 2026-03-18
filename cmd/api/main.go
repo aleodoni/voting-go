@@ -1,4 +1,15 @@
-// Package main provides the main entry point for the API server.
+//	@title			Voting API
+//	@version		1.0.0
+//	@description	API de gerenciamento de votações — reuniões, projetos e votos.
+
+//	@host		localhost:8080
+//	@BasePath	/api/v1
+
+//	@securityDefinitions.apikey	BearerAuth
+//	@in							header
+//	@name						Authorization
+//	@description				Token JWT emitido pelo Keycloak. Formato: Bearer <token>
+
 package main
 
 import (

@@ -22,10 +22,12 @@ export default function () {
     },
   });
 
+  const bodyParsed = JSON.parse(res.body);
+
   check(res, {
     "status is 200": (r) => r.status === 200,
     "has username": (r) => {
-      const username = JSON.parse(r.body).Username;
+      const username = bodyParsed.username;
 
       return username === "usuario.vereador" || username === "usuario.admin";
     },

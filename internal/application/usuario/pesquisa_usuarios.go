@@ -14,13 +14,6 @@ type ListUsuariosInput struct {
 	Limit                  int
 }
 
-type ListUsuariosOutput struct {
-	Usuarios []*usuario.Usuario
-	Total    int64
-	Page     int
-	Limit    int
-}
-
 type ListUsuariosUseCase struct {
 	repoUsuario usuario.UsuarioRepository
 }
@@ -32,7 +25,7 @@ func NewListUsuariosUseCase(repoUsuario usuario.UsuarioRepository) *ListUsuarios
 func (uc *ListUsuariosUseCase) Execute(
 	ctx context.Context,
 	input ListUsuariosInput,
-) (*ListUsuariosOutput, error) {
+) (*usuario.ListUsuario, error) {
 	if err := shared.VerificarAdmin(ctx, uc.repoUsuario, input.LoggedInUserKeycloakID); err != nil {
 		return nil, err
 	}
@@ -52,7 +45,7 @@ func (uc *ListUsuariosUseCase) Execute(
 		return nil, err
 	}
 
-	return &ListUsuariosOutput{
+	return &usuario.ListUsuario{
 		Usuarios: usuarios,
 		Total:    total,
 		Page:     page,

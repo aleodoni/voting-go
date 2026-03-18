@@ -2,6 +2,8 @@
 package usuario
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 
 	ucUsuario "github.com/aleodoni/voting-go/internal/application/usuario"
@@ -15,13 +17,25 @@ func NewAtualizaFantasiaCredenciaisHandler(updateDisplayNamePermissionsUseCase *
 	return &AtualizaFantasiaCredenciaisHandler{updateDisplayNamePermissionsUseCase: updateDisplayNamePermissionsUseCase}
 }
 
+// Handle godoc
+//
+//	@Summary		Atualiza nome fantasia e permissões
+//	@Description	Atualiza o nome fantasia e as permissões de credencial de um usuário (requer admin)
+//	@Tags			usuários
+//	@Accept			json
+//	@Param			body	body	AtualizaFantasiaCredenciaisRequest	true	"Dados a atualizar"
+//	@Success		204
+//	@Failure		400	{object}	ErrorResponse
+//	@Failure		403	{object}	ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/usuarios/fantasia-credenciais [put]
 func (h *AtualizaFantasiaCredenciaisHandler) Handle(c *gin.Context) {
 	loggedUserKeycloakID := c.GetString("loggedUserKeycloakID")
 
 	var req AtualizaFantasiaCredenciaisRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: err.Error()})
 		return
 	}
 
@@ -34,16 +48,10 @@ func (h *AtualizaFantasiaCredenciaisHandler) Handle(c *gin.Context) {
 		CanVote:                req.CanVote,
 	}
 
-	err := h.updateDisplayNamePermissionsUseCase.Execute(
-		c.Request.Context(),
-		input,
-	)
-
-	if err != nil {
-		println("Error in handler:", err)
-		c.JSON(403, gin.H{"error": err.Error()})
+	if err := h.updateDisplayNamePermissionsUseCase.Execute(c.Request.Context(), input); err != nil {
+		c.JSON(http.StatusForbidden, ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	c.Status(204)
+	c.Status(http.StatusNoContent)
 }
