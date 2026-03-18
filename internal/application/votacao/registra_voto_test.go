@@ -176,13 +176,10 @@ func TestRegistraVoto_ErroSalvaVoto(t *testing.T) {
 	}
 }
 
-// ── novos testes para as 2 validações ────────────────────────────────────────
-
 func TestRegistraVoto_VotacaoNaoEncontrada(t *testing.T) {
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
 	votacaoRepo := fakes.NewFakeVotacaoRepository()
 	setupUsuarioVereador(usuarioRepo)
-	// sem seed de votação — BuscaVotacao retorna ErrVotacaoNaoEncontrada
 
 	uc := ucVotacao.NewRegistraVotoUseCase(usuarioRepo, votacaoRepo, event.NewBus())
 

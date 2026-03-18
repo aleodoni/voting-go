@@ -6,7 +6,8 @@ on:
     branches:
       - main
     paths:
-      - 'internal/application/**'
+      - '**.go'          # qualquer .go no repositório
+      - 'go.mod'
 
 jobs:
   docs:
