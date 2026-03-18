@@ -37,6 +37,7 @@ jobs:
 
       - name: Gerar documentação gomarkdoc
         run: |
+          sudo apt-get install -y pandoc
           gomarkdoc --output _site/casos-de-uso.md ./internal/application/...
           pandoc _site/casos-de-uso.md -o _site/casos-de-uso.html \
             --standalone --metadata title="Casos de uso"
