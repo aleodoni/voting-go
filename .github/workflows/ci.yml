@@ -19,5 +19,11 @@ jobs:
         with:
           go-version-file: go.mod
 
+      - name: Instalar swag
+        run: go install github.com/swaggo/swag/cmd/swag@latest
+
+      - name: Gerar docs swaggo
+        run: swag init -g cmd/api/main.go
+
       - name: Rodar testes
         run: go test ./...
