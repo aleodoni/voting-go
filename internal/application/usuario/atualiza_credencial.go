@@ -36,6 +36,7 @@ func (uc *UpdateCredencialUseCase) Execute(ctx context.Context, input UpdateCred
 		return nil, err
 	}
 
+	// Buscar a credencial do usuário no BD
 	cred, err := uc.credencialRepo.FindByUsuarioID(ctx, input.UsuarioID)
 	if err != nil {
 		return nil, err
@@ -45,6 +46,7 @@ func (uc *UpdateCredencialUseCase) Execute(ctx context.Context, input UpdateCred
 	cred.PodeVotar = input.PodeVotar
 	cred.PodeAdministrar = input.PodeAdministrar
 
+	// Atualizar a credencial
 	if err := uc.credencialRepo.Update(ctx, cred); err != nil {
 		return nil, err
 	}
