@@ -102,7 +102,7 @@ func (r *usuarioRepository) ListUsers(ctx context.Context, search string, page, 
 
 	type row struct {
 		ID              string    `gorm:"column:id"`
-		keycloakID      string    `gorm:"column:keycloak_id"`
+		KeycloakID      string    `gorm:"column:keycloak_id"`
 		Nome            string    `gorm:"column:nome"`
 		NomeFantasia    string    `gorm:"column:nome_fantasia"`
 		Email           string    `gorm:"column:email"`
@@ -135,7 +135,7 @@ func (r *usuarioRepository) ListUsers(ctx context.Context, search string, page, 
 
 		usuarios[i] = &usuario.Usuario{
 			ID:           r.ID,
-			KeycloakID:   r.keycloakID,
+			KeycloakID:   r.KeycloakID,
 			Nome:         r.Nome,
 			NomeFantasia: nomeFantasia,
 			Email:        r.Email,
