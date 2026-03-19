@@ -1,4 +1,4 @@
-// Package votacao implements the use case
+// Package votacao contains the use cases related to voting management.
 package votacao
 
 import (
@@ -9,15 +9,21 @@ import (
 	"github.com/aleodoni/voting-go/internal/domain/votacao"
 )
 
+// RetornaReunioesDiaInput contém os dados necessários para retornar as reuniões do dia.
 type RetornaReunioesDiaInput struct {
 	LoggedInUserKeycloakID string
 }
 
+// RetornaReunioesDiaUseCase retorna a lista de reuniões agendadas para o dia atual.
+//
+// Regras de negócio:
+//   - o usuário autenticado deve ser administrador ativo
 type RetornaReunioesDiaUseCase struct {
 	repoUsuario usuario.UsuarioRepository
 	repoReuniao votacao.ReuniaoRepository
 }
 
+// NewRetornaReunioesDiaUseCase cria uma nova instância de [RetornaReunioesDiaUseCase].
 func NewRetornaReunioesDiaUseCase(
 	repoUsuario usuario.UsuarioRepository,
 	repoReuniao votacao.ReuniaoRepository,
@@ -28,11 +34,11 @@ func NewRetornaReunioesDiaUseCase(
 	}
 }
 
+// Execute retorna a lista de reuniões agendadas para o dia atual.
 func (uc *RetornaReunioesDiaUseCase) Execute(
 	ctx context.Context,
 	input RetornaReunioesDiaInput,
 ) ([]*votacao.Reuniao, error) {
-	// Verificar se o usuário logado é admin
 	if err := shared.VerificarAdmin(ctx, uc.repoUsuario, input.LoggedInUserKeycloakID); err != nil {
 		return nil, err
 	}

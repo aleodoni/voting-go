@@ -11,12 +11,28 @@ import (
 	"github.com/aleodoni/voting-go/internal/platform/transaction"
 )
 
+// EnsureUsuarioInput contém os dados necessários para garantir a existência de um usuário.
+type EnsureUsuarioInput struct {
+	KeycloakID string
+	Username   string
+	Email      string
+	Nome       string
+}
+
+// EnsureUsuarioUseCase garante que um usuário autenticado pelo Keycloak existe no sistema.
+//
+// Regras de negócio:
+//   - se o usuário já existir, retorna o registro existente sem alterações
+//   - se o usuário não existir, cria o usuário e sua credencial em uma única transação
+//   - a credencial é criada com [domainUsuario.Credencial.Ativo] true, sem permissão de voto
+//     ou administração — as permissões devem ser concedidas posteriormente por um administrador
 type EnsureUsuarioUseCase struct {
 	usuarioRepo    domainUsuario.UsuarioRepository
 	credencialRepo domainUsuario.CredencialRepository
 	transactor     transaction.Transactor
 }
 
+// NewEnsureUsuarioUseCase cria uma nova instância de [EnsureUsuarioUseCase].
 func NewEnsureUsuarioUseCase(
 	usuarioRepo domainUsuario.UsuarioRepository,
 	credencialRepo domainUsuario.CredencialRepository,
@@ -29,13 +45,10 @@ func NewEnsureUsuarioUseCase(
 	}
 }
 
-type EnsureUsuarioInput struct {
-	KeycloakID string
-	Username   string
-	Email      string
-	Nome       string
-}
-
+// Execute garante que o usuário identificado por [EnsureUsuarioInput.KeycloakID] existe no sistema.
+//
+// Retorna o [domainUsuario.Usuario] existente ou recém-criado, sempre com a
+// [domainUsuario.Credencial] associada preenchida.
 func (uc *EnsureUsuarioUseCase) Execute(ctx context.Context, input EnsureUsuarioInput) (*domainUsuario.Usuario, error) {
 	u, err := uc.usuarioRepo.FindByKeycloakID(ctx, input.KeycloakID)
 	if err == nil {
