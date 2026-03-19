@@ -1,0 +1,239 @@
+name: Deploy to AWS
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Ambiente de deploy'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+      force_deploy:
+        description: 'Forçar deploy mesmo sem mudanças?'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: voting-go
+
+jobs:
+  # ─────────────────────────────────────────────
+  # Verifica se houve mudanças desde o último deploy
+  # Roda independente do ambiente
+  # ─────────────────────────────────────────────
+  check-changes:
+    name: Check for changes
+    runs-on: ubuntu-latest
+    outputs:
+      has_changes: ${{ steps.changes.outputs.has_changes }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for changes since last deploy
+        id: changes
+        run: |
+          LAST_TAG=$(git tag --sort=-creatordate | grep "deploy-${{ inputs.environment }}" | head -n1)
+          if [ -z "$LAST_TAG" ]; then
+            echo "Nenhum deploy anterior encontrado, prosseguindo."
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          else
+            CHANGED=$(git diff --name-only $LAST_TAG HEAD)
+            if [ -z "$CHANGED" ]; then
+              echo "Nenhuma mudança desde o último deploy ($LAST_TAG). Abortando."
+              echo "has_changes=false" >> $GITHUB_OUTPUT
+            else
+              echo "Mudanças detectadas desde $LAST_TAG, prosseguindo."
+              echo "has_changes=true" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+  # ─────────────────────────────────────────────
+  # PRODUÇÃO — App Runner + RDS
+  # ─────────────────────────────────────────────
+  deploy-production:
+    name: Deploy (production)
+    runs-on: ubuntu-latest
+    environment: production
+    needs: check-changes
+    if: |
+      inputs.environment == 'production' &&
+      (inputs.force_deploy == true || needs.check-changes.outputs.has_changes == 'true')
+
+    env:
+      APP_RUNNER_SERVICE: voting-go-production
+      SECRET_BASE: arn:aws:secretsmanager:us-east-1:ID_DA_CONTA:secret:voting-go-production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag and push image to ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build \
+            -f infra/docker/api/Dockerfile \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Deploy to App Runner
+        id: deploy
+        uses: awslabs/amazon-app-runner-deploy@main
+        with:
+          service: ${{ env.APP_RUNNER_SERVICE }}
+          image: ${{ steps.build-image.outputs.image }}
+          access-role-arn: ${{ secrets.APP_RUNNER_ROLE_ARN }}
+          region: ${{ env.AWS_REGION }}
+          cpu: 1
+          memory: 2
+          wait-for-service-stability-seconds: 120
+          env-vars: |
+            APPNAME=Voting API
+            APPVERSION=1.0.0
+            APPPORT=8080
+            APPENV=production
+            DBPORT=5432
+            DBNAME=voting_db
+            DBSSLMODE=require
+            DBHOST=${{ secrets.DB_HOST }}
+            KEYCLOAK_ISSUER=${{ secrets.KEYCLOAK_ISSUER }}
+            JWKSURL=${{ secrets.JWKS_URL }}
+          secrets: |
+            DBUSER=${{ env.SECRET_BASE }}/db:DBUSER::
+            DBPASSWORD=${{ env.SECRET_BASE }}/db:DBPASSWORD::
+            PUBLIC_KEY=${{ env.SECRET_BASE }}/app:PUBLIC_KEY::
+            USER_ACCESS=${{ env.SECRET_BASE }}/app:USER_ACCESS::
+
+      # Garante que o App Runner não escale além de 1 instância.
+      # Necessário porque a API usa SSE com Hub em memória —
+      # múltiplas instâncias quebrariam o broadcast de eventos.
+      - name: Lock instance count to 1 (required for SSE Hub)
+        run: |
+          SERVICE_ARN=$(aws apprunner list-services \
+            --query "ServiceSummaryList[?ServiceName=='${{ env.APP_RUNNER_SERVICE }}'].ServiceArn" \
+            --output text)
+
+          aws apprunner update-service \
+            --service-arn $SERVICE_ARN \
+            --instance-configuration '{"Cpu": "1 vCPU", "Memory": "2 GB"}' \
+            --auto-scaling-configuration-arn $(
+              aws apprunner create-auto-scaling-configuration \
+                --auto-scaling-configuration-name voting-go-production-fixed \
+                --max-concurrency 100 \
+                --min-size 1 \
+                --max-size 1 \
+                --query 'AutoScalingConfiguration.AutoScalingConfigurationArn' \
+                --output text
+            )
+
+      - name: Tag commit as deployed
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag "deploy-production-$(date +'%Y%m%d%H%M%S')"
+          git push origin --tags
+
+  # ─────────────────────────────────────────────
+  # STAGING — EC2 t3.micro + Docker Compose
+  # ─────────────────────────────────────────────
+  deploy-staging:
+    name: Deploy (staging)
+    runs-on: ubuntu-latest
+    environment: staging
+    needs: check-changes
+    if: |
+      inputs.environment == 'staging' &&
+      (inputs.force_deploy == true || needs.check-changes.outputs.has_changes == 'true')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag and push image to ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build \
+            -f infra/docker/api/Dockerfile \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      # Conecta na EC2 via SSH, atualiza o repositório e faz o deploy
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Atualiza o repositório para pegar o docker-compose.staging.yml mais recente
+            cd ~/voting-go
+            git pull origin main
+
+            # Autentica o Docker da EC2 no ECR
+            aws ecr get-login-password --region ${{ env.AWS_REGION }} | \
+              docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
+
+            # Exporta as variáveis de ambiente para o compose
+            export API_IMAGE=${{ steps.build-image.outputs.image }}
+            export APPENV=staging
+            export DBPORT=5432
+            export DBNAME=voting_db
+            export DBSSLMODE=disable
+            export DBUSER=${{ secrets.DB_USER }}
+            export DBPASSWORD=${{ secrets.DB_PASSWORD }}
+            export KEYCLOAK_ISSUER=${{ secrets.KEYCLOAK_ISSUER }}
+            export JWKSURL=${{ secrets.JWKS_URL }}
+            export PUBLIC_KEY=${{ secrets.PUBLIC_KEY }}
+            export USER_ACCESS=${{ secrets.USER_ACCESS }}
+
+            # Atualiza só o container da API, sem restartar o banco
+            cd ~/voting-go/infra
+            docker compose -f docker-compose.staging.yml pull api
+            docker compose -f docker-compose.staging.yml up -d --no-deps api
+            docker compose -f docker-compose.staging.yml ps
+
+      - name: Tag commit as deployed
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag "deploy-staging-$(date +'%Y%m%d%H%M%S')"
+          git push origin --tags

@@ -47,6 +47,7 @@ func VerificarVota(ctx context.Context, repo domainUsuario.UsuarioRepository, ke
 	return loggedUser, nil
 }
 
+// VerificarAtivo verifica se o usuário logado é ativo.
 func VerificarAtivo(u *domainUsuario.Usuario) error {
 	if u.Credencial == nil || !u.Credencial.IsActive() {
 		return domainUsuario.ErrUserNotActive
