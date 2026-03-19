@@ -1,0 +1,44 @@
+services:
+  db:
+    build:
+      context: ./docker/postgres
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DBUSER}
+      POSTGRES_PASSWORD: ${DBPASSWORD}
+      POSTGRES_DB: ${DBNAME}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DBUSER} -d ${DBNAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    image: ${API_IMAGE}
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      APPNAME: "Voting API"
+      APPVERSION: "1.0.0"
+      APPPORT: "8080"
+      APPENV: ${APPENV}
+      DBHOST: db
+      DBPORT: ${DBPORT}
+      DBNAME: ${DBNAME}
+      DBUSER: ${DBUSER}
+      DBPASSWORD: ${DBPASSWORD}
+      DBSSLMODE: ${DBSSLMODE}
+      KEYCLOAK_ISSUER: ${KEYCLOAK_ISSUER}
+      JWKSURL: ${JWKSURL}
+      PUBLIC_KEY: ${PUBLIC_KEY}
+      USER_ACCESS: ${USER_ACCESS}
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
