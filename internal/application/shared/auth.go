@@ -7,7 +7,14 @@ import (
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 )
 
-// VerificarAdmin verifica se o usuário logado é admin e ativo.
+// VerificarAdmin verifica se o usuário autenticado é administrador ativo.
+//
+// Regras de negócio:
+//   - o usuário deve existir no sistema
+//   - o usuário deve estar ativo (ver [VerificarAtivo])
+//   - o usuário deve possuir credencial com perfil de administrador
+//
+// Retorna [domainUsuario.ErrUserNotAdmin] se o usuário não for administrador.
 func VerificarAdmin(ctx context.Context, repo domainUsuario.UsuarioRepository, keycloakID string) error {
 	loggedUser, err := repo.FindByKeycloakID(ctx, keycloakID)
 	if err != nil {
@@ -27,7 +34,15 @@ func VerificarAdmin(ctx context.Context, repo domainUsuario.UsuarioRepository, k
 	return nil
 }
 
-// VerificarVota verifica se o usuário logado pode votar.
+// VerificarVota verifica se o usuário autenticado possui permissão para votar.
+//
+// Regras de negócio:
+//   - o usuário deve existir no sistema
+//   - o usuário deve estar ativo (ver [VerificarAtivo])
+//   - o usuário deve possuir credencial com permissão de voto
+//
+// Retorna o [domainUsuario.Usuario] autenticado em caso de sucesso.
+// Retorna [domainUsuario.ErrUserNotVoter] se o usuário não tiver permissão para votar.
 func VerificarVota(ctx context.Context, repo domainUsuario.UsuarioRepository, keycloakID string) (*domainUsuario.Usuario, error) {
 	loggedUser, err := repo.FindByKeycloakID(ctx, keycloakID)
 	if err != nil {
@@ -47,7 +62,10 @@ func VerificarVota(ctx context.Context, repo domainUsuario.UsuarioRepository, ke
 	return loggedUser, nil
 }
 
-// VerificarAtivo verifica se o usuário logado é ativo.
+// VerificarAtivo verifica se o usuário autenticado está ativo no sistema.
+//
+// Retorna [domainUsuario.ErrUserNotActive] se o usuário não possuir credencial
+// ou se a credencial estiver inativa.
 func VerificarAtivo(u *domainUsuario.Usuario) error {
 	if u.Credencial == nil || !u.Credencial.IsActive() {
 		return domainUsuario.ErrUserNotActive

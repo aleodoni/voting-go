@@ -7,6 +7,8 @@ import (
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 )
 
+// UpdateDisplayNamePermissionsInput contém os dados necessários para atualizar
+// o nome de exibição e as permissões de um usuário.
 type UpdateDisplayNamePermissionsInput struct {
 	LoggedInUserKeycloakID string
 	UserID                 string
@@ -16,10 +18,15 @@ type UpdateDisplayNamePermissionsInput struct {
 	CanVote                bool
 }
 
+// UpdateDisplayNamePermissionsUseCase atualiza o nome de exibição e as permissões de um usuário.
+//
+// Regras de negócio:
+//   - o usuário autenticado deve ser administrador ativo
 type UpdateDisplayNamePermissionsUseCase struct {
 	repo domainUsuario.UsuarioRepository
 }
 
+// NewUpdateDisplayNamePermissionsUseCase cria uma nova instância de [UpdateDisplayNamePermissionsUseCase].
 func NewUpdateDisplayNamePermissionsUseCase(
 	repo domainUsuario.UsuarioRepository,
 ) *UpdateDisplayNamePermissionsUseCase {
@@ -28,17 +35,16 @@ func NewUpdateDisplayNamePermissionsUseCase(
 	}
 }
 
+// Execute atualiza o nome de exibição e as permissões do usuário informado em
+// [UpdateDisplayNamePermissionsInput.UserID].
 func (uc *UpdateDisplayNamePermissionsUseCase) Execute(
 	ctx context.Context,
 	input UpdateDisplayNamePermissionsInput,
 ) error {
-
-	// Verificar se o usuário logado é admin
 	if err := shared.VerificarAdmin(ctx, uc.repo, input.LoggedInUserKeycloakID); err != nil {
 		return err
 	}
 
-	// Atualizar o display name e as permissões do usuário
 	return uc.repo.UpdateDisplayNamePermissions(
 		ctx,
 		input.UserID,

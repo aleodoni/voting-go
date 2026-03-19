@@ -9,16 +9,27 @@ import (
 	"github.com/aleodoni/voting-go/internal/platform/event"
 )
 
+// CancelaVotacaoInput contém os dados necessários para cancelar uma votação.
 type CancelaVotacaoInput struct {
 	LoggedInUserKeycloakID string
 	ProjetoID              string
 }
 
+// CancelaVotacaoPayload é publicado no barramento de eventos quando uma votação é cancelada.
 type CancelaVotacaoPayload struct {
 	ProjetoID string `json:"projetoId"`
 	VotacaoID string `json:"votacaoId"`
 }
 
+// CancelaVotacaoUseCase cancela a votação associada a um projeto.
+//
+// Regras de negócio:
+//   - o usuário autenticado deve ser administrador ativo
+//   - o projeto deve possuir uma votação associada
+//   - a votação deve estar com status fechado ([votacao.StatusVotacaoF])
+//
+// Ao concluir com sucesso, remove a votação e publica o evento [event.VotacaoCancelada]
+// no barramento.
 type CancelaVotacaoUseCase struct {
 	repoUsuario usuario.UsuarioRepository
 	repoReuniao votacao.ReuniaoRepository
@@ -26,6 +37,7 @@ type CancelaVotacaoUseCase struct {
 	bus         *event.Bus
 }
 
+// NewCancelaVotacaoUseCase cria uma nova instância de [CancelaVotacaoUseCase].
 func NewCancelaVotacaoUseCase(
 	repoUsuario usuario.UsuarioRepository,
 	repoReuniao votacao.ReuniaoRepository,
@@ -40,6 +52,7 @@ func NewCancelaVotacaoUseCase(
 	}
 }
 
+// Execute cancela a votação associada ao projeto informado em [CancelaVotacaoInput.ProjetoID].
 func (uc *CancelaVotacaoUseCase) Execute(
 	ctx context.Context,
 	input CancelaVotacaoInput,

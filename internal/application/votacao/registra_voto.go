@@ -10,6 +10,7 @@ import (
 	"github.com/aleodoni/voting-go/internal/platform/id"
 )
 
+// RegistraVotoInput contém os dados necessários para registrar um voto.
 type RegistraVotoInput struct {
 	LoggedInUserKeycloakID string
 	VotacaoID              string
@@ -18,16 +19,28 @@ type RegistraVotoInput struct {
 	VotoContrario          *votacao.VotoContrario
 }
 
+// RegistraVotoPayload é publicado no barramento de eventos quando um voto é registrado.
 type RegistraVotoPayload struct {
 	VotacaoID string `json:"votacaoId"`
 }
 
+// RegistraVotoUseCase registra o voto do usuário autenticado em uma votação aberta.
+//
+// Regras de negócio:
+//   - o usuário autenticado deve estar ativo e possuir permissão de voto
+//   - a votação deve existir e estar com status aberto ([votacao.StatusVotacaoA])
+//   - o usuário não pode votar mais de uma vez na mesma votação
+//   - [RegistraVotoInput.Restricao] e [RegistraVotoInput.VotoContrario] são opcionais;
+//     quando informados, recebem IDs gerados automaticamente
+//
+// Ao concluir com sucesso, publica o evento [event.VotoRegistrado] no barramento.
 type RegistraVotoUseCase struct {
 	repoUsuario usuario.UsuarioRepository
 	repoVotacao votacao.VotacaoRepository
 	bus         *event.Bus
 }
 
+// NewRegistraVotoUseCase cria uma nova instância de [RegistraVotoUseCase].
 func NewRegistraVotoUseCase(
 	repoUsuario usuario.UsuarioRepository,
 	repoVotacao votacao.VotacaoRepository,
@@ -40,13 +53,14 @@ func NewRegistraVotoUseCase(
 	}
 }
 
+// Execute registra o voto do usuário autenticado na votação informada em
+// [RegistraVotoInput.VotacaoID].
 func (uc *RegistraVotoUseCase) Execute(ctx context.Context, input RegistraVotoInput) error {
 	u, err := shared.VerificarVota(ctx, uc.repoUsuario, input.LoggedInUserKeycloakID)
 	if err != nil {
 		return err
 	}
 
-	// 1. Votação existe e está aberta?
 	v, err := uc.repoVotacao.BuscaVotacao(ctx, input.VotacaoID)
 	if err != nil {
 		return err
@@ -55,7 +69,6 @@ func (uc *RegistraVotoUseCase) Execute(ctx context.Context, input RegistraVotoIn
 		return votacao.ErrVotacaoNaoAberta
 	}
 
-	// 2. Usuário já votou?
 	jaVotou, err := uc.repoVotacao.UsuarioJaVotou(ctx, u.ID, input.VotacaoID)
 	if err != nil {
 		return err
