@@ -7,11 +7,26 @@ import (
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 )
 
+// UpdateCredencialInput contém os dados necessários para atualizar a credencial de um usuário.
+type UpdateCredencialInput struct {
+	AdminKeycloakID string
+	UsuarioID       string
+	Ativo           bool
+	PodeVotar       bool
+	PodeAdministrar bool
+}
+
+// UpdateCredencialUseCase atualiza as permissões da credencial de um usuário.
+//
+// Regras de negócio:
+//   - o usuário autenticado deve ser administrador ativo
+//   - a credencial do usuário alvo deve existir no sistema
 type UpdateCredencialUseCase struct {
 	usuarioRepo    domainUsuario.UsuarioRepository
 	credencialRepo domainUsuario.CredencialRepository
 }
 
+// NewUpdateCredencialUseCase cria uma nova instância de [UpdateCredencialUseCase].
 func NewUpdateCredencialUseCase(
 	usuarioRepo domainUsuario.UsuarioRepository,
 	credencialRepo domainUsuario.CredencialRepository,
@@ -22,21 +37,14 @@ func NewUpdateCredencialUseCase(
 	}
 }
 
-type UpdateCredencialInput struct {
-	AdminKeycloakID string
-	UsuarioID       string
-	Ativo           bool
-	PodeVotar       bool
-	PodeAdministrar bool
-}
-
+// Execute atualiza a credencial do usuário informado em [UpdateCredencialInput.UsuarioID].
+//
+// Retorna a [domainUsuario.Credencial] atualizada em caso de sucesso.
 func (uc *UpdateCredencialUseCase) Execute(ctx context.Context, input UpdateCredencialInput) (*domainUsuario.Credencial, error) {
-	// Verificar se o usuário logado é admin
 	if err := shared.VerificarAdmin(ctx, uc.usuarioRepo, input.AdminKeycloakID); err != nil {
 		return nil, err
 	}
 
-	// Buscar a credencial do usuário no BD
 	cred, err := uc.credencialRepo.FindByUsuarioID(ctx, input.UsuarioID)
 	if err != nil {
 		return nil, err
@@ -46,11 +54,9 @@ func (uc *UpdateCredencialUseCase) Execute(ctx context.Context, input UpdateCred
 	cred.PodeVotar = input.PodeVotar
 	cred.PodeAdministrar = input.PodeAdministrar
 
-	// Atualizar a credencial no BD
 	if err := uc.credencialRepo.Update(ctx, cred); err != nil {
 		return nil, err
 	}
 
-	// Retornar a credencial
 	return cred, nil
 }

@@ -9,16 +9,27 @@ import (
 	"github.com/aleodoni/voting-go/internal/platform/event"
 )
 
+// FechaVotacaoInput contém os dados necessários para fechar uma votação.
 type FechaVotacaoInput struct {
 	LoggedInUserKeycloakID string
 	ProjetoID              string
 }
 
+// FechaVotacaoPayload é publicado no barramento de eventos quando uma votação é fechada.
 type FechaVotacaoPayload struct {
 	ProjetoID string `json:"projetoId"`
 	VotacaoID string `json:"votacaoId"`
 }
 
+// FechaVotacaoUseCase fecha a votação aberta de um projeto, alterando seu status para fechado.
+//
+// Regras de negócio:
+//   - o usuário autenticado deve ser administrador ativo
+//   - o projeto deve possuir uma votação associada
+//   - a votação deve estar com status aberto ([votacao.StatusVotacaoA])
+//
+// Ao concluir com sucesso, atualiza o status da votação para [votacao.StatusVotacaoF]
+// e publica o evento [event.VotacaoFechada] no barramento.
 type FechaVotacaoUseCase struct {
 	repoUsuario usuario.UsuarioRepository
 	repoReuniao votacao.ReuniaoRepository
@@ -26,6 +37,7 @@ type FechaVotacaoUseCase struct {
 	bus         *event.Bus
 }
 
+// NewFechaVotacaoUseCase cria uma nova instância de [FechaVotacaoUseCase].
 func NewFechaVotacaoUseCase(
 	repoUsuario usuario.UsuarioRepository,
 	repoReuniao votacao.ReuniaoRepository,
@@ -40,6 +52,7 @@ func NewFechaVotacaoUseCase(
 	}
 }
 
+// Execute fecha a votação associada ao projeto informado em [FechaVotacaoInput.ProjetoID].
 func (uc *FechaVotacaoUseCase) Execute(
 	ctx context.Context,
 	input FechaVotacaoInput,
