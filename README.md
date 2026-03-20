@@ -12,6 +12,7 @@ Permite criar reuniões, registrar projetos em votação e contabilizar votos do
 * Docker
 * k6 (testes de carga)
 * Swagger (documentação)
+* go-pdf/fpdf (geração de PDF)
 
 ## Funcionalidades
 
@@ -21,13 +22,13 @@ Permite criar reuniões, registrar projetos em votação e contabilizar votos do
 * Cadastro de projetos em votação
 * Registro de votos
 * Apuração de resultados
+* Geração de relatório PDF por reunião
 
 ---
 
 # Como rodar o projeto
 
 ## 1. Clonar o repositório
-
 ```bash
 git clone https://github.com/seu-usuario/voting-go.git
 cd voting-go
@@ -38,7 +39,6 @@ cd voting-go
 A aplicação utiliza variáveis de ambiente para configuração.
 
 Crie um arquivo `.env` na raiz do projeto:
-
 ```env
 APPNAME=Voting API
 APPVERSION=1.0.0
@@ -74,13 +74,11 @@ JWKSURL=http://localhost:8081/realms/voting-realm/protocol/openid-connect/certs
 | `JWKSURL`         | Endpoint de chaves públicas usado para validação do JWT |
 
 ## 3. Rodar dependências (Docker)
-
 ```bash
 docker-compose up -d
 ```
 
 ## 4. Gerar documentação Swagger
-
 ```bash
 make swagger
 ```
@@ -88,20 +86,17 @@ make swagger
 > A pasta `docs/` é gerada automaticamente e não é versionada. Execute este comando sempre que alterar as anotações dos handlers.
 
 ## 5. Rodar a aplicação
-
 ```bash
 go run cmd/api/main.go
 ```
 
 ou
-
 ```bash
 go build -o voting-api cmd/api/main.go
 ./voting-api
 ```
 
 A API estará disponível em:
-
 ```
 http://localhost:8080
 ```
@@ -111,7 +106,6 @@ http://localhost:8080
 # Documentação
 
 A documentação interativa da API está disponível via Swagger UI após subir a aplicação:
-
 ```
 http://localhost:8080/swagger/index.html
 ```
@@ -123,7 +117,6 @@ http://localhost:8080/swagger/index.html
 A API utiliza **JWT emitido pelo Keycloak**.
 
 Exemplo de header:
-
 ```
 Authorization: Bearer <token>
 ```
@@ -134,19 +127,20 @@ No Swagger UI, clique em **Authorize** e informe o token no formato `Bearer <tok
 
 # Endpoints
 
-| Método   | Rota                                        | Descrição                          | Auth |
-| -------- | ------------------------------------------- | ---------------------------------- | ---- |
-| `GET`    | `/api/v1/health`                            | Health check                       | ❌   |
-| `GET`    | `/api/v1/me`                                | Retorna o usuário autenticado      | ✅   |
-| `GET`    | `/api/v1/usuarios`                          | Pesquisa usuários (admin)          | ✅   |
-| `PUT`    | `/api/v1/usuarios/fantasia-credenciais`     | Atualiza nome fantasia e permissões| ✅   |
-| `PATCH`  | `/api/v1/usuarios/{id}/credencial`          | Atualiza credencial de um usuário  | ✅   |
-| `GET`    | `/api/v1/reunioes-dia`                      | Retorna reuniões do dia            | ✅   |
-| `GET`    | `/api/v1/reunioes/{reuniaoId}/projetos`     | Retorna projetos de uma reunião    | ✅   |
-| `POST`   | `/api/v1/projetos/{projetoId}/votacao/abrir`| Abre uma votação                   | ✅   |
-| `POST`   | `/api/v1/projetos/{projetoId}/votacao/fechar`| Fecha uma votação                 | ✅   |
-| `DELETE` | `/api/v1/projetos/{projetoId}/votacao`      | Cancela uma votação                | ✅   |
-| `POST`   | `/api/v1/votacao/{votacaoId}/voto`          | Registra um voto                   | ✅   |
+| Método   | Rota                                         | Descrição                          | Auth |
+| -------- | -------------------------------------------- | ---------------------------------- | ---- |
+| `GET`    | `/api/v1/health`                             | Health check                       | ❌   |
+| `GET`    | `/api/v1/me`                                 | Retorna o usuário autenticado      | ✅   |
+| `GET`    | `/api/v1/usuarios`                           | Pesquisa usuários (admin)          | ✅   |
+| `PUT`    | `/api/v1/usuarios/fantasia-credenciais`      | Atualiza nome fantasia e permissões| ✅   |
+| `PATCH`  | `/api/v1/usuarios/{id}/credencial`           | Atualiza credencial de um usuário  | ✅   |
+| `GET`    | `/api/v1/reunioes-dia`                       | Retorna reuniões do dia            | ✅   |
+| `GET`    | `/api/v1/reunioes/{reuniaoId}/projetos`      | Retorna projetos de uma reunião    | ✅   |
+| `GET`    | `/api/v1/reunioes/{reuniaoId}/relatorio`     | Gera relatório PDF da reunião      | ✅   |
+| `POST`   | `/api/v1/projetos/{projetoId}/votacao/abrir` | Abre uma votação                   | ✅   |
+| `POST`   | `/api/v1/projetos/{projetoId}/votacao/fechar`| Fecha uma votação                  | ✅   |
+| `DELETE` | `/api/v1/projetos/{projetoId}/votacao`       | Cancela uma votação                | ✅   |
+| `POST`   | `/api/v1/votacao/{votacaoId}/voto`           | Registra um voto                   | ✅   |
 
 Para detalhes completos de request/response, consulte o Swagger UI.
 
@@ -157,13 +151,11 @@ Para detalhes completos de request/response, consulte o Swagger UI.
 Os testes de carga são feitos com **k6**.
 
 Executar:
-
 ```bash
 k6 run tests/load/reunioes.js
 ```
 
 Passando token:
-
 ```bash
 TOKEN=<jwt> k6 run tests/load/reunioes.js
 ```
@@ -171,7 +163,6 @@ TOKEN=<jwt> k6 run tests/load/reunioes.js
 ---
 
 # Estrutura do projeto
-
 ```
 cmd/
   api/
@@ -199,7 +190,7 @@ Arquitetura baseada em **Clean Architecture**.
 
 # Roadmap
 
-* [ ] Apuração automática de votos
+* [x] Apuração automática de votos
 * [ ] Websocket para resultado em tempo real
 * [ ] Dashboard de votação
 * [ ] Auditoria de votos
