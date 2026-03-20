@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/aleodoni/voting-go/internal/application/shared"
-	"github.com/aleodoni/voting-go/internal/domain/usuario"
-	"github.com/aleodoni/voting-go/internal/domain/votacao"
+	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
+	domainVotacao "github.com/aleodoni/voting-go/internal/domain/votacao"
 	"github.com/aleodoni/voting-go/internal/platform/event"
 	"github.com/aleodoni/voting-go/internal/platform/id"
 )
@@ -14,9 +14,9 @@ import (
 type RegistraVotoInput struct {
 	LoggedInUserKeycloakID string
 	VotacaoID              string
-	Voto                   votacao.OpcaoVoto
-	Restricao              *votacao.Restricao
-	VotoContrario          *votacao.VotoContrario
+	Voto                   domainVotacao.OpcaoVoto
+	Restricao              *domainVotacao.Restricao
+	VotoContrario          *domainVotacao.VotoContrario
 }
 
 // RegistraVotoPayload é publicado no barramento de eventos quando um voto é registrado.
@@ -28,22 +28,22 @@ type RegistraVotoPayload struct {
 //
 // Regras de negócio:
 //   - o usuário autenticado deve estar ativo e possuir permissão de voto
-//   - a votação deve existir e estar com status aberto ([votacao.StatusVotacaoA])
+//   - a votação deve existir e estar com status aberto ([domainVotacao.StatusVotacaoA])
 //   - o usuário não pode votar mais de uma vez na mesma votação
 //   - [RegistraVotoInput.Restricao] e [RegistraVotoInput.VotoContrario] são opcionais;
 //     quando informados, recebem IDs gerados automaticamente
 //
 // Ao concluir com sucesso, publica o evento [event.VotoRegistrado] no barramento.
 type RegistraVotoUseCase struct {
-	repoUsuario usuario.UsuarioRepository
-	repoVotacao votacao.VotacaoRepository
+	repoUsuario domainUsuario.UsuarioRepository
+	repoVotacao domainVotacao.VotacaoRepository
 	bus         *event.Bus
 }
 
 // NewRegistraVotoUseCase cria uma nova instância de [RegistraVotoUseCase].
 func NewRegistraVotoUseCase(
-	repoUsuario usuario.UsuarioRepository,
-	repoVotacao votacao.VotacaoRepository,
+	repoUsuario domainUsuario.UsuarioRepository,
+	repoVotacao domainVotacao.VotacaoRepository,
 	bus *event.Bus,
 ) *RegistraVotoUseCase {
 	return &RegistraVotoUseCase{
@@ -65,8 +65,8 @@ func (uc *RegistraVotoUseCase) Execute(ctx context.Context, input RegistraVotoIn
 	if err != nil {
 		return err
 	}
-	if v.Status != votacao.StatusVotacaoA {
-		return votacao.ErrVotacaoNaoAberta
+	if v.Status != domainVotacao.StatusVotacaoA {
+		return domainVotacao.ErrVotacaoNaoAberta
 	}
 
 	jaVotou, err := uc.repoVotacao.UsuarioJaVotou(ctx, u.ID, input.VotacaoID)
@@ -74,10 +74,10 @@ func (uc *RegistraVotoUseCase) Execute(ctx context.Context, input RegistraVotoIn
 		return err
 	}
 	if jaVotou {
-		return votacao.ErrUsuarioJaVotou
+		return domainVotacao.ErrUsuarioJaVotou
 	}
 
-	voto := &votacao.Voto{
+	voto := &domainVotacao.Voto{
 		ID:            id.New(),
 		VotacaoID:     input.VotacaoID,
 		UsuarioID:     u.ID,
@@ -97,10 +97,17 @@ func (uc *RegistraVotoUseCase) Execute(ctx context.Context, input RegistraVotoIn
 		return err
 	}
 
-	uc.bus.Publish(event.Event{
-		Type:    event.VotoRegistrado,
-		Payload: RegistraVotoPayload{VotacaoID: input.VotacaoID},
-	})
+	v.RegistrarVoto(voto)
+
+	for _, e := range v.PullEvents() {
+		switch evt := e.(type) {
+		case domainVotacao.VotoRegistradoEvent:
+			uc.bus.Publish(event.Event{
+				Type:    event.VotoRegistrado,
+				Payload: RegistraVotoPayload{VotacaoID: evt.VotacaoID},
+			})
+		}
+	}
 
 	return nil
 }

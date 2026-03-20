@@ -2,6 +2,7 @@
 package mappers
 
 import (
+	"github.com/aleodoni/go-ddd/domain"
 	"github.com/aleodoni/voting-go/internal/domain/usuario"
 	"github.com/aleodoni/voting-go/internal/infrastructure/persistence/models"
 )
@@ -9,7 +10,9 @@ import (
 func ToDomainUsuario(m *models.UsuarioModel) *usuario.Usuario {
 
 	u := &usuario.Usuario{
-		ID:           m.ID,
+		AggregateRoot: domain.AggregateRoot[string]{
+			Entity: domain.Entity[string]{ID: m.ID},
+		},
 		KeycloakID:   m.KeycloakID,
 		Username:     m.Username,
 		Email:        m.Email,

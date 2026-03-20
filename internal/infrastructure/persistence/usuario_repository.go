@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/aleodoni/go-ddd/domain"
 	"github.com/aleodoni/voting-go/internal/domain/usuario"
 	"github.com/aleodoni/voting-go/internal/infrastructure/persistence/mappers"
 	"github.com/aleodoni/voting-go/internal/infrastructure/persistence/models"
@@ -134,7 +135,9 @@ func (r *usuarioRepository) ListUsers(ctx context.Context, search string, page, 
 		}
 
 		usuarios[i] = &usuario.Usuario{
-			ID:           r.ID,
+			AggregateRoot: domain.AggregateRoot[string]{
+				Entity: domain.Entity[string]{ID: r.ID},
+			},
 			KeycloakID:   r.KeycloakID,
 			Nome:         r.Nome,
 			NomeFantasia: nomeFantasia,

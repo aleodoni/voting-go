@@ -46,7 +46,7 @@ func NewApp() *App {
 
 	repos := buildRepositories(db)
 	useCases := buildUseCases(repos, bus)
-	handlers := buildHandlers(useCases, bus)
+	handlers := buildHandlers(useCases, repos, bus)
 
 	r := router.SetupRouter(middleware.NewJWTMiddleware(cfg), handlers)
 
@@ -109,7 +109,7 @@ func buildUseCases(r *repositories, bus *event.Bus) *useCases {
 
 // buildHandlers creates all HTTP handler instances and returns the [router.Handlers]
 // struct used to configure the application routes.
-func buildHandlers(uc *useCases, bus *event.Bus) *router.Handlers {
+func buildHandlers(uc *useCases, repos *repositories, bus *event.Bus) *router.Handlers {
 	return &router.Handlers{
 		Me:                        usuarioHandler.NewMeHandler(uc.ensureUsuario),
 		UpdateCredenciais:         usuarioHandler.NewUpdateCredencialHandler(uc.updateCredencial),
@@ -121,6 +121,6 @@ func buildHandlers(uc *useCases, bus *event.Bus) *router.Handlers {
 		CancelaVotacao:            votacaoHandler.NewCancelaVotacaoHandler(uc.cancelaVotacao),
 		RegistraVoto:              votacaoHandler.NewRegistraVotoHandler(uc.registraVoto),
 		PesquisaUsuarios:          usuarioHandler.NewPesquisaUsuariosHandler(uc.listUsuarios),
-		SSE:                       votacaoHandler.NewSSEHandler(bus),
+		SSE:                       votacaoHandler.NewSSEHandler(bus, repos.usuario),
 	}
 }

@@ -4,9 +4,11 @@ import (
 	"context"
 	"testing"
 
+	"github.com/aleodoni/go-ddd/domain"
 	usecase "github.com/aleodoni/voting-go/internal/application/usuario"
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 	"github.com/aleodoni/voting-go/internal/test/fakes"
+	"github.com/nrednav/cuid2"
 )
 
 //
@@ -38,9 +40,9 @@ func TestEnsureUsuario_UsuarioJaExiste(t *testing.T) {
 	credRepo := fakes.NewFakeCredencialRepository()
 
 	usuarioRepo.Seed(&domainUsuario.Usuario{
-		ID:         "user-1",
-		KeycloakID: "keycloak-123",
-		Username:   "joao",
+		AggregateRoot: domain.NewAggregateRoot(cuid2.Generate()),
+		KeycloakID:    "keycloak-123",
+		Username:      "joao",
 	})
 
 	uc := usecase.NewEnsureUsuarioUseCase(usuarioRepo, credRepo, &fakeTransactor{})
