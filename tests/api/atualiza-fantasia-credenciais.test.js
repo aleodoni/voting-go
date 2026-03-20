@@ -13,11 +13,28 @@ export const options = {
   }
 };
 
-export default function () {
+export function setup() {
+  const tokenUser = __ENV.TOKEN_USER;
+
+  const res = http.get(`${BASE_URL}/api/v1/me`, {
+      headers: {
+        Authorization: `Bearer ${tokenUser}`,
+      },
+    });
+  
+  const bodyParsed = JSON.parse(res.body);
+
+
+  return {userId: bodyParsed.id};
+}
+
+export default function (data) {
   const token = __ENV.TOKEN;
 
+  console.log('DATA', data)
+
   const payload = JSON.stringify({
-    user_id: "gpmy9p0tflapqf35leco52w2",
+    user_id: data.userId,
     display_name: "Vereador Um",
     is_active: true,
     can_admin: false,

@@ -116,7 +116,8 @@ test-me-admin:
 
 test-update-fantasia-credenciais:
 	@TOKEN=$$(./scripts/get-token.sh usuario.admin 123456); \
-	k6 run -e TOKEN=$$TOKEN tests/api/atualiza-fantasia-credenciais.test.js
+	TOKEN_USER=$$(./scripts/get-token.sh usuario.vereador 123456); \
+	k6 run -e TOKEN=$$TOKEN -e TOKEN_USER=$$TOKEN_USER tests/api/atualiza-fantasia-credenciais.test.js
 
 test-health:
 	k6 run tests/api/health.test.js
@@ -141,3 +142,12 @@ test-betha-pessoa-fisica:
 swagger:
 	swag fmt
 	swag init -g cmd/api/main.go --parseInternal
+
+# -------------------------
+# Cli
+# ------------------------- 
+build-cli:
+	go build -ldflags="-s -w" -o voting-cli cmd/cli/main/main.go
+
+run-cli:
+	go run cmd/cli/main/main.go
