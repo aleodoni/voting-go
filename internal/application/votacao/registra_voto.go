@@ -3,6 +3,7 @@ package votacao
 import (
 	"context"
 
+	"github.com/aleodoni/go-ddd/domain"
 	"github.com/aleodoni/voting-go/internal/application/shared"
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 	domainVotacao "github.com/aleodoni/voting-go/internal/domain/votacao"
@@ -99,15 +100,16 @@ func (uc *RegistraVotoUseCase) Execute(ctx context.Context, input RegistraVotoIn
 
 	v.RegistrarVoto(voto)
 
-	for _, e := range v.PullEvents() {
+	publishEvents(uc.bus, v.PullEvents(), func(e domain.DomainEvent) (event.Event, bool) {
 		switch evt := e.(type) {
 		case domainVotacao.VotoRegistradoEvent:
-			uc.bus.Publish(event.Event{
+			return event.Event{
 				Type:    event.VotoRegistrado,
 				Payload: RegistraVotoPayload{VotacaoID: evt.VotacaoID},
-			})
+			}, true
 		}
-	}
+		return event.Event{}, false
+	})
 
 	return nil
 }

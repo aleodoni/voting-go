@@ -1,6 +1,7 @@
 {
   "realm": "voting-realm",
   "enabled": true,
+  "accessTokenLifespan": 28800,
 
   "clients": [
     {

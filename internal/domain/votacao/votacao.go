@@ -27,6 +27,7 @@ type Votacao struct {
 	Votos   *[]Voto
 }
 
+// Abrir abre a votação e levanta o evento [VotacaoAbertaEvent].
 func (v *Votacao) Abrir(projetoID string) {
 	v.Status = StatusVotacaoA
 	v.ProjetoID = &projetoID

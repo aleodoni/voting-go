@@ -2,6 +2,7 @@
 package router
 
 import (
+	relatorioHandler "github.com/aleodoni/voting-go/internal/handler/relatorio"
 	reuniaoHandler "github.com/aleodoni/voting-go/internal/handler/reuniao"
 	usuarioHandler "github.com/aleodoni/voting-go/internal/handler/usuario"
 	votacaoHandler "github.com/aleodoni/voting-go/internal/handler/votacao"
@@ -29,6 +30,8 @@ type Handlers struct {
 	RegistraVoto   *votacaoHandler.RegistraVotoHandler
 
 	SSE *votacaoHandler.SSEHandler
+
+	GeraRelatorioReuniao *relatorioHandler.GeraRelatorioReuniaoHandler
 }
 
 func SetupRouter(jwtMiddleware *middleware.JWTMiddleware, h *Handlers) *gin.Engine {
