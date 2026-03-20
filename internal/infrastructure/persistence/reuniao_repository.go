@@ -50,7 +50,7 @@ func (r *reuniaoRepository) GetReunioesDia(ctx context.Context) ([]*votacao.Reun
 }
 
 func (r *reuniaoRepository) GetProjetosCompleto(ctx context.Context, reuniaoID string) ([]*votacao.Projeto, error) {
-	var raw string
+	var raw *string
 	db := DBFromCtx(ctx, r.db)
 
 	if err := db.
@@ -59,9 +59,13 @@ func (r *reuniaoRepository) GetProjetosCompleto(ctx context.Context, reuniaoID s
 		return nil, fmt.Errorf("GetProjetosCompleto: %w", err)
 	}
 
+	if raw == nil {
+		return []*votacao.Projeto{}, nil
+	}
+
 	var items []ProjetoCompletoJSON
 
-	if err := json.Unmarshal([]byte(raw), &items); err != nil {
+	if err := json.Unmarshal([]byte(*raw), &items); err != nil {
 		return nil, fmt.Errorf("GetProjetosCompleto unmarshal: %w", err)
 	}
 
@@ -78,7 +82,7 @@ func (r *reuniaoRepository) GetProjetosCompleto(ctx context.Context, reuniaoID s
 }
 
 func (r *reuniaoRepository) GetProjetoCompleto(ctx context.Context, projetoID string) (*votacao.Projeto, error) {
-	var raw string
+	var raw *string // ponteiro para aceitar NULL
 	db := DBFromCtx(ctx, r.db)
 
 	if err := db.
@@ -87,9 +91,13 @@ func (r *reuniaoRepository) GetProjetoCompleto(ctx context.Context, projetoID st
 		return nil, fmt.Errorf("GetProjetoCompleto: %w", err)
 	}
 
+	if raw == nil {
+		return nil, votacao.ErrProjetoNotFound
+	}
+
 	var item ProjetoCompletoJSON
 
-	if err := json.Unmarshal([]byte(raw), &item); err != nil {
+	if err := json.Unmarshal([]byte(*raw), &item); err != nil {
 		return nil, fmt.Errorf("GetProjetoCompleto unmarshal: %w", err)
 	}
 

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/aleodoni/go-ddd/domain"
+	"github.com/aleodoni/voting-go/internal/domain/usuario"
 	"github.com/aleodoni/voting-go/internal/domain/votacao"
 )
 
@@ -185,6 +186,7 @@ func mapVotoSlice(js []votoJSON) *[]votacao.Voto {
 			UsuarioID:     j.UsuarioID,
 			CreatedAt:     j.CreatedAt.Time,
 			UpdatedAt:     j.UpdatedAt.Time,
+			Usuario:       mapUsuario(j.Usuario),
 			Restricao:     mapRestricao(j.Restricoes),
 			VotoContrario: mapVotoContrario(j.VotoContrario),
 		}
@@ -236,6 +238,23 @@ func mapVotoContrario(js []votoContrarioJSON) *votacao.VotoContrario {
 		ParecerID: j.ParecerID,
 		VotoID:    j.VotoID,
 		Parecer:   parecer,
+	}
+}
+
+func mapUsuario(j *usuarioJSON) usuario.Usuario {
+	if j == nil {
+		return usuario.Usuario{}
+	}
+
+	return usuario.Usuario{
+		AggregateRoot: domain.NewAggregateRoot(j.ID),
+		KeycloakID:    j.KeycloakID,
+		Email:         j.Email,
+		Nome:          j.Nome,
+		NomeFantasia:  j.NomeFantasia,
+		Username:      j.Username,
+		CreatedAt:     j.CreatedAt.Time,
+		UpdatedAt:     j.UpdatedAt.Time,
 	}
 }
 

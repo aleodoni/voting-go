@@ -1,6 +1,10 @@
 package votacao
 
-import "time"
+import (
+	"time"
+
+	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
+)
 
 type OpcaoVoto string
 
@@ -20,6 +24,7 @@ type Voto struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
+	Usuario       domainUsuario.Usuario
 	Restricao     *Restricao
 	VotoContrario *VotoContrario
 }
