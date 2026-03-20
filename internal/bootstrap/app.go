@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
+	ucRelatorio "github.com/aleodoni/voting-go/internal/application/relatorio"
 	ucUsuario "github.com/aleodoni/voting-go/internal/application/usuario"
 	ucVotacao "github.com/aleodoni/voting-go/internal/application/votacao"
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
@@ -19,7 +20,9 @@ import (
 	"github.com/aleodoni/voting-go/internal/config"
 	"github.com/aleodoni/voting-go/internal/database"
 	persistence "github.com/aleodoni/voting-go/internal/infrastructure/persistence"
+	infraRelatorio "github.com/aleodoni/voting-go/internal/infrastructure/report"
 
+	relatorioHandler "github.com/aleodoni/voting-go/internal/handler/relatorio"
 	reuniaoHandler "github.com/aleodoni/voting-go/internal/handler/reuniao"
 	usuarioHandler "github.com/aleodoni/voting-go/internal/handler/usuario"
 	votacaoHandler "github.com/aleodoni/voting-go/internal/handler/votacao"
@@ -89,10 +92,13 @@ type useCases struct {
 	fechaVotacao       *ucVotacao.FechaVotacaoUseCase
 	cancelaVotacao     *ucVotacao.CancelaVotacaoUseCase
 	registraVoto       *ucVotacao.RegistraVotoUseCase
+	geraRelatorio      *ucRelatorio.GeraRelatorioReuniaoUseCase
 }
 
 // buildUseCases creates all use case instances from the given repositories and event bus.
 func buildUseCases(r *repositories, bus *event.Bus) *useCases {
+	pdfGenerator := infraRelatorio.NewPDFRelatorioReuniaoGenerator()
+
 	return &useCases{
 		ensureUsuario:      ucUsuario.NewEnsureUsuarioUseCase(r.usuario, r.credencial, r.transactor),
 		updateDisplayName:  ucUsuario.NewUpdateDisplayNamePermissionsUseCase(r.usuario),
@@ -104,6 +110,7 @@ func buildUseCases(r *repositories, bus *event.Bus) *useCases {
 		fechaVotacao:       ucVotacao.NewFechaVotacaoUseCase(r.usuario, r.reuniao, r.votacao, bus),
 		cancelaVotacao:     ucVotacao.NewCancelaVotacaoUseCase(r.usuario, r.reuniao, r.votacao, bus),
 		registraVoto:       ucVotacao.NewRegistraVotoUseCase(r.usuario, r.votacao, bus),
+		geraRelatorio:      ucRelatorio.NewGeraRelatorioReuniaoUseCase(r.reuniao, pdfGenerator),
 	}
 }
 
@@ -122,5 +129,6 @@ func buildHandlers(uc *useCases, repos *repositories, bus *event.Bus) *router.Ha
 		RegistraVoto:              votacaoHandler.NewRegistraVotoHandler(uc.registraVoto),
 		PesquisaUsuarios:          usuarioHandler.NewPesquisaUsuariosHandler(uc.listUsuarios),
 		SSE:                       votacaoHandler.NewSSEHandler(bus, repos.usuario),
+		GeraRelatorioReuniao:      relatorioHandler.NewGeraRelatorioReuniaoHandler(uc.geraRelatorio),
 	}
 }
