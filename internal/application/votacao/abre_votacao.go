@@ -88,18 +88,16 @@ func (uc *AbreVotacaoUseCase) Execute(ctx context.Context, input AbreVotacaoInpu
 		return err
 	}
 
-	for _, e := range votacaoNova.PullEvents() {
+	publishEvents(uc.bus, votacaoNova.PullEvents(), func(e domain.DomainEvent) (event.Event, bool) {
 		switch evt := e.(type) {
 		case domainVotacao.VotacaoAbertaEvent:
-			uc.bus.Publish(event.Event{
-				Type: event.VotacaoAberta,
-				Payload: AbreVotacaoPayload{
-					ProjetoID: evt.ProjetoID,
-					VotacaoID: evt.VotacaoID,
-				},
-			})
+			return event.Event{
+				Type:    event.VotacaoAberta,
+				Payload: AbreVotacaoPayload{ProjetoID: evt.ProjetoID, VotacaoID: evt.VotacaoID},
+			}, true
 		}
-	}
+		return event.Event{}, false
+	})
 
 	return nil
 }
