@@ -3,9 +3,11 @@ package views
 import (
 	"fmt"
 
+	"github.com/aleodoni/go-ddd/domain"
 	"github.com/aleodoni/voting-go/cmd/cli/tui/styles"
 	"github.com/aleodoni/voting-go/internal/domain/usuario"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/nrednav/cuid2"
 )
 
 // UsuariosLoadedMsg é enviado ao barramento quando os usuários são carregados.
@@ -111,7 +113,9 @@ func (m UsuariosModel) View() string {
 func defaultUsuarioLoader() ([]*usuario.Usuario, error) {
 	return []*usuario.Usuario{
 		{
-			ID:         "user-1",
+			AggregateRoot: domain.AggregateRoot[string]{
+				Entity: domain.Entity[string]{ID: cuid2.Generate()},
+			},
 			Nome:       "Admin Teste",
 			KeycloakID: "keycloak-admin",
 			Credencial: &usuario.Credencial{
@@ -121,7 +125,9 @@ func defaultUsuarioLoader() ([]*usuario.Usuario, error) {
 			},
 		},
 		{
-			ID:         "user-2",
+			AggregateRoot: domain.AggregateRoot[string]{
+				Entity: domain.Entity[string]{ID: cuid2.Generate()},
+			},
 			Nome:       "Vereador Teste",
 			KeycloakID: "keycloak-vereador",
 			Credencial: &usuario.Credencial{
@@ -131,7 +137,9 @@ func defaultUsuarioLoader() ([]*usuario.Usuario, error) {
 			},
 		},
 		{
-			ID:         "user-3",
+			AggregateRoot: domain.AggregateRoot[string]{
+				Entity: domain.Entity[string]{ID: cuid2.Generate()},
+			},
 			Nome:       "Usuário Inativo",
 			KeycloakID: "keycloak-inativo",
 			Credencial: &usuario.Credencial{

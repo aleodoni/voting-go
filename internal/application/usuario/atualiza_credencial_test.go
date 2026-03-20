@@ -4,17 +4,20 @@ import (
 	"context"
 	"testing"
 
+	"github.com/aleodoni/go-ddd/domain"
 	usecase "github.com/aleodoni/voting-go/internal/application/usuario"
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
+	"github.com/aleodoni/voting-go/internal/platform/id"
 	"github.com/aleodoni/voting-go/internal/test/fakes"
+	"github.com/nrednav/cuid2"
 )
 
 // --- helpers ---
 
 func adminAtivo() *domainUsuario.Usuario {
 	return &domainUsuario.Usuario{
-		ID:         "admin-1",
-		KeycloakID: "keycloak-admin",
+		AggregateRoot: domain.NewAggregateRoot(cuid2.Generate()),
+		KeycloakID:    "keycloak-admin",
 		Credencial: &domainUsuario.Credencial{
 			Ativo:           true,
 			PodeAdministrar: true,
@@ -30,7 +33,7 @@ func TestUpdateCredencial_Sucesso(t *testing.T) {
 
 	credencialRepo := fakes.NewFakeCredencialRepository()
 	credencialRepo.Seed(&domainUsuario.Credencial{
-		ID:        "cred-1",
+		Entity:    domain.Entity[string]{ID: id.New()},
 		UsuarioID: "user-1",
 		Ativo:     false,
 		PodeVotar: false,
@@ -63,8 +66,8 @@ func TestUpdateCredencial_Sucesso(t *testing.T) {
 func TestUpdateCredencial_AdminInativo_Inativo(t *testing.T) {
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
 	usuarioRepo.Seed(&domainUsuario.Usuario{
-		ID:         "admin-1",
-		KeycloakID: "keycloak-admin",
+		AggregateRoot: domain.NewAggregateRoot(cuid2.Generate()),
+		KeycloakID:    "keycloak-admin",
 		Credencial: &domainUsuario.Credencial{
 			Ativo:           false,
 			PodeAdministrar: true,
@@ -86,8 +89,8 @@ func TestUpdateCredencial_AdminInativo_Inativo(t *testing.T) {
 func TestUpdateCredencial_AdminSemPermissao_Forbidden(t *testing.T) {
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
 	usuarioRepo.Seed(&domainUsuario.Usuario{
-		ID:         "admin-1",
-		KeycloakID: "keycloak-admin",
+		AggregateRoot: domain.NewAggregateRoot(cuid2.Generate()),
+		KeycloakID:    "keycloak-admin",
 		Credencial: &domainUsuario.Credencial{
 			Ativo:           true,
 			PodeAdministrar: false,

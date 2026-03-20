@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/aleodoni/voting-go/internal/application/shared"
-	"github.com/aleodoni/voting-go/internal/domain/usuario"
-	"github.com/aleodoni/voting-go/internal/domain/votacao"
+	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
+	domainVotacao "github.com/aleodoni/voting-go/internal/domain/votacao"
 	"github.com/aleodoni/voting-go/internal/platform/event"
 )
 
@@ -26,22 +26,22 @@ type CancelaVotacaoPayload struct {
 // Regras de negócio:
 //   - o usuário autenticado deve ser administrador ativo
 //   - o projeto deve possuir uma votação associada
-//   - a votação deve estar com status fechado ([votacao.StatusVotacaoF])
+//   - a votação deve estar com status fechado ([domainVotacao.StatusVotacaoF])
 //
 // Ao concluir com sucesso, remove a votação e publica o evento [event.VotacaoCancelada]
 // no barramento.
 type CancelaVotacaoUseCase struct {
-	repoUsuario usuario.UsuarioRepository
-	repoReuniao votacao.ReuniaoRepository
-	repoVotacao votacao.VotacaoRepository
+	repoUsuario domainUsuario.UsuarioRepository
+	repoReuniao domainVotacao.ReuniaoRepository
+	repoVotacao domainVotacao.VotacaoRepository
 	bus         *event.Bus
 }
 
 // NewCancelaVotacaoUseCase cria uma nova instância de [CancelaVotacaoUseCase].
 func NewCancelaVotacaoUseCase(
-	repoUsuario usuario.UsuarioRepository,
-	repoReuniao votacao.ReuniaoRepository,
-	repoVotacao votacao.VotacaoRepository,
+	repoUsuario domainUsuario.UsuarioRepository,
+	repoReuniao domainVotacao.ReuniaoRepository,
+	repoVotacao domainVotacao.VotacaoRepository,
 	bus *event.Bus,
 ) *CancelaVotacaoUseCase {
 	return &CancelaVotacaoUseCase{
@@ -53,10 +53,7 @@ func NewCancelaVotacaoUseCase(
 }
 
 // Execute cancela a votação associada ao projeto informado em [CancelaVotacaoInput.ProjetoID].
-func (uc *CancelaVotacaoUseCase) Execute(
-	ctx context.Context,
-	input CancelaVotacaoInput,
-) error {
+func (uc *CancelaVotacaoUseCase) Execute(ctx context.Context, input CancelaVotacaoInput) error {
 	if err := shared.VerificarAdmin(ctx, uc.repoUsuario, input.LoggedInUserKeycloakID); err != nil {
 		return err
 	}
@@ -67,24 +64,31 @@ func (uc *CancelaVotacaoUseCase) Execute(
 	}
 
 	if projeto.Votacao == nil {
-		return votacao.ErrVotacaoNaoEncontrada
+		return domainVotacao.ErrVotacaoNaoEncontrada
 	}
 
-	if projeto.Votacao.Status != votacao.StatusVotacaoF {
-		return votacao.ErrVotacaoNaoFechada
+	if projeto.Votacao.Status != domainVotacao.StatusVotacaoF {
+		return domainVotacao.ErrVotacaoNaoFechada
 	}
+
+	projeto.Votacao.Cancelar()
 
 	if err := uc.repoVotacao.DeletaVotacao(ctx, projeto.Votacao.ID); err != nil {
 		return err
 	}
 
-	uc.bus.Publish(event.Event{
-		Type: event.VotacaoCancelada,
-		Payload: CancelaVotacaoPayload{
-			ProjetoID: projeto.ID,
-			VotacaoID: projeto.Votacao.ID,
-		},
-	})
+	for _, e := range projeto.Votacao.PullEvents() {
+		switch evt := e.(type) {
+		case domainVotacao.VotacaoCanceladaEvent:
+			uc.bus.Publish(event.Event{
+				Type: event.VotacaoCancelada,
+				Payload: CancelaVotacaoPayload{
+					ProjetoID: evt.ProjetoID,
+					VotacaoID: evt.VotacaoID,
+				},
+			})
+		}
+	}
 
 	return nil
 }

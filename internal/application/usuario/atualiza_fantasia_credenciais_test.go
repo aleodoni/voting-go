@@ -4,9 +4,12 @@ import (
 	"context"
 	"testing"
 
+	"github.com/aleodoni/go-ddd/domain"
 	usecase "github.com/aleodoni/voting-go/internal/application/usuario"
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
+	"github.com/aleodoni/voting-go/internal/platform/id"
 	"github.com/aleodoni/voting-go/internal/test/fakes"
+	"github.com/nrednav/cuid2"
 )
 
 //
@@ -15,11 +18,11 @@ import (
 
 func adminUsuario(keycloakID, userID string) *domainUsuario.Usuario {
 	return &domainUsuario.Usuario{
-		ID:         userID,
-		KeycloakID: keycloakID,
-		Username:   "admin",
+		AggregateRoot: domain.NewAggregateRoot(cuid2.Generate()),
+		KeycloakID:    keycloakID,
+		Username:      "admin",
 		Credencial: &domainUsuario.Credencial{
-			ID:              "cred-admin",
+			Entity:          domain.Entity[string]{ID: id.New()},
 			UsuarioID:       userID,
 			Ativo:           true,
 			PodeAdministrar: true,
@@ -41,9 +44,9 @@ func TestUpdateDisplayNamePermissions_AdminAtualiza(t *testing.T) {
 
 	repo.Seed(adminUsuario("keycloak-admin", "user-admin"))
 	repo.Seed(&domainUsuario.Usuario{
-		ID:         "user-alvo",
-		KeycloakID: "keycloak-alvo",
-		Username:   "alvo",
+		AggregateRoot: domain.NewAggregateRoot("user-alvo"),
+		KeycloakID:    "keycloak-alvo",
+		Username:      "alvo",
 	})
 
 	uc := usecase.NewUpdateDisplayNamePermissionsUseCase(repo)
@@ -83,10 +86,10 @@ func TestUpdateDisplayNamePermissions_UsuarioLogadoSemCredencial(t *testing.T) {
 	repo := fakes.NewFakeUsuarioRepository()
 
 	repo.Seed(&domainUsuario.Usuario{
-		ID:         "user-sem-cred",
-		KeycloakID: "keycloak-sem-cred",
-		Username:   "semcred",
-		Credencial: nil,
+		AggregateRoot: domain.NewAggregateRoot(cuid2.Generate()),
+		KeycloakID:    "keycloak-sem-cred",
+		Username:      "semcred",
+		Credencial:    nil,
 	})
 
 	uc := usecase.NewUpdateDisplayNamePermissionsUseCase(repo)
@@ -106,11 +109,11 @@ func TestUpdateDisplayNamePermissions_UsuarioLogadoNaoEAdmin(t *testing.T) {
 	repo := fakes.NewFakeUsuarioRepository()
 
 	repo.Seed(&domainUsuario.Usuario{
-		ID:         "user-comum",
-		KeycloakID: "keycloak-comum",
-		Username:   "comum",
+		AggregateRoot: domain.NewAggregateRoot(cuid2.Generate()),
+		KeycloakID:    "keycloak-comum",
+		Username:      "comum",
 		Credencial: &domainUsuario.Credencial{
-			ID:              "cred-comum",
+			Entity:          domain.Entity[string]{ID: id.New()},
 			UsuarioID:       "user-comum",
 			Ativo:           true,
 			PodeAdministrar: false,
@@ -134,11 +137,11 @@ func TestUpdateDisplayNamePermissions_UsuarioLogadoInativo(t *testing.T) {
 	repo := fakes.NewFakeUsuarioRepository()
 
 	repo.Seed(&domainUsuario.Usuario{
-		ID:         "user-inativo",
-		KeycloakID: "keycloak-inativo",
-		Username:   "inativo",
+		AggregateRoot: domain.NewAggregateRoot(cuid2.Generate()),
+		KeycloakID:    "keycloak-inativo",
+		Username:      "inativo",
 		Credencial: &domainUsuario.Credencial{
-			ID:              "cred-inativo",
+			Entity:          domain.Entity[string]{ID: id.New()},
 			UsuarioID:       "user-inativo",
 			Ativo:           false,
 			PodeAdministrar: true,

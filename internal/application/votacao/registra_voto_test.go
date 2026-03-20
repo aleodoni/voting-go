@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/aleodoni/go-ddd/domain"
 	ucVotacao "github.com/aleodoni/voting-go/internal/application/votacao"
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 	"github.com/aleodoni/voting-go/internal/domain/votacao"
@@ -15,8 +16,8 @@ import (
 // helper para evitar repetição nos testes
 func setupUsuarioVereador(repo *fakes.FakeUsuarioRepository) {
 	repo.Seed(&domainUsuario.Usuario{
-		ID:         "user-vereador",
-		KeycloakID: "keycloak-vereador",
+		AggregateRoot: domain.NewAggregateRoot("user-vereador"),
+		KeycloakID:    "keycloak-vereador",
 		Credencial: &domainUsuario.Credencial{
 			Ativo:     true,
 			PodeVotar: true,
@@ -27,8 +28,8 @@ func setupUsuarioVereador(repo *fakes.FakeUsuarioRepository) {
 func setupVotacaoAberta(t *testing.T, repo *fakes.FakeVotacaoRepository) {
 	t.Helper()
 	if err := repo.SalvaVotacao(context.Background(), &votacao.Votacao{
-		ID:     "votacao-1",
-		Status: votacao.StatusVotacaoA,
+		AggregateRoot: domain.NewAggregateRoot("votacao-1"),
+		Status:        votacao.StatusVotacaoA,
 	}); err != nil {
 		t.Fatalf("setupVotacaoAberta: %v", err)
 	}
@@ -200,8 +201,8 @@ func TestRegistraVoto_VotacaoFechada(t *testing.T) {
 	setupUsuarioVereador(usuarioRepo)
 
 	votacaoRepo.SalvaVotacao(context.Background(), &votacao.Votacao{
-		ID:     "votacao-1",
-		Status: votacao.StatusVotacaoF, // ← fechada
+		AggregateRoot: domain.NewAggregateRoot("votacao-1"),
+		Status:        votacao.StatusVotacaoF, // ← fechada
 	})
 
 	uc := ucVotacao.NewRegistraVotoUseCase(usuarioRepo, votacaoRepo, event.NewBus())

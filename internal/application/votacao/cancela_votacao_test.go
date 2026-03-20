@@ -4,11 +4,13 @@ import (
 	"context"
 	"testing"
 
+	"github.com/aleodoni/go-ddd/domain"
 	ucVotacao "github.com/aleodoni/voting-go/internal/application/votacao"
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 	"github.com/aleodoni/voting-go/internal/domain/votacao"
 	"github.com/aleodoni/voting-go/internal/platform/event"
 	"github.com/aleodoni/voting-go/internal/test/fakes"
+	"github.com/nrednav/cuid2"
 )
 
 func TestCancelaVotacao_Sucesso(t *testing.T) {
@@ -18,12 +20,14 @@ func TestCancelaVotacao_Sucesso(t *testing.T) {
 
 	usuarioRepo.Seed(adminUsuario("keycloak-admin", "user-admin"))
 
+	projetoID := "projeto-1"
 	projeto := &votacao.Projeto{
 		ID:               "projeto-1",
 		CodigoProposicao: "001",
 		Votacao: &votacao.Votacao{
-			ID:     "votacao-1",
-			Status: votacao.StatusVotacaoF,
+			AggregateRoot: domain.NewAggregateRoot("votacao-1"),
+			ProjetoID:     &projetoID,
+			Status:        votacao.StatusVotacaoF,
 		},
 	}
 	reuniaoRepo.SeedProjetos("reuniao-1", []*votacao.Projeto{projeto})
@@ -70,8 +74,8 @@ func TestCancelaVotacao_UsuarioNaoAdmin(t *testing.T) {
 	votacaoRepo := fakes.NewFakeVotacaoRepository()
 
 	usuarioRepo.Seed(&domainUsuario.Usuario{
-		ID:         "user-comum",
-		KeycloakID: "keycloak-comum",
+		AggregateRoot: domain.NewAggregateRoot(cuid2.Generate()),
+		KeycloakID:    "keycloak-comum",
 		Credencial: &domainUsuario.Credencial{
 			Ativo:           true,
 			PodeAdministrar: false,
@@ -96,8 +100,8 @@ func TestCancelaVotacao_UsuarioInativo(t *testing.T) {
 	votacaoRepo := fakes.NewFakeVotacaoRepository()
 
 	usuarioRepo.Seed(&domainUsuario.Usuario{
-		ID:         "user-inativo",
-		KeycloakID: "keycloak-inativo",
+		AggregateRoot: domain.NewAggregateRoot(cuid2.Generate()),
+		KeycloakID:    "keycloak-inativo",
 		Credencial: &domainUsuario.Credencial{
 			Ativo:           false,
 			PodeAdministrar: true,
@@ -169,8 +173,8 @@ func TestCancelaVotacao_VotacaoNaoFechada(t *testing.T) {
 		ID:               "projeto-1",
 		CodigoProposicao: "001",
 		Votacao: &votacao.Votacao{
-			ID:     "votacao-1",
-			Status: votacao.StatusVotacaoA,
+			AggregateRoot: domain.NewAggregateRoot("votacao-1"),
+			Status:        votacao.StatusVotacaoA,
 		},
 	}
 	reuniaoRepo.SeedProjetos("reuniao-1", []*votacao.Projeto{projeto})
@@ -198,8 +202,8 @@ func TestCancelaVotacao_ErroDeletaVotacao(t *testing.T) {
 		ID:               "projeto-1",
 		CodigoProposicao: "001",
 		Votacao: &votacao.Votacao{
-			ID:     "votacao-1",
-			Status: votacao.StatusVotacaoF,
+			AggregateRoot: domain.NewAggregateRoot("votacao-1"),
+			Status:        votacao.StatusVotacaoF,
 		},
 	}
 	reuniaoRepo.SeedProjetos("reuniao-1", []*votacao.Projeto{projeto})

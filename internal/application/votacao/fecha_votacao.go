@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/aleodoni/voting-go/internal/application/shared"
-	"github.com/aleodoni/voting-go/internal/domain/usuario"
-	"github.com/aleodoni/voting-go/internal/domain/votacao"
+	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
+	domainVotacao "github.com/aleodoni/voting-go/internal/domain/votacao"
 	"github.com/aleodoni/voting-go/internal/platform/event"
 )
 
@@ -26,22 +26,22 @@ type FechaVotacaoPayload struct {
 // Regras de negócio:
 //   - o usuário autenticado deve ser administrador ativo
 //   - o projeto deve possuir uma votação associada
-//   - a votação deve estar com status aberto ([votacao.StatusVotacaoA])
+//   - a votação deve estar com status aberto ([domainVotacao.StatusVotacaoA])
 //
-// Ao concluir com sucesso, atualiza o status da votação para [votacao.StatusVotacaoF]
+// Ao concluir com sucesso, atualiza o status da votação para [domainVotacao.StatusVotacaoF]
 // e publica o evento [event.VotacaoFechada] no barramento.
 type FechaVotacaoUseCase struct {
-	repoUsuario usuario.UsuarioRepository
-	repoReuniao votacao.ReuniaoRepository
-	repoVotacao votacao.VotacaoRepository
+	repoUsuario domainUsuario.UsuarioRepository
+	repoReuniao domainVotacao.ReuniaoRepository
+	repoVotacao domainVotacao.VotacaoRepository
 	bus         *event.Bus
 }
 
 // NewFechaVotacaoUseCase cria uma nova instância de [FechaVotacaoUseCase].
 func NewFechaVotacaoUseCase(
-	repoUsuario usuario.UsuarioRepository,
-	repoReuniao votacao.ReuniaoRepository,
-	repoVotacao votacao.VotacaoRepository,
+	repoUsuario domainUsuario.UsuarioRepository,
+	repoReuniao domainVotacao.ReuniaoRepository,
+	repoVotacao domainVotacao.VotacaoRepository,
 	bus *event.Bus,
 ) *FechaVotacaoUseCase {
 	return &FechaVotacaoUseCase{
@@ -53,10 +53,7 @@ func NewFechaVotacaoUseCase(
 }
 
 // Execute fecha a votação associada ao projeto informado em [FechaVotacaoInput.ProjetoID].
-func (uc *FechaVotacaoUseCase) Execute(
-	ctx context.Context,
-	input FechaVotacaoInput,
-) error {
+func (uc *FechaVotacaoUseCase) Execute(ctx context.Context, input FechaVotacaoInput) error {
 	if err := shared.VerificarAdmin(ctx, uc.repoUsuario, input.LoggedInUserKeycloakID); err != nil {
 		return err
 	}
@@ -67,26 +64,31 @@ func (uc *FechaVotacaoUseCase) Execute(
 	}
 
 	if projeto.Votacao == nil {
-		return votacao.ErrVotacaoNaoEncontrada
+		return domainVotacao.ErrVotacaoNaoEncontrada
 	}
 
-	if projeto.Votacao.Status != votacao.StatusVotacaoA {
-		return votacao.ErrVotacaoNaoAberta
+	if projeto.Votacao.Status != domainVotacao.StatusVotacaoA {
+		return domainVotacao.ErrVotacaoNaoAberta
 	}
 
-	projeto.Votacao.Status = votacao.StatusVotacaoF
+	projeto.Votacao.Fechar()
 
 	if err := uc.repoVotacao.SalvaVotacao(ctx, projeto.Votacao); err != nil {
 		return err
 	}
 
-	uc.bus.Publish(event.Event{
-		Type: event.VotacaoFechada,
-		Payload: FechaVotacaoPayload{
-			ProjetoID: projeto.ID,
-			VotacaoID: projeto.Votacao.ID,
-		},
-	})
+	for _, e := range projeto.Votacao.PullEvents() {
+		switch evt := e.(type) {
+		case domainVotacao.VotacaoFechadaEvent:
+			uc.bus.Publish(event.Event{
+				Type: event.VotacaoFechada,
+				Payload: FechaVotacaoPayload{
+					ProjetoID: evt.ProjetoID,
+					VotacaoID: evt.VotacaoID,
+				},
+			})
+		}
+	}
 
 	return nil
 }

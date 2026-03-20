@@ -4,20 +4,23 @@ import (
 	"context"
 	"testing"
 
+	"github.com/aleodoni/go-ddd/domain"
 	"github.com/aleodoni/voting-go/internal/application/shared"
 	usecase "github.com/aleodoni/voting-go/internal/application/votacao"
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 	domainVotacao "github.com/aleodoni/voting-go/internal/domain/votacao"
+	"github.com/aleodoni/voting-go/internal/platform/id"
 	"github.com/aleodoni/voting-go/internal/test/fakes"
+	"github.com/nrednav/cuid2"
 )
 
 func adminUsuario(keycloakID, userID string) *domainUsuario.Usuario {
 	return &domainUsuario.Usuario{
-		ID:         userID,
-		KeycloakID: keycloakID,
-		Username:   "admin",
+		AggregateRoot: domain.NewAggregateRoot(cuid2.Generate()),
+		KeycloakID:    keycloakID,
+		Username:      "admin",
 		Credencial: &domainUsuario.Credencial{
-			ID:              "cred-admin",
+			Entity:          domain.Entity[string]{ID: id.New()},
 			UsuarioID:       userID,
 			Ativo:           true,
 			PodeAdministrar: true,
@@ -96,9 +99,9 @@ func TestRetornaReunioesDia_UsuarioSemCredencial(t *testing.T) {
 	reuniaoRepo := fakes.NewFakeReuniaoRepository()
 
 	usuarioRepo.Seed(&domainUsuario.Usuario{
-		ID:         "user-sem-cred",
-		KeycloakID: "keycloak-sem-cred",
-		Credencial: nil,
+		AggregateRoot: domain.NewAggregateRoot(cuid2.Generate()),
+		KeycloakID:    "keycloak-sem-cred",
+		Credencial:    nil,
 	})
 
 	uc := usecase.NewRetornaReunioesDiaUseCase(usuarioRepo, reuniaoRepo)
@@ -117,8 +120,8 @@ func TestRetornaReunioesDia_UsuarioNaoEAdmin(t *testing.T) {
 	reuniaoRepo := fakes.NewFakeReuniaoRepository()
 
 	usuarioRepo.Seed(&domainUsuario.Usuario{
-		ID:         "user-comum",
-		KeycloakID: "keycloak-comum",
+		AggregateRoot: domain.NewAggregateRoot(cuid2.Generate()),
+		KeycloakID:    "keycloak-comum",
 		Credencial: &domainUsuario.Credencial{
 			Ativo:           true,
 			PodeAdministrar: false,
@@ -141,8 +144,8 @@ func TestRetornaReunioesDia_UsuarioInativo(t *testing.T) {
 	reuniaoRepo := fakes.NewFakeReuniaoRepository()
 
 	usuarioRepo.Seed(&domainUsuario.Usuario{
-		ID:         "user-inativo",
-		KeycloakID: "keycloak-inativo",
+		AggregateRoot: domain.NewAggregateRoot(cuid2.Generate()),
+		KeycloakID:    "keycloak-inativo",
 		Credencial: &domainUsuario.Credencial{
 			Ativo:           false,
 			PodeAdministrar: true,
