@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aleodoni/go-ddd/domain"
 	"github.com/aleodoni/voting-go/internal/domain/votacao"
 )
 
@@ -163,10 +164,10 @@ func mapVotacao(j votacaoJSON) *votacao.Votacao {
 	}
 
 	return &votacao.Votacao{
-		ID:        j.ID,
-		ProjetoID: j.ProjetoID,
-		Status:    votacao.StatusVotacao(j.Status),
-		Votos:     mapVotoSlice(j.Votos),
+		AggregateRoot: domain.NewAggregateRoot(j.ID),
+		ProjetoID:     j.ProjetoID,
+		Status:        votacao.StatusVotacao(j.Status),
+		Votos:         mapVotoSlice(j.Votos),
 	}
 }
 

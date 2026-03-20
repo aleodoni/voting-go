@@ -4,11 +4,13 @@ import (
 	"context"
 	"testing"
 
+	"github.com/aleodoni/go-ddd/domain"
 	ucVotacao "github.com/aleodoni/voting-go/internal/application/votacao"
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 	"github.com/aleodoni/voting-go/internal/domain/votacao"
 	"github.com/aleodoni/voting-go/internal/platform/event"
 	"github.com/aleodoni/voting-go/internal/test/fakes"
+	"github.com/nrednav/cuid2"
 )
 
 func TestAbreVotacao_Sucesso(t *testing.T) {
@@ -70,8 +72,8 @@ func TestAbreVotacao_UsuarioNaoAdmin(t *testing.T) {
 	votacaoRepo := fakes.NewFakeVotacaoRepository()
 
 	usuarioRepo.Seed(&domainUsuario.Usuario{
-		ID:         "user-comum",
-		KeycloakID: "keycloak-comum",
+		AggregateRoot: domain.NewAggregateRoot(cuid2.Generate()),
+		KeycloakID:    "keycloak-comum",
 		Credencial: &domainUsuario.Credencial{
 			Ativo:           true,
 			PodeAdministrar: false,
@@ -96,8 +98,8 @@ func TestAbreVotacao_UsuarioInativo(t *testing.T) {
 	votacaoRepo := fakes.NewFakeVotacaoRepository()
 
 	usuarioRepo.Seed(&domainUsuario.Usuario{
-		ID:         "user-inativo",
-		KeycloakID: "keycloak-inativo",
+		AggregateRoot: domain.NewAggregateRoot(cuid2.Generate()),
+		KeycloakID:    "keycloak-inativo",
 		Credencial: &domainUsuario.Credencial{
 			Ativo:           false,
 			PodeAdministrar: true,
@@ -167,8 +169,8 @@ func TestAbreVotacao_VotacaoJaAberta(t *testing.T) {
 	usuarioRepo.Seed(adminUsuario("keycloak-admin", "user-admin"))
 
 	votacaoRepo.Seed(&votacao.Votacao{
-		ID:     "votacao-existente",
-		Status: votacao.StatusVotacaoA,
+		AggregateRoot: domain.NewAggregateRoot("votacao-existente"),
+		Status:        votacao.StatusVotacaoA,
 	})
 
 	uc := ucVotacao.NewAbreVotacaoUseCase(usuarioRepo, reuniaoRepo, votacaoRepo, event.NewBus())
@@ -195,8 +197,8 @@ func TestAbreVotacao_ProjetoJaVotado(t *testing.T) {
 	usuarioRepo.Seed(adminUsuario("keycloak-admin", "user-admin"))
 
 	votacaoExistente := &votacao.Votacao{
-		ID:     "votacao-projeto",
-		Status: votacao.StatusVotacaoA,
+		AggregateRoot: domain.NewAggregateRoot("votacao-projeto"),
+		Status:        votacao.StatusVotacaoA,
 	}
 	projeto := &votacao.Projeto{
 		ID:               "projeto-1",
@@ -232,7 +234,7 @@ func TestAbreVotacao_PublicaEventoAoAbrir(t *testing.T) {
 	reuniaoRepo.SeedProjetos("reuniao-1", []*votacao.Projeto{projeto})
 
 	bus := event.NewBus()
-	ch := bus.Subscribe()
+	ch := bus.Subscribe("test-user", "test", false)
 	defer bus.Unsubscribe(ch)
 
 	uc := ucVotacao.NewAbreVotacaoUseCase(usuarioRepo, reuniaoRepo, votacaoRepo, bus)

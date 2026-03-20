@@ -1,4 +1,3 @@
-// Package config provides configuration management for the application.
 package config
 
 import (
@@ -8,6 +7,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// Config contém todas as configurações necessárias para a execução da aplicação.
 type Config struct {
 	AppName        string
 	AppVersion     string
@@ -23,9 +23,14 @@ type Config struct {
 	KeycloakIssuer string
 }
 
+// LoadConfig carrega as configurações da aplicação a partir de variáveis de ambiente.
+//
+// Comportamento:
+//   - tenta carregar um arquivo .env na raiz do projeto
+//   - caso o arquivo não seja encontrado, emite um aviso e utiliza os valores padrão
+//   - os valores padrão são adequados para execução em ambiente de desenvolvimento local
 func LoadConfig() *Config {
-	err := godotenv.Load()
-	if err != nil {
+	if err := godotenv.Load(); err != nil {
 		logger.Warning("No .env file found.")
 	}
 
@@ -45,6 +50,8 @@ func LoadConfig() *Config {
 	}
 }
 
+// getEnv retorna o valor da variável de ambiente identificada por key.
+// Caso a variável não esteja definida, retorna o valor de fallback.
 func getEnv(key, fallback string) string {
 	value, exists := os.LookupEnv(key)
 	if !exists {

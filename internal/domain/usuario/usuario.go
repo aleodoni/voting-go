@@ -3,10 +3,14 @@ package usuario
 
 import (
 	"time"
+
+	"github.com/aleodoni/go-ddd/domain"
 )
 
+// Usuario representa o agregado raiz do domínio de usuário.
 type Usuario struct {
-	ID           string
+	domain.AggregateRoot[string]
+
 	KeycloakID   string
 	Username     string
 	Email        string

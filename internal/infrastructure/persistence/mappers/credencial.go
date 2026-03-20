@@ -2,13 +2,14 @@
 package mappers
 
 import (
+	"github.com/aleodoni/go-ddd/domain"
 	"github.com/aleodoni/voting-go/internal/domain/usuario"
 	"github.com/aleodoni/voting-go/internal/infrastructure/persistence/models"
 )
 
 func ToDomainCredencial(m *models.CredencialModel) *usuario.Credencial {
 	return &usuario.Credencial{
-		ID:              m.ID,
+		Entity:          domain.Entity[string]{ID: m.ID},
 		UsuarioID:       m.UsuarioID,
 		Ativo:           m.Ativo,
 		PodeAdministrar: m.PodeAdministrar,
@@ -20,7 +21,7 @@ func ToDomainCredencial(m *models.CredencialModel) *usuario.Credencial {
 
 func ToModelCredencial(c *usuario.Credencial) *models.CredencialModel {
 	return &models.CredencialModel{
-		ID:              c.ID,
+		ID:              c.Entity.ID,
 		UsuarioID:       c.UsuarioID,
 		Ativo:           c.Ativo,
 		PodeAdministrar: c.PodeAdministrar,

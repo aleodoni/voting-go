@@ -5,16 +5,18 @@ import (
 	"fmt"
 	"io"
 
+	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 	"github.com/aleodoni/voting-go/internal/platform/event"
 	"github.com/gin-gonic/gin"
 )
 
 type SSEHandler struct {
-	bus *event.Bus
+	bus         *event.Bus
+	usuarioRepo domainUsuario.UsuarioRepository
 }
 
-func NewSSEHandler(bus *event.Bus) *SSEHandler {
-	return &SSEHandler{bus: bus}
+func NewSSEHandler(bus *event.Bus, usuarioRepo domainUsuario.UsuarioRepository) *SSEHandler {
+	return &SSEHandler{bus: bus, usuarioRepo: usuarioRepo}
 }
 
 func (h *SSEHandler) Handle(c *gin.Context) {
@@ -23,7 +25,18 @@ func (h *SSEHandler) Handle(c *gin.Context) {
 	c.Header("Connection", "keep-alive")
 	c.Header("Access-Control-Allow-Origin", "*")
 
-	ch := h.bus.Subscribe()
+	keycloakID := c.GetString("loggedUserKeycloakID")
+	username := c.GetString("loggedUserName")
+
+	u, err := h.usuarioRepo.FindByKeycloakID(c.Request.Context(), keycloakID)
+	if err != nil {
+		c.AbortWithStatusJSON(401, gin.H{"error": "usuário não encontrado"})
+		return
+	}
+
+	isAdmin := u.Credencial != nil && u.Credencial.IsAdmin()
+
+	ch := h.bus.Subscribe(u.ID, username, isAdmin)
 	defer h.bus.Unsubscribe(ch)
 
 	c.Stream(func(w io.Writer) bool {
@@ -38,7 +51,6 @@ func (h *SSEHandler) Handle(c *gin.Context) {
 			}
 			fmt.Fprintf(w, "event: %s\ndata: %s\n\n", e.Type, payload)
 			return true
-
 		case <-c.Request.Context().Done():
 			return false
 		}

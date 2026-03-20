@@ -6,9 +6,11 @@ import (
 	"errors"
 	"time"
 
+	"github.com/aleodoni/go-ddd/domain"
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 	"github.com/aleodoni/voting-go/internal/platform/id"
 	"github.com/aleodoni/voting-go/internal/platform/transaction"
+	"github.com/nrednav/cuid2"
 )
 
 // EnsureUsuarioInput contém os dados necessários para garantir a existência de um usuário.
@@ -60,17 +62,17 @@ func (uc *EnsureUsuarioUseCase) Execute(ctx context.Context, input EnsureUsuario
 
 	now := time.Now()
 	u = &domainUsuario.Usuario{
-		ID:         id.New(),
-		KeycloakID: input.KeycloakID,
-		Username:   input.Username,
-		Email:      input.Email,
-		Nome:       input.Nome,
-		CreatedAt:  now,
-		UpdatedAt:  now,
+		AggregateRoot: domain.NewAggregateRoot(cuid2.Generate()),
+		KeycloakID:    input.KeycloakID,
+		Username:      input.Username,
+		Email:         input.Email,
+		Nome:          input.Nome,
+		CreatedAt:     now,
+		UpdatedAt:     now,
 	}
 
 	cred := &domainUsuario.Credencial{
-		ID:              id.New(),
+		Entity:          domain.Entity[string]{ID: id.New()},
 		UsuarioID:       u.ID,
 		Ativo:           true,
 		PodeVotar:       false,

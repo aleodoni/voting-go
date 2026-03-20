@@ -4,10 +4,12 @@ import (
 	"context"
 	"testing"
 
+	"github.com/aleodoni/go-ddd/domain"
 	usecase "github.com/aleodoni/voting-go/internal/application/votacao"
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 	domainVotacao "github.com/aleodoni/voting-go/internal/domain/votacao"
 	"github.com/aleodoni/voting-go/internal/test/fakes"
+	"github.com/nrednav/cuid2"
 )
 
 func TestRetornaProjetosCompletos_AdminRetornaProjetos(t *testing.T) {
@@ -103,8 +105,8 @@ func TestRetornaProjetosCompletos_UsuarioNaoEAdmin(t *testing.T) {
 	reuniaoRepo := fakes.NewFakeReuniaoRepository()
 
 	usuarioRepo.Seed(&domainUsuario.Usuario{
-		ID:         "user-comum",
-		KeycloakID: "keycloak-comum",
+		AggregateRoot: domain.NewAggregateRoot(cuid2.Generate()),
+		KeycloakID:    "keycloak-comum",
 		Credencial: &domainUsuario.Credencial{
 			Ativo:           true,
 			PodeAdministrar: false,
@@ -128,8 +130,8 @@ func TestRetornaProjetosCompletos_UsuarioInativo(t *testing.T) {
 	reuniaoRepo := fakes.NewFakeReuniaoRepository()
 
 	usuarioRepo.Seed(&domainUsuario.Usuario{
-		ID:         "user-inativo",
-		KeycloakID: "keycloak-inativo",
+		AggregateRoot: domain.NewAggregateRoot(cuid2.Generate()),
+		KeycloakID:    "keycloak-inativo",
 		Credencial: &domainUsuario.Credencial{
 			Ativo:           false,
 			PodeAdministrar: true,
