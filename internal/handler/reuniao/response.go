@@ -20,11 +20,12 @@ type ParecerResponse struct {
 //
 //	@name	VotacaoResponse
 type VotacaoResponse struct {
-	ID        string    `json:"id"         example:"cls1vot123"`
-	ProjetoID *string   `json:"projeto_id" example:"cls1abc123"`
-	Status    string    `json:"status"     example:"A"`
-	CreatedAt time.Time `json:"created_at" example:"2026-03-18T09:00:00Z"`
-	UpdatedAt time.Time `json:"updated_at" example:"2026-03-18T09:00:00Z"`
+	ID        string         `json:"id"         example:"cls1vot123"`
+	ProjetoID *string        `json:"projeto_id" example:"cls1abc123"`
+	Status    string         `json:"status"     example:"A"`
+	Votos     []VotoResponse `json:"votos"`
+	CreatedAt time.Time      `json:"created_at" example:"2026-03-18T09:00:00Z"`
+	UpdatedAt time.Time      `json:"updated_at" example:"2026-03-18T09:00:00Z"`
 }
 
 // ReuniaoResponse representa os dados de uma reunião retornados pela API
@@ -64,6 +65,33 @@ type ProjetoResponse struct {
 	Votacao           *VotacaoResponse   `json:"votacao"`
 	CreatedAt         time.Time          `json:"created_at"          example:"2026-03-18T09:00:00Z"`
 	UpdatedAt         time.Time          `json:"updated_at"          example:"2026-03-18T09:00:00Z"`
+}
+
+type UsuarioVotoResponse struct {
+	ID           string  `json:"id"`
+	Nome         string  `json:"nome"`
+	NomeFantasia *string `json:"nome_fantasia"`
+}
+
+type RestricaoResponse struct {
+	ID        string `json:"id"`
+	Restricao string `json:"restricao"`
+}
+
+type VotoContrarioResponse struct {
+	ID        string           `json:"id"`
+	IDTexto   int              `json:"id_texto"`
+	ParecerID string           `json:"parecer_id"`
+	Parecer   *ParecerResponse `json:"parecer"`
+}
+
+type VotoResponse struct {
+	ID            string                 `json:"id"`
+	Voto          string                 `json:"voto"`
+	UsuarioID     string                 `json:"usuario_id"`
+	Usuario       UsuarioVotoResponse    `json:"usuario"`
+	Restricao     *RestricaoResponse     `json:"restricao"`
+	VotoContrario *VotoContrarioResponse `json:"voto_contrario"`
 }
 
 // ErrorResponse representa os dados de um erro retornado pela API
