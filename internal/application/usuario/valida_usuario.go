@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/aleodoni/go-ddd/domain"
+	domainShared "github.com/aleodoni/voting-go/internal/domain/shared"
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 	"github.com/aleodoni/voting-go/internal/platform/id"
-	"github.com/aleodoni/voting-go/internal/platform/transaction"
 	"github.com/nrednav/cuid2"
 )
 
@@ -29,21 +29,18 @@ type EnsureUsuarioInput struct {
 //   - a credencial é criada com [domainUsuario.Credencial.Ativo] true, sem permissão de voto
 //     ou administração — as permissões devem ser concedidas posteriormente por um administrador
 type EnsureUsuarioUseCase struct {
-	usuarioRepo    domainUsuario.UsuarioRepository
-	credencialRepo domainUsuario.CredencialRepository
-	transactor     transaction.Transactor
+	usuarioRepo domainUsuario.UsuarioRepository
+	transactor  domainShared.UnitOfWork
 }
 
 // NewEnsureUsuarioUseCase cria uma nova instância de [EnsureUsuarioUseCase].
 func NewEnsureUsuarioUseCase(
 	usuarioRepo domainUsuario.UsuarioRepository,
-	credencialRepo domainUsuario.CredencialRepository,
-	transactor transaction.Transactor,
+	transactor domainShared.UnitOfWork,
 ) *EnsureUsuarioUseCase {
 	return &EnsureUsuarioUseCase{
-		usuarioRepo:    usuarioRepo,
-		credencialRepo: credencialRepo,
-		transactor:     transactor,
+		usuarioRepo: usuarioRepo,
+		transactor:  transactor,
 	}
 }
 
@@ -53,9 +50,11 @@ func NewEnsureUsuarioUseCase(
 // [domainUsuario.Credencial] associada preenchida.
 func (uc *EnsureUsuarioUseCase) Execute(ctx context.Context, input EnsureUsuarioInput) (*domainUsuario.Usuario, error) {
 	u, err := uc.usuarioRepo.FindByKeycloakID(ctx, input.KeycloakID)
+
 	if err == nil {
 		return u, nil
 	}
+
 	if !errors.Is(err, domainUsuario.ErrUserNotFound) {
 		return nil, err
 	}
@@ -81,16 +80,13 @@ func (uc *EnsureUsuarioUseCase) Execute(ctx context.Context, input EnsureUsuario
 		UpdatedAt:       now,
 	}
 
-	err = uc.transactor.WithTransaction(ctx, func(txCtx context.Context) error {
-		if err := uc.usuarioRepo.Create(txCtx, u); err != nil {
-			return err
-		}
-		return uc.credencialRepo.Create(txCtx, cred)
-	})
-	if err != nil {
+	u.Credencial = cred
+
+	if err := uc.transactor.Do(ctx, func(txCtx context.Context) error {
+		return uc.usuarioRepo.Create(txCtx, u)
+	}); err != nil {
 		return nil, err
 	}
 
-	u.Credencial = cred
 	return u, nil
 }

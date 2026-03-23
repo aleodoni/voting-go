@@ -26,7 +26,7 @@ func defaultInput() usecase.EnsureUsuarioInput {
 
 type fakeTransactor struct{}
 
-func (f *fakeTransactor) WithTransaction(ctx context.Context, fn func(context.Context) error) error {
+func (f *fakeTransactor) Do(ctx context.Context, fn func(context.Context) error) error {
 	return fn(ctx)
 }
 
@@ -37,7 +37,6 @@ func (f *fakeTransactor) WithTransaction(ctx context.Context, fn func(context.Co
 func TestEnsureUsuario_UsuarioJaExiste(t *testing.T) {
 
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
-	credRepo := fakes.NewFakeCredencialRepository()
 
 	usuarioRepo.Seed(&domainUsuario.Usuario{
 		AggregateRoot: domain.NewAggregateRoot(cuid2.Generate()),
@@ -45,7 +44,7 @@ func TestEnsureUsuario_UsuarioJaExiste(t *testing.T) {
 		Username:      "joao",
 	})
 
-	uc := usecase.NewEnsureUsuarioUseCase(usuarioRepo, credRepo, &fakeTransactor{})
+	uc := usecase.NewEnsureUsuarioUseCase(usuarioRepo, &fakeTransactor{})
 
 	input := defaultInput()
 	input.KeycloakID = "keycloak-123"
@@ -64,9 +63,8 @@ func TestEnsureUsuario_UsuarioJaExiste(t *testing.T) {
 func TestEnsureUsuario_UsuarioNaoExiste_CriaUsuarioECredencial(t *testing.T) {
 
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
-	credRepo := fakes.NewFakeCredencialRepository()
 
-	uc := usecase.NewEnsureUsuarioUseCase(usuarioRepo, credRepo, &fakeTransactor{})
+	uc := usecase.NewEnsureUsuarioUseCase(usuarioRepo, &fakeTransactor{})
 
 	input := defaultInput()
 	input.KeycloakID = "keycloak-456"
@@ -81,13 +79,16 @@ func TestEnsureUsuario_UsuarioNaoExiste_CriaUsuarioECredencial(t *testing.T) {
 		t.Fatal("esperava credencial preenchida")
 	}
 
-	cred, err := credRepo.FindByUsuarioID(context.Background(), u.ID)
-
+	saved, err := usuarioRepo.FindByKeycloakID(context.Background(), "keycloak-456")
 	if err != nil {
+		t.Fatal("usuario não foi criado")
+	}
+
+	if saved.Credencial == nil {
 		t.Fatal("credencial não foi criada")
 	}
 
-	if cred.UsuarioID != u.ID {
+	if saved.Credencial.UsuarioID != saved.ID {
 		t.Error("credencial não pertence ao usuario criado")
 	}
 }
@@ -95,9 +96,8 @@ func TestEnsureUsuario_UsuarioNaoExiste_CriaUsuarioECredencial(t *testing.T) {
 func TestEnsureUsuario_CredencialComDefaultsCorretos(t *testing.T) {
 
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
-	credRepo := fakes.NewFakeCredencialRepository()
 
-	uc := usecase.NewEnsureUsuarioUseCase(usuarioRepo, credRepo, &fakeTransactor{})
+	uc := usecase.NewEnsureUsuarioUseCase(usuarioRepo, &fakeTransactor{})
 
 	u, err := uc.Execute(context.Background(), defaultInput())
 
@@ -105,21 +105,19 @@ func TestEnsureUsuario_CredencialComDefaultsCorretos(t *testing.T) {
 		t.Fatalf("esperava nil, got %v", err)
 	}
 
-	cred, err := credRepo.FindByUsuarioID(context.Background(), u.ID)
-
-	if err != nil {
+	if u.Credencial == nil {
 		t.Fatal("credencial não criada")
 	}
 
-	if !cred.Ativo {
+	if !u.Credencial.Ativo {
 		t.Error("esperava Ativo = true")
 	}
 
-	if cred.PodeVotar {
+	if u.Credencial.PodeVotar {
 		t.Error("esperava PodeVotar = false")
 	}
 
-	if cred.PodeAdministrar {
+	if u.Credencial.PodeAdministrar {
 		t.Error("esperava PodeAdministrar = false")
 	}
 }
@@ -127,9 +125,8 @@ func TestEnsureUsuario_CredencialComDefaultsCorretos(t *testing.T) {
 func TestEnsureUsuario_IDsGerados(t *testing.T) {
 
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
-	credRepo := fakes.NewFakeCredencialRepository()
 
-	uc := usecase.NewEnsureUsuarioUseCase(usuarioRepo, credRepo, &fakeTransactor{})
+	uc := usecase.NewEnsureUsuarioUseCase(usuarioRepo, &fakeTransactor{})
 
 	u, err := uc.Execute(context.Background(), defaultInput())
 
@@ -141,13 +138,11 @@ func TestEnsureUsuario_IDsGerados(t *testing.T) {
 		t.Error("esperava ID do usuario preenchido")
 	}
 
-	cred, err := credRepo.FindByUsuarioID(context.Background(), u.ID)
-
-	if err != nil {
+	if u.Credencial == nil {
 		t.Fatal("credencial não criada")
 	}
 
-	if cred.ID == "" {
+	if u.Credencial.ID == "" {
 		t.Error("esperava ID da credencial preenchido")
 	}
 }
