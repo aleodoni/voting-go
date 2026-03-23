@@ -126,6 +126,23 @@ func (r *votacaoRepositorySQLC) SalvaVoto(ctx context.Context, v *votacao.Voto) 
 	return nil
 }
 
+func (r *votacaoRepositorySQLC) GetProjetoVotacaoAberta(ctx context.Context) (*votacao.Projeto, error) {
+	data, err := r.queries(ctx).GetProjectOpenVoting(ctx)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, votacao.ErrVotacaoNaoEncontrada
+		}
+		return nil, fmt.Errorf("GetProjetoVotacaoAberta: %w", err)
+	}
+
+	projeto, err := mappers.ToDomainProjetoVotacaoAberta(data)
+	if err != nil {
+		return nil, fmt.Errorf("GetProjetoVotacaoAberta mapper: %w", err)
+	}
+
+	return projeto, nil
+}
+
 // marshalVotoField serializa um campo opcional para JSON ou retorna nil.
 func marshalVotoField[T any](v *T, fn func(*T) any) ([]byte, error) {
 	if v == nil {
