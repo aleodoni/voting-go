@@ -93,11 +93,55 @@ func toParecerResponse(p *domainVotacao.Parecer) ParecerResponse {
 }
 
 func toVotacaoResponse(v *domainVotacao.Votacao) VotacaoResponse {
-	return VotacaoResponse{
+	resp := VotacaoResponse{
 		ID:        v.ID,
 		ProjetoID: v.ProjetoID,
 		Status:    string(v.Status),
 		CreatedAt: v.CreatedAt,
 		UpdatedAt: v.UpdatedAt,
+		Votos:     []VotoResponse{},
 	}
+
+	if v.Votos != nil {
+		for _, voto := range *v.Votos {
+			resp.Votos = append(resp.Votos, toVotoResponse(&voto))
+		}
+	}
+
+	return resp
+}
+
+func toVotoResponse(v *domainVotacao.Voto) VotoResponse {
+	resp := VotoResponse{
+		ID:        v.ID,
+		Voto:      string(v.Voto),
+		UsuarioID: v.UsuarioID,
+		Usuario: UsuarioVotoResponse{
+			ID:           v.Usuario.ID,
+			Nome:         v.Usuario.Nome,
+			NomeFantasia: v.Usuario.NomeFantasia,
+		},
+	}
+
+	if v.Restricao != nil {
+		resp.Restricao = &RestricaoResponse{
+			ID:        v.Restricao.ID,
+			Restricao: v.Restricao.Restricao,
+		}
+	}
+
+	if v.VotoContrario != nil {
+		vc := &VotoContrarioResponse{
+			ID:        v.VotoContrario.ID,
+			IDTexto:   v.VotoContrario.IDTexto,
+			ParecerID: v.VotoContrario.ParecerID,
+		}
+		if v.VotoContrario.Parecer != nil {
+			p := toParecerResponse(v.VotoContrario.Parecer)
+			vc.Parecer = &p
+		}
+		resp.VotoContrario = vc
+	}
+
+	return resp
 }
