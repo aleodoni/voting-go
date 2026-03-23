@@ -6,27 +6,13 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5/pgxpool"
 
-	ucRelatorio "github.com/aleodoni/voting-go/internal/application/relatorio"
-	ucUsuario "github.com/aleodoni/voting-go/internal/application/usuario"
-	ucVotacao "github.com/aleodoni/voting-go/internal/application/votacao"
-	domainShared "github.com/aleodoni/voting-go/internal/domain/shared"
-	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
-	domainVotacao "github.com/aleodoni/voting-go/internal/domain/votacao"
 	"github.com/aleodoni/voting-go/internal/middleware"
 	"github.com/aleodoni/voting-go/internal/platform/event"
 	"github.com/aleodoni/voting-go/internal/router"
 
 	"github.com/aleodoni/voting-go/internal/config"
 	"github.com/aleodoni/voting-go/internal/database"
-	persistence "github.com/aleodoni/voting-go/internal/infrastructure/persistence"
-	infraRelatorio "github.com/aleodoni/voting-go/internal/infrastructure/report"
-
-	relatorioHandler "github.com/aleodoni/voting-go/internal/handler/relatorio"
-	reuniaoHandler "github.com/aleodoni/voting-go/internal/handler/reuniao"
-	usuarioHandler "github.com/aleodoni/voting-go/internal/handler/usuario"
-	votacaoHandler "github.com/aleodoni/voting-go/internal/handler/votacao"
 )
 
 // App holds the application's top-level dependencies.
@@ -56,77 +42,5 @@ func NewApp() *App {
 	return &App{
 		Config: cfg,
 		Router: r,
-	}
-
-}
-
-// repositories groups all repository instances.
-type repositories struct {
-	usuario    domainUsuario.UsuarioRepository
-	transactor domainShared.UnitOfWork
-	reuniao    domainVotacao.ReuniaoRepository
-	votacao    domainVotacao.VotacaoRepository
-}
-
-// buildRepositories creates all repository instances from the given database connection.
-func buildRepositories(pgxPool *pgxpool.Pool) *repositories {
-	return &repositories{
-		usuario:    persistence.NewUsuarioRepositorySQLC(pgxPool),
-		transactor: persistence.NewUnitOfWorkSQLC(pgxPool),
-		reuniao:    persistence.NewReuniaoRepositorySQLC(pgxPool),
-		votacao:    persistence.NewVotacaoRepositorySQLC(pgxPool),
-	}
-}
-
-// useCases groups all use case instances.
-type useCases struct {
-	ensureUsuario      *ucUsuario.EnsureUsuarioUseCase
-	updateDisplayName  *ucUsuario.UpdateDisplayNamePermissionsUseCase
-	updateCredencial   *ucUsuario.UpdateCredencialUseCase
-	listUsuarios       *ucUsuario.ListUsuariosUseCase
-	retornaReunioesDia *ucVotacao.RetornaReunioesDiaUseCase
-	retornaProjetos    *ucVotacao.RetornaProjetosCompletosUseCase
-	abreVotacao        *ucVotacao.AbreVotacaoUseCase
-	fechaVotacao       *ucVotacao.FechaVotacaoUseCase
-	cancelaVotacao     *ucVotacao.CancelaVotacaoUseCase
-	registraVoto       *ucVotacao.RegistraVotoUseCase
-	geraRelatorio      *ucRelatorio.GeraRelatorioReuniaoUseCase
-}
-
-// buildUseCases creates all use case instances from the given repositories and event bus.
-func buildUseCases(r *repositories, bus *event.Bus) *useCases {
-	pdfGenerator := infraRelatorio.NewPDFRelatorioReuniaoGenerator()
-
-	return &useCases{
-		ensureUsuario:      ucUsuario.NewEnsureUsuarioUseCase(r.usuario, r.transactor),
-		updateDisplayName:  ucUsuario.NewUpdateDisplayNamePermissionsUseCase(r.usuario),
-		updateCredencial:   ucUsuario.NewUpdateCredencialUseCase(r.usuario),
-		listUsuarios:       ucUsuario.NewListUsuariosUseCase(r.usuario),
-		retornaReunioesDia: ucVotacao.NewRetornaReunioesDiaUseCase(r.usuario, r.reuniao),
-		retornaProjetos:    ucVotacao.NewRetornaProjetosCompletosUseCase(r.usuario, r.reuniao),
-		abreVotacao:        ucVotacao.NewAbreVotacaoUseCase(r.usuario, r.reuniao, r.votacao, bus),
-		fechaVotacao:       ucVotacao.NewFechaVotacaoUseCase(r.usuario, r.reuniao, r.votacao, bus),
-		cancelaVotacao:     ucVotacao.NewCancelaVotacaoUseCase(r.usuario, r.reuniao, r.votacao, bus),
-		registraVoto:       ucVotacao.NewRegistraVotoUseCase(r.usuario, r.votacao, bus),
-		geraRelatorio:      ucRelatorio.NewGeraRelatorioReuniaoUseCase(r.reuniao, pdfGenerator),
-	}
-}
-
-// buildHandlers creates all HTTP handler instances and returns the [router.Handlers]
-// struct used to configure the application routes.
-func buildHandlers(uc *useCases, repos *repositories, bus *event.Bus) *router.Handlers {
-	return &router.Handlers{
-		Me:                        usuarioHandler.NewMeHandler(uc.ensureUsuario),
-		UpdateCredenciais:         usuarioHandler.NewUpdateCredencialHandler(uc.updateCredencial),
-		UpdateFantasiaCredenciais: usuarioHandler.NewAtualizaFantasiaCredenciaisHandler(uc.updateDisplayName),
-		RetornaReunioesDia:        reuniaoHandler.NewRetornaReunioesDiaHandler(uc.retornaReunioesDia),
-		RetornaProjetosCompletos:  reuniaoHandler.NewRetornaProjetosCompletosHandler(uc.retornaProjetos),
-		AbreVotacao:               votacaoHandler.NewAbreVotacaoHandler(uc.abreVotacao),
-		FechaVotacao:              votacaoHandler.NewFechaVotacaoHandler(uc.fechaVotacao),
-		CancelaVotacao:            votacaoHandler.NewCancelaVotacaoHandler(uc.cancelaVotacao),
-		RegistraVoto:              votacaoHandler.NewRegistraVotoHandler(uc.registraVoto),
-		PesquisaUsuarios:          usuarioHandler.NewPesquisaUsuariosHandler(uc.listUsuarios),
-		SSE:                       votacaoHandler.NewSSEHandler(bus, repos.usuario),
-		GeraRelatorioReuniao:      relatorioHandler.NewGeraRelatorioReuniaoHandler(uc.geraRelatorio),
 	}
 }

@@ -20,3 +20,7 @@ sql:
             go_type:
               import: "github.com/aleodoni/voting-go/internal/infrastructure/persistence/sqlc/enums"
               type: "OpcaoVoto"
+          - db_type: "timestamp"
+            go_type: "time.Time"
+          - db_type: "jsonb"
+            go_type: "encoding/json.RawMessage"

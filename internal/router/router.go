@@ -24,10 +24,11 @@ type Handlers struct {
 	RetornaReunioesDia       *reuniaoHandler.RetornaReunioesDiaHandler
 	RetornaProjetosCompletos *reuniaoHandler.RetornaProjetosCompletosHandler
 
-	AbreVotacao    *votacaoHandler.AbreVotacaoHandler
-	FechaVotacao   *votacaoHandler.FechaVotacaoHandler
-	CancelaVotacao *votacaoHandler.CancelaVotacaoHandler
-	RegistraVoto   *votacaoHandler.RegistraVotoHandler
+	AbreVotacao                 *votacaoHandler.AbreVotacaoHandler
+	FechaVotacao                *votacaoHandler.FechaVotacaoHandler
+	CancelaVotacao              *votacaoHandler.CancelaVotacaoHandler
+	RegistraVoto                *votacaoHandler.RegistraVotoHandler
+	RetornaProjetoVotacaoAberta *votacaoHandler.RetornaProjetoVotacaoAbertaHandler
 
 	SSE *votacaoHandler.SSEHandler
 
