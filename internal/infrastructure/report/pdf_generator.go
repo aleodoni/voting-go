@@ -122,6 +122,36 @@ func drawProjeto(pdf *fpdf.Fpdf, p domainRelatorio.ProjetoItem) {
 	pdf.Cell(contentW, smallH, "Como votaram os vereadores")
 	pdf.Ln(smallH + 1)
 
+	for _, voto := range p.Votacao.Votos {
+		drawLine(pdf)
+		pdf.SetX(marginL)
+		pdf.SetFont("DejaVu", "", 10)
+		pdf.Cell(contentW-30, smallH, voto.UsuarioNome)
+		pdf.CellFormat(30, smallH, opcaoVotoDesc(voto.Opcao), "", 1, "R", false, 0, "")
+
+		// Restrição — exibida quando o voto é "Favorável com restrições"
+		if voto.Restricao != "" {
+			pdf.SetX(marginL + 4)
+			pdf.SetFont("DejaVu", "", 9)
+			pdf.SetTextColor(80, 80, 80)
+			pdf.Cell(contentW-4, smallH, fmt.Sprintf("Restrição: %s", voto.Restricao))
+			pdf.Ln(smallH)
+			pdf.SetTextColor(0, 0, 0)
+		}
+
+		// Motivo do voto contrário — exibido quando o voto é "Contrário"
+		if voto.VotoContrario != "" {
+			pdf.SetX(marginL + 4)
+			pdf.SetFont("DejaVu", "", 9)
+			pdf.SetTextColor(80, 80, 80)
+			pdf.Cell(contentW-4, smallH, fmt.Sprintf("Motivo: %s", voto.VotoContrario))
+			pdf.Ln(smallH)
+			pdf.SetTextColor(0, 0, 0)
+		}
+	}
+
+	pdf.Ln(2)
+
 	totaisOrdem := []struct {
 		key   string
 		label string
@@ -141,39 +171,6 @@ func drawProjeto(pdf *fpdf.Fpdf, p domainRelatorio.ProjetoItem) {
 		pdf.Cell(contentW-10, smallH, t.label)
 		pdf.CellFormat(10, smallH, fmt.Sprintf("%d", total), "", 1, "R", false, 0, "")
 	}
-
-	if len(p.Votacao.Votos) == 0 {
-		return
-	}
-
-	pdf.Ln(4)
-	pdf.SetFont("DejaVu", "B", 10)
-	pdf.Cell(contentW, smallH, "Votos")
-	pdf.Ln(smallH + 1)
-
-	pdf.SetFont("DejaVu", "", 10)
-	for _, voto := range p.Votacao.Votos {
-		drawLine(pdf)
-		pdf.SetX(marginL)
-		pdf.Cell(contentW-30, smallH, voto.UsuarioNome)
-		pdf.CellFormat(30, smallH, opcaoVotoDesc(voto.Opcao), "", 1, "R", false, 0, "")
-
-		if voto.Restricao != "" {
-			pdf.SetX(marginL + 4)
-			pdf.SetFont("DejaVu", "", 9)
-			pdf.Cell(contentW-4, smallH, fmt.Sprintf("Restrição: %s", voto.Restricao))
-			pdf.Ln(smallH)
-			pdf.SetFont("DejaVu", "", 10)
-		}
-
-		if voto.VotoContrario != "" {
-			pdf.SetX(marginL + 4)
-			pdf.SetFont("DejaVu", "", 9)
-			pdf.Cell(contentW-4, smallH, fmt.Sprintf("Voto contrário: %s", voto.VotoContrario))
-			pdf.Ln(smallH)
-			pdf.SetFont("DejaVu", "", 10)
-		}
-	}
 }
 
 func drawLine(pdf *fpdf.Fpdf) {
@@ -185,15 +182,15 @@ func drawLine(pdf *fpdf.Fpdf) {
 func opcaoVotoDesc(o string) string {
 	switch o {
 	case "F":
-		return "Favorável"
+		return "FAVORÁVEL"
 	case "R":
-		return "Contrário"
+		return "CONTRÁRIO"
 	case "C":
-		return "Com restrição"
+		return "FAVORÁVEL COM RESTRIÇÕES"
 	case "V":
-		return "Vistas"
+		return "VISTAS"
 	case "A":
-		return "Abstenção"
+		return "ABSTENÇÃO"
 	default:
 		return o
 	}

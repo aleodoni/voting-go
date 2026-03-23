@@ -16,4 +16,5 @@ type UsuarioRepository interface {
 		canVote bool,
 	) error
 	ListUsers(ctx context.Context, search string, page, limit int) ([]*Usuario, int64, error)
+	FindByID(ctx context.Context, id string) (*Usuario, error)
 }

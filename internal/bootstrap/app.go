@@ -6,11 +6,12 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	ucRelatorio "github.com/aleodoni/voting-go/internal/application/relatorio"
 	ucUsuario "github.com/aleodoni/voting-go/internal/application/usuario"
 	ucVotacao "github.com/aleodoni/voting-go/internal/application/votacao"
+	domainShared "github.com/aleodoni/voting-go/internal/domain/shared"
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 	domainVotacao "github.com/aleodoni/voting-go/internal/domain/votacao"
 	"github.com/aleodoni/voting-go/internal/middleware"
@@ -31,7 +32,6 @@ import (
 // App holds the application's top-level dependencies.
 type App struct {
 	Config *config.Config
-	DB     *gorm.DB
 	Router *gin.Engine
 }
 
@@ -40,14 +40,14 @@ type App struct {
 func NewApp() *App {
 	cfg := config.LoadConfig()
 
-	db, err := database.Connect(cfg)
+	pgxPool, err := database.ConnectPGX(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	bus := event.NewBus()
 
-	repos := buildRepositories(db)
+	repos := buildRepositories(pgxPool)
 	useCases := buildUseCases(repos, bus)
 	handlers := buildHandlers(useCases, repos, bus)
 
@@ -55,28 +55,26 @@ func NewApp() *App {
 
 	return &App{
 		Config: cfg,
-		DB:     db,
 		Router: r,
 	}
+
 }
 
 // repositories groups all repository instances.
 type repositories struct {
 	usuario    domainUsuario.UsuarioRepository
-	credencial domainUsuario.CredencialRepository
-	transactor *persistence.GormTransactor
+	transactor domainShared.UnitOfWork
 	reuniao    domainVotacao.ReuniaoRepository
 	votacao    domainVotacao.VotacaoRepository
 }
 
 // buildRepositories creates all repository instances from the given database connection.
-func buildRepositories(db *gorm.DB) *repositories {
+func buildRepositories(pgxPool *pgxpool.Pool) *repositories {
 	return &repositories{
-		usuario:    persistence.NewUsuarioRepository(db),
-		credencial: persistence.NewCredencialRepository(db),
-		transactor: persistence.NewGormTransactor(db),
-		reuniao:    persistence.NewReuniaoRepository(db),
-		votacao:    persistence.NewVotacaoRepository(db),
+		usuario:    persistence.NewUsuarioRepositorySQLC(pgxPool),
+		transactor: persistence.NewUnitOfWorkSQLC(pgxPool),
+		reuniao:    persistence.NewReuniaoRepositorySQLC(pgxPool),
+		votacao:    persistence.NewVotacaoRepositorySQLC(pgxPool),
 	}
 }
 
@@ -100,9 +98,9 @@ func buildUseCases(r *repositories, bus *event.Bus) *useCases {
 	pdfGenerator := infraRelatorio.NewPDFRelatorioReuniaoGenerator()
 
 	return &useCases{
-		ensureUsuario:      ucUsuario.NewEnsureUsuarioUseCase(r.usuario, r.credencial, r.transactor),
+		ensureUsuario:      ucUsuario.NewEnsureUsuarioUseCase(r.usuario, r.transactor),
 		updateDisplayName:  ucUsuario.NewUpdateDisplayNamePermissionsUseCase(r.usuario),
-		updateCredencial:   ucUsuario.NewUpdateCredencialUseCase(r.usuario, r.credencial),
+		updateCredencial:   ucUsuario.NewUpdateCredencialUseCase(r.usuario),
 		listUsuarios:       ucUsuario.NewListUsuariosUseCase(r.usuario),
 		retornaReunioesDia: ucVotacao.NewRetornaReunioesDiaUseCase(r.usuario, r.reuniao),
 		retornaProjetos:    ucVotacao.NewRetornaProjetosCompletosUseCase(r.usuario, r.reuniao),

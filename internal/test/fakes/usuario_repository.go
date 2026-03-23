@@ -166,3 +166,16 @@ func (f *FakeUsuarioRepository) ListUsers(ctx context.Context, search string, pa
 
 	return result, int64(len(result)), nil
 }
+
+func (f *FakeUsuarioRepository) FindByID(
+	ctx context.Context,
+	id string,
+) (*usuario.Usuario, error) {
+	for _, u := range f.usuarios {
+		if u.ID == id {
+			return u, nil
+		}
+	}
+
+	return nil, usuario.ErrUserNotFound
+}

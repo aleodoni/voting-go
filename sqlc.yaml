@@ -1,0 +1,22 @@
+version: "2"
+
+sql:
+  - engine: "postgresql"
+    schema:
+      - "migrations/*.up.sql"
+    queries:
+      - "internal/infrastructure/persistence/sqlc/queries/*.sql"
+    gen:
+      go:
+        package: "db"
+        out: "internal/infrastructure/persistence/sqlc/generated"
+        sql_package: "pgx/v5"
+        overrides:
+          - db_type: "status_votacao"
+            go_type:
+              import: "github.com/aleodoni/voting-go/internal/infrastructure/persistence/sqlc/enums"
+              type: "StatusVotacao"
+          - db_type: "opcao_voto"
+            go_type:
+              import: "github.com/aleodoni/voting-go/internal/infrastructure/persistence/sqlc/enums"
+              type: "OpcaoVoto"

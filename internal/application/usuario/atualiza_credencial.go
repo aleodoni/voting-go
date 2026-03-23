@@ -22,18 +22,15 @@ type UpdateCredencialInput struct {
 //   - o usuário autenticado deve ser administrador ativo
 //   - a credencial do usuário alvo deve existir no sistema
 type UpdateCredencialUseCase struct {
-	usuarioRepo    domainUsuario.UsuarioRepository
-	credencialRepo domainUsuario.CredencialRepository
+	usuarioRepo domainUsuario.UsuarioRepository
 }
 
 // NewUpdateCredencialUseCase cria uma nova instância de [UpdateCredencialUseCase].
 func NewUpdateCredencialUseCase(
 	usuarioRepo domainUsuario.UsuarioRepository,
-	credencialRepo domainUsuario.CredencialRepository,
 ) *UpdateCredencialUseCase {
 	return &UpdateCredencialUseCase{
-		usuarioRepo:    usuarioRepo,
-		credencialRepo: credencialRepo,
+		usuarioRepo: usuarioRepo,
 	}
 }
 
@@ -45,18 +42,22 @@ func (uc *UpdateCredencialUseCase) Execute(ctx context.Context, input UpdateCred
 		return nil, err
 	}
 
-	cred, err := uc.credencialRepo.FindByUsuarioID(ctx, input.UsuarioID)
+	err := uc.usuarioRepo.UpdateDisplayNamePermissions(
+		ctx,
+		input.UsuarioID,
+		nil,
+		input.Ativo,
+		input.PodeAdministrar,
+		input.PodeVotar,
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	cred.Ativo = input.Ativo
-	cred.PodeVotar = input.PodeVotar
-	cred.PodeAdministrar = input.PodeAdministrar
-
-	if err := uc.credencialRepo.Update(ctx, cred); err != nil {
+	u, err := uc.usuarioRepo.FindByID(ctx, input.UsuarioID)
+	if err != nil {
 		return nil, err
 	}
 
-	return cred, nil
+	return u.Credencial, nil
 }

@@ -7,16 +7,14 @@ import (
 	"github.com/aleodoni/go-ddd/domain"
 	usecase "github.com/aleodoni/voting-go/internal/application/usuario"
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
-	"github.com/aleodoni/voting-go/internal/platform/id"
 	"github.com/aleodoni/voting-go/internal/test/fakes"
-	"github.com/nrednav/cuid2"
 )
 
 // --- helpers ---
 
 func adminAtivo() *domainUsuario.Usuario {
 	return &domainUsuario.Usuario{
-		AggregateRoot: domain.NewAggregateRoot(cuid2.Generate()),
+		AggregateRoot: domain.NewAggregateRoot("user-1"),
 		KeycloakID:    "keycloak-admin",
 		Credencial: &domainUsuario.Credencial{
 			Ativo:           true,
@@ -31,15 +29,7 @@ func TestUpdateCredencial_Sucesso(t *testing.T) {
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
 	usuarioRepo.Seed(adminAtivo())
 
-	credencialRepo := fakes.NewFakeCredencialRepository()
-	credencialRepo.Seed(&domainUsuario.Credencial{
-		Entity:    domain.Entity[string]{ID: id.New()},
-		UsuarioID: "user-1",
-		Ativo:     false,
-		PodeVotar: false,
-	})
-
-	uc := usecase.NewUpdateCredencialUseCase(usuarioRepo, credencialRepo)
+	uc := usecase.NewUpdateCredencialUseCase(usuarioRepo)
 
 	cred, err := uc.Execute(context.Background(), usecase.UpdateCredencialInput{
 		AdminKeycloakID: "keycloak-admin",
@@ -66,7 +56,7 @@ func TestUpdateCredencial_Sucesso(t *testing.T) {
 func TestUpdateCredencial_AdminInativo_Inativo(t *testing.T) {
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
 	usuarioRepo.Seed(&domainUsuario.Usuario{
-		AggregateRoot: domain.NewAggregateRoot(cuid2.Generate()),
+		AggregateRoot: domain.NewAggregateRoot("user-1"),
 		KeycloakID:    "keycloak-admin",
 		Credencial: &domainUsuario.Credencial{
 			Ativo:           false,
@@ -74,7 +64,7 @@ func TestUpdateCredencial_AdminInativo_Inativo(t *testing.T) {
 		},
 	})
 
-	uc := usecase.NewUpdateCredencialUseCase(usuarioRepo, fakes.NewFakeCredencialRepository())
+	uc := usecase.NewUpdateCredencialUseCase(usuarioRepo)
 
 	_, err := uc.Execute(context.Background(), usecase.UpdateCredencialInput{
 		AdminKeycloakID: "keycloak-admin",
@@ -89,7 +79,7 @@ func TestUpdateCredencial_AdminInativo_Inativo(t *testing.T) {
 func TestUpdateCredencial_AdminSemPermissao_Forbidden(t *testing.T) {
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
 	usuarioRepo.Seed(&domainUsuario.Usuario{
-		AggregateRoot: domain.NewAggregateRoot(cuid2.Generate()),
+		AggregateRoot: domain.NewAggregateRoot("user-1"),
 		KeycloakID:    "keycloak-admin",
 		Credencial: &domainUsuario.Credencial{
 			Ativo:           true,
@@ -97,7 +87,7 @@ func TestUpdateCredencial_AdminSemPermissao_Forbidden(t *testing.T) {
 		},
 	})
 
-	uc := usecase.NewUpdateCredencialUseCase(usuarioRepo, fakes.NewFakeCredencialRepository())
+	uc := usecase.NewUpdateCredencialUseCase(usuarioRepo)
 
 	_, err := uc.Execute(context.Background(), usecase.UpdateCredencialInput{
 		AdminKeycloakID: "keycloak-admin",
@@ -110,7 +100,7 @@ func TestUpdateCredencial_AdminSemPermissao_Forbidden(t *testing.T) {
 }
 
 func TestUpdateCredencial_AdminNaoEncontrado(t *testing.T) {
-	uc := usecase.NewUpdateCredencialUseCase(fakes.NewFakeUsuarioRepository(), fakes.NewFakeCredencialRepository())
+	uc := usecase.NewUpdateCredencialUseCase(fakes.NewFakeUsuarioRepository())
 
 	_, err := uc.Execute(context.Background(), usecase.UpdateCredencialInput{
 		AdminKeycloakID: "keycloak-inexistente",
@@ -126,14 +116,14 @@ func TestUpdateCredencial_UsuarioAlvoNaoEncontrado(t *testing.T) {
 	usuarioRepo := fakes.NewFakeUsuarioRepository()
 	usuarioRepo.Seed(adminAtivo())
 
-	uc := usecase.NewUpdateCredencialUseCase(usuarioRepo, fakes.NewFakeCredencialRepository())
+	uc := usecase.NewUpdateCredencialUseCase(usuarioRepo)
 
 	_, err := uc.Execute(context.Background(), usecase.UpdateCredencialInput{
 		AdminKeycloakID: "keycloak-admin",
 		UsuarioID:       "user-inexistente",
 	})
 
-	if err != domainUsuario.ErrCredencialNotFound {
-		t.Errorf("esperava ErrCredencialNotFound, got %v", err)
+	if err != domainUsuario.ErrUserNotFound {
+		t.Errorf("esperava ErrUserNotFound, got %v", err)
 	}
 }

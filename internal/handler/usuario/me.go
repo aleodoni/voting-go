@@ -45,6 +45,7 @@ func (h *MeHandler) Handle(c *gin.Context) {
 	}
 
 	usuario, err := h.ensureUseCase.Execute(c.Request.Context(), input)
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "failed to ensure user"})
 		return
