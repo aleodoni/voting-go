@@ -29,6 +29,7 @@ type Handlers struct {
 	CancelaVotacao              *votacaoHandler.CancelaVotacaoHandler
 	RegistraVoto                *votacaoHandler.RegistraVotoHandler
 	RetornaProjetoVotacaoAberta *votacaoHandler.RetornaProjetoVotacaoAbertaHandler
+	RetornaStatsVotacao         *votacaoHandler.RetornaVotingStatsHandler
 
 	SSE *votacaoHandler.SSEHandler
 
