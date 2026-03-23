@@ -2,6 +2,7 @@ package fakes
 
 import (
 	"context"
+	"time"
 
 	"github.com/aleodoni/voting-go/internal/domain/votacao"
 )
@@ -17,11 +18,13 @@ type FakeVotacaoRepository struct {
 	UsuarioJaVotouErr          error
 	GetVotacaoAbertaErr        error
 	GetProjetoVotacaoAbertaErr error
+	GetVotingStatsErr          error
 
 	SalvaVotacaoCalls    []votacao.Votacao
 	DeletaVotacaoCalls   []string
 	SalvaVotoCalls       []votacao.Voto
 	projetoVotacaoAberta *votacao.Projeto
+	votingStats          *votacao.VotingStats
 }
 
 var _ votacao.VotacaoRepository = (*FakeVotacaoRepository)(nil)
@@ -101,6 +104,17 @@ func (f *FakeVotacaoRepository) GetVotacaoAberta(ctx context.Context) (*votacao.
 		}
 	}
 	return nil, nil
+}
+
+func (f *FakeVotacaoRepository) GetVotingStats(ctx context.Context, date time.Time) (*votacao.VotingStats, error) {
+	if f.GetVotingStatsErr != nil {
+		return nil, f.GetVotingStatsErr
+	}
+	return f.votingStats, nil
+}
+
+func (f *FakeVotacaoRepository) SeedVotingStats(s *votacao.VotingStats) {
+	f.votingStats = s
 }
 
 func (f *FakeVotacaoRepository) Seed(v *votacao.Votacao) {

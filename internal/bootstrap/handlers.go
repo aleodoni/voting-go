@@ -25,5 +25,6 @@ func buildHandlers(uc *useCases, repos *repositories, bus *event.Bus) *router.Ha
 		SSE:                         votacaoHandler.NewSSEHandler(bus, repos.usuario),
 		GeraRelatorioReuniao:        relatorioHandler.NewGeraRelatorioReuniaoHandler(uc.geraRelatorio),
 		RetornaProjetoVotacaoAberta: votacaoHandler.NewRetornaProjetoVotacaoAbertaHandler(uc.retornaProjetoVotacaoAberta),
+		RetornaStatsVotacao:         votacaoHandler.NewRetornaVotingStatsHandler(uc.retornaStatsVotacao),
 	}
 }

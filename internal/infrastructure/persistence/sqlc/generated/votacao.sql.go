@@ -73,6 +73,17 @@ func (q *Queries) GetProjectOpenVoting(ctx context.Context) ([]byte, error) {
 	return f_get_project_open_voting, err
 }
 
+const getVotingStats = `-- name: GetVotingStats :one
+SELECT public.f_get_voting_stats($1)
+`
+
+func (q *Queries) GetVotingStats(ctx context.Context, pStatsDate pgtype.Date) ([]byte, error) {
+	row := q.db.QueryRow(ctx, getVotingStats, pStatsDate)
+	var f_get_voting_stats []byte
+	err := row.Scan(&f_get_voting_stats)
+	return f_get_voting_stats, err
+}
+
 const saveVoto = `-- name: SaveVoto :exec
 SELECT f_save_vote($1, $2, $3, $4, $5, $6)
 `

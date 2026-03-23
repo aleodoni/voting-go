@@ -8,4 +8,5 @@ func registerVotacaoRoutes(rg *gin.RouterGroup, h *Handlers) {
 	rg.DELETE("/projetos/:projetoId/votacao", h.CancelaVotacao.Handle)
 	rg.POST("/votacao/:votacaoId/voto", h.RegistraVoto.Handle)
 	rg.GET("/votacao/aberta", h.RetornaProjetoVotacaoAberta.Handle)
+	rg.GET("/votacao/stats", h.RetornaStatsVotacao.Handle)
 }

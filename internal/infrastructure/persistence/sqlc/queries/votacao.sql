@@ -33,3 +33,6 @@ SELECT f_save_vote($1, $2, $3, $4, $5, $6);
 
 -- name: GetProjectOpenVoting :one
 SELECT public.f_get_project_open_voting();
+
+-- name: GetVotingStats :one
+SELECT public.f_get_voting_stats($1);

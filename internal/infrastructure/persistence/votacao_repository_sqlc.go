@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/aleodoni/voting-go/internal/domain/votacao"
 	"github.com/aleodoni/voting-go/internal/infrastructure/persistence/mappers"
@@ -141,6 +142,23 @@ func (r *votacaoRepositorySQLC) GetProjetoVotacaoAberta(ctx context.Context) (*v
 	}
 
 	return projeto, nil
+}
+
+func (r *votacaoRepositorySQLC) GetVotingStats(ctx context.Context, date time.Time) (*votacao.VotingStats, error) {
+	data, err := r.queries(ctx).GetVotingStats(ctx, pgtype.Date{
+		Time:  date,
+		Valid: true,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("GetVotingStats: %w", err)
+	}
+
+	stats, err := mappers.ToDomainVotingStats(data)
+	if err != nil {
+		return nil, fmt.Errorf("GetVotingStats mapper: %w", err)
+	}
+
+	return stats, nil
 }
 
 // marshalVotoField serializa um campo opcional para JSON ou retorna nil.

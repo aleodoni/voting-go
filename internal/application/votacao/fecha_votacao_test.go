@@ -44,8 +44,8 @@ func TestFechaVotacao_Sucesso(t *testing.T) {
 	if len(votacaoRepo.SalvaVotacaoCalls) != 1 {
 		t.Fatalf("esperava que SalvaVotacao fosse chamado")
 	}
-	if votacaoRepo.SalvaVotacaoCalls[0].Status != votacao.StatusVotacaoF {
-		t.Errorf("esperava status F, got %s", votacaoRepo.SalvaVotacaoCalls[0].Status)
+	if votacaoRepo.SalvaVotacaoCalls[0].Status != votacao.StatusVotacaoV {
+		t.Errorf("esperava status V, got %s", votacaoRepo.SalvaVotacaoCalls[0].Status)
 	}
 }
 
