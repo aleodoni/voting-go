@@ -3,55 +3,37 @@ package mappers
 
 import (
 	"github.com/aleodoni/voting-go/internal/domain/votacao"
-	"github.com/aleodoni/voting-go/internal/infrastructure/persistence/models"
+	db "github.com/aleodoni/voting-go/internal/infrastructure/persistence/sqlc/generated"
 )
 
-func ToModelReuniao(r *votacao.Reuniao) *models.Reuniao {
-	return &models.Reuniao{
-		ID:             r.ID,
-		ConID:          r.ConID,
-		RecID:          r.RecID,
-		PacID:          r.PacID,
-		ConDesc:        r.ConDesc,
-		ConSigla:       r.ConSigla,
-		RecTipoReuniao: r.RecTipoReuniao,
-		RecNumero:      r.RecNumero,
-		RecData:        r.RecData,
-		CreatedAt:      r.CreatedAt,
-		UpdatedAt:      r.UpdatedAt,
-	}
-}
-
-func ToDomainReuniao(m *models.Reuniao) *votacao.Reuniao {
-	r := &votacao.Reuniao{
+func ToDomainReuniaoFromSQLC(m db.FindReuniaoByIDRow) *votacao.Reuniao {
+	return &votacao.Reuniao{
 		ID:             m.ID,
-		ConID:          m.ConID,
-		RecID:          m.RecID,
-		PacID:          m.PacID,
+		ConID:          int(m.ConID),
+		RecID:          int(m.RecID),
+		PacID:          int(m.PacID),
 		ConDesc:        m.ConDesc,
 		ConSigla:       m.ConSigla,
 		RecTipoReuniao: m.RecTipoReuniao,
 		RecNumero:      m.RecNumero,
-		RecData:        m.RecData,
-		CreatedAt:      m.CreatedAt,
-		UpdatedAt:      m.UpdatedAt,
+		RecData:        m.RecData.Time,
+		CreatedAt:      m.CreatedAt.Time,
+		UpdatedAt:      m.UpdatedAt.Time,
 	}
-
-	if m.Projetos != nil {
-		projetos := make([]votacao.Projeto, len(*m.Projetos))
-		for i, p := range *m.Projetos {
-			projetos[i] = *ToDomainProjeto(&p)
-		}
-		r.Projetos = &projetos
-	}
-
-	return r
 }
 
-func ToDomainReunioes(models []*models.Reuniao) []*votacao.Reuniao {
-	reunioes := make([]*votacao.Reuniao, len(models))
-	for i, m := range models {
-		reunioes[i] = ToDomainReuniao(m)
+func ToDomainReuniaoFromDiaRow(m db.GetReunioesDiaRow) *votacao.Reuniao {
+	return &votacao.Reuniao{
+		ID:             m.ID,
+		ConID:          int(m.ConID),
+		RecID:          int(m.RecID),
+		PacID:          int(m.PacID),
+		ConDesc:        m.ConDesc,
+		ConSigla:       m.ConSigla,
+		RecTipoReuniao: m.RecTipoReuniao,
+		RecNumero:      m.RecNumero,
+		RecData:        m.RecData.Time,
+		CreatedAt:      m.CreatedAt.Time,
+		UpdatedAt:      m.UpdatedAt.Time,
 	}
-	return reunioes
 }

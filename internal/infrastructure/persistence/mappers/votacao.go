@@ -3,37 +3,21 @@ package mappers
 import (
 	"github.com/aleodoni/go-ddd/domain"
 	"github.com/aleodoni/voting-go/internal/domain/votacao"
-	"github.com/aleodoni/voting-go/internal/infrastructure/persistence/models"
+	db "github.com/aleodoni/voting-go/internal/infrastructure/persistence/sqlc/generated"
 )
 
-// ToModelVotacao converte a entidade de domínio [votacao.Votacao] para [models.VotacaoModel].
-func ToModelVotacao(v *votacao.Votacao) *models.VotacaoModel {
-	return &models.VotacaoModel{
-		ID:        v.ID,
-		ProjetoID: v.ProjetoID,
-		Status:    models.StatusVotacao(v.Status),
-		CreatedAt: v.CreatedAt,
-		UpdatedAt: v.UpdatedAt,
+// ToDomainVotacaoFromSQLC converte um [db.Votacao] para a entidade de domínio [votacao.Votacao].
+func ToDomainVotacaoFromSQLC(m db.Votacao) *votacao.Votacao {
+	var projetoID *string
+	if m.ProjetoID.Valid {
+		projetoID = &m.ProjetoID.String
 	}
-}
 
-// ToDomainVotacao converte um [models.VotacaoModel] para a entidade de domínio [votacao.Votacao].
-func ToDomainVotacao(m *models.VotacaoModel) *votacao.Votacao {
-	v := &votacao.Votacao{
+	return &votacao.Votacao{
 		AggregateRoot: domain.NewAggregateRoot(m.ID),
-		ProjetoID:     m.ProjetoID,
+		ProjetoID:     projetoID,
 		Status:        votacao.StatusVotacao(m.Status),
-		CreatedAt:     m.CreatedAt,
-		UpdatedAt:     m.UpdatedAt,
+		CreatedAt:     m.CreatedAt.Time,
+		UpdatedAt:     m.UpdatedAt.Time,
 	}
-
-	if m.Votos != nil {
-		votos := make([]votacao.Voto, len(*m.Votos))
-		for i, voto := range *m.Votos {
-			votos[i] = *ToDomainVoto(&voto)
-		}
-		v.Votos = &votos
-	}
-
-	return v
 }
