@@ -10,16 +10,18 @@ type FakeVotacaoRepository struct {
 	votacoes map[string]*votacao.Votacao
 	votos    map[string][]string // votacaoID -> []usuarioID  ← novo
 
-	SalvaVotacaoErr     error
-	DeletaVotacaoErr    error
-	SalvaVotoErr        error
-	BuscaVotacaoErr     error
-	UsuarioJaVotouErr   error
-	GetVotacaoAbertaErr error
+	SalvaVotacaoErr            error
+	DeletaVotacaoErr           error
+	SalvaVotoErr               error
+	BuscaVotacaoErr            error
+	UsuarioJaVotouErr          error
+	GetVotacaoAbertaErr        error
+	GetProjetoVotacaoAbertaErr error
 
-	SalvaVotacaoCalls  []votacao.Votacao
-	DeletaVotacaoCalls []string
-	SalvaVotoCalls     []votacao.Voto
+	SalvaVotacaoCalls    []votacao.Votacao
+	DeletaVotacaoCalls   []string
+	SalvaVotoCalls       []votacao.Voto
+	projetoVotacaoAberta *votacao.Projeto
 }
 
 var _ votacao.VotacaoRepository = (*FakeVotacaoRepository)(nil)
@@ -29,6 +31,13 @@ func NewFakeVotacaoRepository() *FakeVotacaoRepository {
 		votacoes: make(map[string]*votacao.Votacao),
 		votos:    make(map[string][]string),
 	}
+}
+
+func (f *FakeVotacaoRepository) GetProjetoVotacaoAberta(ctx context.Context) (*votacao.Projeto, error) {
+	if f.GetProjetoVotacaoAbertaErr != nil {
+		return nil, f.GetProjetoVotacaoAbertaErr
+	}
+	return f.projetoVotacaoAberta, nil
 }
 
 func (f *FakeVotacaoRepository) SalvaVotacao(ctx context.Context, v *votacao.Votacao) error {
@@ -96,4 +105,8 @@ func (f *FakeVotacaoRepository) GetVotacaoAberta(ctx context.Context) (*votacao.
 
 func (f *FakeVotacaoRepository) Seed(v *votacao.Votacao) {
 	f.votacoes[v.ID] = v
+}
+
+func (f *FakeVotacaoRepository) SeedProjeto(p *votacao.Projeto) {
+	f.projetoVotacaoAberta = p
 }

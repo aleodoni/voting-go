@@ -22,7 +22,7 @@ func toReuniaoResponse(r *domainVotacao.Reuniao) *ReuniaoResponse {
 	if r.Projetos != nil {
 		projetos := make([]ProjetoResponse, len(*r.Projetos))
 		for i, p := range *r.Projetos {
-			projetos[i] = toProjetoResponse(&p)
+			projetos[i] = ToProjetoResponse(&p)
 		}
 		resp.Projetos = &projetos
 	}
@@ -30,7 +30,7 @@ func toReuniaoResponse(r *domainVotacao.Reuniao) *ReuniaoResponse {
 	return resp
 }
 
-func toProjetoResponse(p *domainVotacao.Projeto) ProjetoResponse {
+func ToProjetoResponse(p *domainVotacao.Projeto) ProjetoResponse {
 	resp := ProjetoResponse{
 		ID:                p.ID,
 		Sumula:            p.Sumula,
@@ -74,7 +74,7 @@ func toReunioesDiaResponse(reunioes []*domainVotacao.Reuniao) []*ReuniaoResponse
 func toProjetosResponse(projetos []*domainVotacao.Projeto) []ProjetoResponse {
 	resp := make([]ProjetoResponse, len(projetos))
 	for i, p := range projetos {
-		resp[i] = toProjetoResponse(p)
+		resp[i] = ToProjetoResponse(p)
 	}
 	return resp
 }

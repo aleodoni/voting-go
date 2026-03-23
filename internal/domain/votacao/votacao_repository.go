@@ -9,4 +9,5 @@ type VotacaoRepository interface {
 	BuscaVotacao(ctx context.Context, votacaoID string) (*Votacao, error)
 	UsuarioJaVotou(ctx context.Context, usuarioID, votacaoID string) (bool, error)
 	GetVotacaoAberta(ctx context.Context) (*Votacao, error)
+	GetProjetoVotacaoAberta(ctx context.Context) (*Projeto, error)
 }

@@ -30,3 +30,6 @@ SELECT EXISTS (
 
 -- name: SaveVoto :exec
 SELECT f_save_vote($1, $2, $3, $4, $5, $6);
+
+-- name: GetProjectOpenVoting :one
+SELECT public.f_get_project_open_voting();

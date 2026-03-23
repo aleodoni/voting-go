@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/aleodoni/voting-go/internal/infrastructure/persistence/sqlc/enums"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -61,6 +62,17 @@ func (q *Queries) FindVotacaoByID(ctx context.Context, id string) (Votacao, erro
 	return i, err
 }
 
+const getProjectOpenVoting = `-- name: GetProjectOpenVoting :one
+SELECT public.f_get_project_open_voting()
+`
+
+func (q *Queries) GetProjectOpenVoting(ctx context.Context) ([]byte, error) {
+	row := q.db.QueryRow(ctx, getProjectOpenVoting)
+	var f_get_project_open_voting []byte
+	err := row.Scan(&f_get_project_open_voting)
+	return f_get_project_open_voting, err
+}
+
 const saveVoto = `-- name: SaveVoto :exec
 SELECT f_save_vote($1, $2, $3, $4, $5, $6)
 `
@@ -70,8 +82,8 @@ type SaveVotoParams struct {
 	PUsuarioID     string
 	PVotacaoID     string
 	PVoto          enums.OpcaoVoto
-	PRestricao     []byte
-	PVotoContrario []byte
+	PRestricao     json.RawMessage
+	PVotoContrario json.RawMessage
 }
 
 func (q *Queries) SaveVoto(ctx context.Context, arg SaveVotoParams) error {
