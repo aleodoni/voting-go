@@ -25,5 +25,6 @@ func buildUseCases(r *repositories, bus *event.Bus) *useCases {
 		registraVoto:                ucVotacao.NewRegistraVotoUseCase(r.usuario, r.votacao, bus),
 		geraRelatorio:               ucRelatorio.NewGeraRelatorioReuniaoUseCase(r.reuniao, pdfGenerator),
 		retornaProjetoVotacaoAberta: ucVotacao.NewRetornaVotacaoAbertaUseCase(r.usuario, r.votacao),
+		retornaStatsVotacao:         ucVotacao.NewRetornaVotingStatsUseCase(r.usuario, r.votacao),
 	}
 }

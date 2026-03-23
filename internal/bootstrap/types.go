@@ -30,4 +30,5 @@ type useCases struct {
 	registraVoto                *ucVotacao.RegistraVotoUseCase
 	geraRelatorio               *ucRelatorio.GeraRelatorioReuniaoUseCase
 	retornaProjetoVotacaoAberta *ucVotacao.RetornaVotacaoAbertaUseCase
+	retornaStatsVotacao         *ucVotacao.RetornaVotingStatsUseCase
 }

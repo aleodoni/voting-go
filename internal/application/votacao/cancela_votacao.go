@@ -27,7 +27,7 @@ type CancelaVotacaoPayload struct {
 // Regras de negócio:
 //   - o usuário autenticado deve ser administrador ativo
 //   - o projeto deve possuir uma votação associada
-//   - a votação deve estar com status fechado ([domainVotacao.StatusVotacaoF])
+//   - a votação deve estar com status votada ([domainVotacao.StatusVotacaoV])
 //
 // Ao concluir com sucesso, remove a votação e publica o evento [event.VotacaoCancelada]
 // no barramento.
@@ -68,7 +68,7 @@ func (uc *CancelaVotacaoUseCase) Execute(ctx context.Context, input CancelaVotac
 		return domainVotacao.ErrVotacaoNaoEncontrada
 	}
 
-	if projeto.Votacao.Status != domainVotacao.StatusVotacaoF {
+	if projeto.Votacao.Status != domainVotacao.StatusVotacaoV {
 		return domainVotacao.ErrVotacaoNaoFechada
 	}
 

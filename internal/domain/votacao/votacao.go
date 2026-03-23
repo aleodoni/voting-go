@@ -39,7 +39,7 @@ func (v *Votacao) Abrir(projetoID string) {
 
 // Fechar fecha a votação e levanta o evento [VotacaoFechadaEvent].
 func (v *Votacao) Fechar() {
-	v.Status = StatusVotacaoF
+	v.Status = StatusVotacaoV
 
 	projetoID := ""
 	if v.ProjetoID != nil {
