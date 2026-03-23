@@ -27,7 +27,7 @@ func TestCancelaVotacao_Sucesso(t *testing.T) {
 		Votacao: &votacao.Votacao{
 			AggregateRoot: domain.NewAggregateRoot("votacao-1"),
 			ProjetoID:     &projetoID,
-			Status:        votacao.StatusVotacaoF,
+			Status:        votacao.StatusVotacaoV,
 		},
 	}
 	reuniaoRepo.SeedProjetos("reuniao-1", []*votacao.Projeto{projeto})
@@ -203,7 +203,7 @@ func TestCancelaVotacao_ErroDeletaVotacao(t *testing.T) {
 		CodigoProposicao: "001",
 		Votacao: &votacao.Votacao{
 			AggregateRoot: domain.NewAggregateRoot("votacao-1"),
-			Status:        votacao.StatusVotacaoF,
+			Status:        votacao.StatusVotacaoV,
 		},
 	}
 	reuniaoRepo.SeedProjetos("reuniao-1", []*votacao.Projeto{projeto})
