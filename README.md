@@ -127,20 +127,22 @@ No Swagger UI, clique em **Authorize** e informe o token no formato `Bearer <tok
 
 # Endpoints
 
-| Método   | Rota                                         | Descrição                          | Auth |
-| -------- | -------------------------------------------- | ---------------------------------- | ---- |
-| `GET`    | `/api/v1/health`                             | Health check                       | ❌   |
-| `GET`    | `/api/v1/me`                                 | Retorna o usuário autenticado      | ✅   |
-| `GET`    | `/api/v1/usuarios`                           | Pesquisa usuários (admin)          | ✅   |
-| `PUT`    | `/api/v1/usuarios/fantasia-credenciais`      | Atualiza nome fantasia e permissões| ✅   |
-| `PATCH`  | `/api/v1/usuarios/{id}/credencial`           | Atualiza credencial de um usuário  | ✅   |
-| `GET`    | `/api/v1/reunioes-dia`                       | Retorna reuniões do dia            | ✅   |
-| `GET`    | `/api/v1/reunioes/{reuniaoId}/projetos`      | Retorna projetos de uma reunião    | ✅   |
-| `GET`    | `/api/v1/reunioes/{reuniaoId}/relatorio`     | Gera relatório PDF da reunião      | ✅   |
-| `POST`   | `/api/v1/projetos/{projetoId}/votacao/abrir` | Abre uma votação                   | ✅   |
-| `POST`   | `/api/v1/projetos/{projetoId}/votacao/fechar`| Fecha uma votação                  | ✅   |
-| `DELETE` | `/api/v1/projetos/{projetoId}/votacao`       | Cancela uma votação                | ✅   |
-| `POST`   | `/api/v1/votacao/{votacaoId}/voto`           | Registra um voto                   | ✅   |
+| Método   | Rota                                         | Descrição                                        | Auth  |
+| -------- | -------------------------------------------- | ------------------------------------------------ | ----- |
+| `GET`    | `/api/v1/health`                             | Health check                                     | ❌    |
+| `GET`    | `/api/v1/me`                                 | Retorna o usuário autenticado                    | ✅    |
+| `GET`    | `/api/v1/usuarios`                           | Pesquisa usuários (admin)                        | ✅    |
+| `PUT`    | `/api/v1/usuarios/fantasia-credenciais`      | Atualiza nome fantasia e permissões              | ✅    |
+| `PATCH`  | `/api/v1/usuarios/{id}/credencial`           | Atualiza credencial de um usuário                | ✅    |
+| `GET`    | `/api/v1/reunioes-dia`                       | Retorna reuniões do dia                          | ✅    |
+| `GET`    | `/api/v1/reunioes/{reuniaoId}/projetos`      | Retorna projetos de uma reunião (admin)          | ✅    |
+| `GET`    | `/api/v1/reunioes/{reuniaoId}/relatorio`     | Gera relatório PDF da reunião                    | ✅    |
+| `POST`   | `/api/v1/projetos/{projetoId}/votacao/abrir` | Abre uma votação (admin)                         | ✅    |
+| `POST`   | `/api/v1/projetos/{projetoId}/votacao/fechar`| Fecha uma votação (admin)                        | ✅    |
+| `DELETE` | `/api/v1/projetos/{projetoId}/votacao`       | Cancela uma votação (admin)                      | ✅    |
+| `POST`   | `/api/v1/votacao/{votacaoId}/voto`           | Registra um voto                                 | ✅    |
+| `GET`    | `/api/v1/votacao/aberta`                     | Retorna o projeto com votação aberta             | ✅    |
+| `GET`    | `/api/v1/votacao/stats`                      | Retorna estatísticas de votação do dia (admin)   | ✅    |
 
 Para detalhes completos de request/response, consulte o Swagger UI.
 
@@ -191,7 +193,7 @@ Arquitetura baseada em **Clean Architecture**.
 # Roadmap
 
 * [x] Apuração automática de votos
-* [ ] Websocket para resultado em tempo real
+* [x] Votação em tempo real via SSE
 * [ ] Dashboard de votação
 * [ ] Auditoria de votos
 

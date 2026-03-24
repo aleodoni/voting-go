@@ -50,7 +50,13 @@ func (m *JWTMiddleware) Handler() gin.HandlerFunc {
 
 		claims := token.Claims.(jwt.MapClaims)
 
-		loggedUserKeycloakID := claims["sub"].(string)
+		loggedUserKeycloakID, ok := claims["sub"].(string)
+
+		if !ok {
+			c.AbortWithStatusJSON(401, gin.H{"error": "Subject (sub) not found in token"})
+			return
+		}
+
 		loggedUserName := claims["preferred_username"].(string)
 
 		c.Set("loggedUserKeycloakID", loggedUserKeycloakID)
