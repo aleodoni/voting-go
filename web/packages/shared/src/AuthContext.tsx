@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useRef, useState, ReactNode } fro
 import { initKeycloak, getKeycloak } from './keycloak'
 import { initApi } from './api-client'
 import type { User } from './types'
+import { Button } from './components'
 
 interface AuthConfig {
   apiUrl: string
@@ -73,7 +74,7 @@ export function AuthProvider({ config, children }: { config: AuthConfig; childre
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', flexDirection: 'column', gap: '1rem' }}>
         <p style={{ color: 'red' }}>{error}</p>
-        <button onClick={logout}>Sair</button>
+        <Button variant={'outline'} onClick={logout}>Sair</Button>
       </div>
     )
   }
