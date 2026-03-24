@@ -2,11 +2,14 @@
 package router
 
 import (
+	"time"
+
 	relatorioHandler "github.com/aleodoni/voting-go/internal/handler/relatorio"
 	reuniaoHandler "github.com/aleodoni/voting-go/internal/handler/reuniao"
 	usuarioHandler "github.com/aleodoni/voting-go/internal/handler/usuario"
 	votacaoHandler "github.com/aleodoni/voting-go/internal/handler/votacao"
 	"github.com/aleodoni/voting-go/internal/middleware"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
 	// Swagger
@@ -41,6 +44,15 @@ func SetupRouter(jwtMiddleware *middleware.JWTMiddleware, h *Handlers) *gin.Engi
 
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173", "http://localhost:5174"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	// Swagger UI — sem autenticação
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
