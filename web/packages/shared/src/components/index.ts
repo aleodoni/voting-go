@@ -10,3 +10,7 @@ export * from './ui/button';
 export * from './ui/card';
 export * from './ui/circular-progress';
 export * from './ui/dropdown-menu';
+export * from './ui/h1';
+export * from './ui/h2';
+export * from './ui/input';
+export * from './ui/p';
