@@ -20,7 +20,7 @@ export function Header({ logout, subtitulo, setTheme }: HeaderProps) {
 					<img
 						alt="Logo Câmara Municipal de Curitiba"
 						src={brasaoPng}
-						className="flex h-auto w-[50px] lg:w-[80px] items-center"
+						className="flex h-auto w-12.5 lg:w-20 items-center"
 					/>
 				</Link>
 				<div className="ml-4 flex flex-col justify-center gap-2">

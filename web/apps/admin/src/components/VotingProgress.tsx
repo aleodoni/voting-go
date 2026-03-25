@@ -1,5 +1,4 @@
 import { Card, CardContent, CircularProgress } from '@voting/shared';
-import { useState } from 'react';
 import { VotingStats } from '@/hooks/useVotingStats';
 
 interface VotingProgressProps {
@@ -11,7 +10,6 @@ export function VotingProgress({ isLoading, stats }: VotingProgressProps) {
 		stats ? stats.total_voted_projects : 0,
 		stats ? stats.total_projects : 0,
 	);
-	const [progress] = useState(percent);
 
 	if (isLoading) return <p>Carregando...</p>;
 
@@ -20,7 +18,7 @@ export function VotingProgress({ isLoading, stats }: VotingProgressProps) {
 			<CardContent>
 				<div className="flex items-center justify-center gap-2">
 					<CircularProgress
-						value={progress}
+						value={percent}
 						size={150}
 						strokeWidth={15}
 						shape="square"
