@@ -17,7 +17,7 @@ export function VotingProgress({isLoading, stats}: VotingProgressProps) {
 
 	return (
 		// <div className="flex items-center justify-center my-8">
-		<Card className="flex w-1/3 h-fit">
+		<Card className="w-full items-center justify-center">
 			<CardContent>
 				<div className="flex items-center justify-center gap-2">
 					<CircularProgress

@@ -9,7 +9,7 @@ export function ConnectedUsersCard() {
   const admins = users.filter((u) => u.is_admin)
 
   return (
-    <Card className="w-1/3 h-fit">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Info className="h-8 w-8 rounded-full border-primary text-primary" />

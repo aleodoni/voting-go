@@ -9,7 +9,7 @@ interface VotingStatsTotalProps {
 export function VotingStatsTotalCard({stats, isLoading}: VotingStatsTotalProps) {
 
   return (
-    <Card className="w-1/3 h-fit">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Vote className="h-8 w-8 border-primary text-primary" />
