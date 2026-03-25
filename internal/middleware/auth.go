@@ -74,3 +74,11 @@ func extractToken(c *gin.Context) string {
 	}
 	return strings.TrimPrefix(authHeader, "Bearer ")
 }
+
+func (m *JWTMiddleware) ValidateToken(tokenString string) (jwt.MapClaims, error) {
+	token, err := jwt.Parse(tokenString, m.jwks.Keyfunc)
+	if err != nil || !token.Valid {
+		return nil, err
+	}
+	return token.Claims.(jwt.MapClaims), nil
+}

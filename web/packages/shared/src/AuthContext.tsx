@@ -42,6 +42,13 @@ export function AuthProvider({ config, children }: { config: AuthConfig; childre
           return
         }
 
+        // renova o token automaticamente a cada 5 minutos
+        setInterval(() => {
+          keycloak.updateToken(3600).catch(() => {
+            keycloak.login()
+          })
+        }, 60 * 60 * 1000)
+
         try {
           const { data } = await api.get<User>('/me')
 

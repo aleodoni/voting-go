@@ -23,6 +23,7 @@ type Handlers struct {
 	UpdateCredenciais         *usuarioHandler.UpdateCredencialHandler
 	UpdateFantasiaCredenciais *usuarioHandler.AtualizaFantasiaCredenciaisHandler
 	PesquisaUsuarios          *usuarioHandler.PesquisaUsuariosHandler
+	ConnectedUsers            *usuarioHandler.ConnectedUsersHandler
 
 	RetornaReunioesDia       *reuniaoHandler.RetornaReunioesDiaHandler
 	RetornaProjetosCompletos *reuniaoHandler.RetornaProjetosCompletosHandler
