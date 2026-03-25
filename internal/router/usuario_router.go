@@ -9,4 +9,5 @@ func registerUsuarioRoutes(rg *gin.RouterGroup, h *Handlers) {
 		h.UpdateFantasiaCredenciais.Handle,
 	)
 	rg.GET("/usuarios", h.PesquisaUsuarios.Handle)
+	rg.GET("/usuarios-conectados", h.ConnectedUsers.Handle)
 }

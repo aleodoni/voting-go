@@ -38,7 +38,6 @@ k6-run:
 # -------------------------
 # Run local
 # -------------------------
-
 dev:
 	air
 
@@ -47,6 +46,9 @@ run:
 
 build:
 	go build -o bin/api ./cmd/api
+
+dev-web:
+	cd web && pnpm dev
 
 # -------------------------
 # Docker build
