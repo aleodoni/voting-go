@@ -1,22 +1,21 @@
-import { VotingStats } from '@/hooks/useVotingStats';
 import { Card, CardContent, CircularProgress } from '@voting/shared';
-import React from 'react';
-
+import { useState } from 'react';
+import { VotingStats } from '@/hooks/useVotingStats';
 
 interface VotingProgressProps {
-	stats?: VotingStats
-	isLoading: boolean
+	stats?: VotingStats;
+	isLoading: boolean;
 }
-export function VotingProgress({isLoading, stats}: VotingProgressProps) {
+export function VotingProgress({ isLoading, stats }: VotingProgressProps) {
+	const percent = calcularPercentual(
+		stats ? stats.total_voted_projects : 0,
+		stats ? stats.total_projects : 0,
+	);
+	const [progress] = useState(percent);
 
-	if (isLoading) return <p>Carregando...</p>
-
-	const percent = calcularPercentual(stats ? stats.total_voted_projects: 0, stats ? stats.total_projects: 0);
-
-	const [progress] = React.useState(percent);
+	if (isLoading) return <p>Carregando...</p>;
 
 	return (
-		// <div className="flex items-center justify-center my-8">
 		<Card className="w-full items-center justify-center">
 			<CardContent>
 				<div className="flex items-center justify-center gap-2">
@@ -39,6 +38,6 @@ export function VotingProgress({isLoading, stats}: VotingProgressProps) {
 }
 
 function calcularPercentual(valor: number, total: number): number {
-  if (total === 0) return 0;
-  return Math.round((valor / total) * 100);
+	if (total === 0) return 0;
+	return Math.round((valor / total) * 100);
 }

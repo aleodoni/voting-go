@@ -1,5 +1,5 @@
 /** biome-ignore-all lint/a11y/noSvgWithoutTitle: <explanation> */
-import { cn } from "../../lib/utils"
+import { cn } from '../../lib/utils';
 
 interface CircularProgressProps {
 	value: number;

@@ -4,11 +4,11 @@ import { ButtonLogout } from './ButtonLogout';
 import { ThemeTogle } from './ThemeTogle';
 
 interface HeaderProps {
-  subtitulo: string
-  logout: () => void
-  setTheme: (theme: 'light' | 'dark' | 'system') => void
+	subtitulo: string;
+	logout: () => void;
+	setTheme: (theme: 'light' | 'dark' | 'system') => void;
 }
-export function Header({logout, subtitulo, setTheme}: HeaderProps) {
+export function Header({ logout, subtitulo, setTheme }: HeaderProps) {
 	return (
 		<div className="flex items-center w-full justify-between border-b py-2">
 			<div className="flex h-full lg:w-2/3 py-3">
@@ -31,15 +31,13 @@ export function Header({logout, subtitulo, setTheme}: HeaderProps) {
 						<p className="text-base lg:text-2xl font-bold">
 							Sistema de Votação
 						</p>
-						<p className="text-sm lg:text-md opacity-80">
-              {subtitulo}
-						</p>
+						<p className="text-sm lg:text-md opacity-80">{subtitulo}</p>
 					</div>
 				</div>
 			</div>
 			<nav className=" flex lg:w-1/3 items-center justify-end gap-8">
-        <ButtonLogout logout={logout}/>
-				<ThemeTogle setTheme={setTheme}/>
+				<ButtonLogout logout={logout} />
+				<ThemeTogle setTheme={setTheme} />
 			</nav>
 		</div>
 	);

@@ -1,38 +1,38 @@
-import { createRootRoute, Outlet } from '@tanstack/react-router'
-import { useSSE } from '@voting/shared'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query';
+import { createRootRoute, Outlet } from '@tanstack/react-router';
+import { useSSE } from '@voting/shared';
 
 export const Route = createRootRoute({
-  component: RootComponent,
-})
+	component: RootComponent,
+});
 
 function RootComponent() {
-  const queryClient = useQueryClient()
+	const queryClient = useQueryClient();
 
-  useSSE({
-    onConnect: () => {
-  		console.log('[SSE] conectado')
-  		queryClient.invalidateQueries({ queryKey: ['connected-users'] })
+	useSSE({
+		onConnect: () => {
+			console.log('[SSE] conectado');
+			queryClient.invalidateQueries({ queryKey: ['connected-users'] });
 		},
-    onEvent: (event) => {
+		onEvent: (event) => {
 			switch (event.type) {
 				case 'votacao_fechada':
-					queryClient.invalidateQueries({ queryKey: ['voting-stats'] })
-      		break
+					queryClient.invalidateQueries({ queryKey: ['voting-stats'] });
+					break;
 				case 'votacao_cancelada':
-					queryClient.invalidateQueries({ queryKey: ['voting-stats'] })
-					break
+					queryClient.invalidateQueries({ queryKey: ['voting-stats'] });
+					break;
 			}
-      console.log('[SSE]', event.type, event.payload)
-    },
-    onError: (e) => {
-      console.error('[SSE] erro:', e)
-    },
-  })
+			console.log('[SSE]', event.type, event.payload);
+		},
+		onError: (e) => {
+			console.error('[SSE] erro:', e);
+		},
+	});
 
-  return (
-    <div className="flex w-full h-full">
-      <Outlet />
-    </div>
-  )
+	return (
+		<div className="flex w-full h-full">
+			<Outlet />
+		</div>
+	);
 }
