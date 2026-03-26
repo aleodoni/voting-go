@@ -15,7 +15,12 @@ type UsuarioRepository interface {
 		canAdmin bool,
 		canVote bool,
 	) error
-	ListUsers(ctx context.Context, search string, page, limit int) ([]*Usuario, int64, error)
+	ListUsers(
+		ctx context.Context,
+		nome string,
+		email string,
+		page, limit int,
+	) ([]*Usuario, int64, error)
 	FindByID(ctx context.Context, id string) (*Usuario, error)
 	UpdateDisplayName(ctx context.Context, userID string, displayName *string) error
 }

@@ -1,6 +1,7 @@
 export * from './ButtonLogout';
 export * from './ClientWrapper';
 export * from './Container';
+export * from './ContainerPage';
 export * from './ContainerWrapper';
 export * from './Header';
 export * from './ThemeProvider';
@@ -16,3 +17,5 @@ export * from './ui/h2';
 export * from './ui/input';
 export * from './ui/label';
 export * from './ui/p';
+export * from './ui/switch';
+export * from './ui/table';

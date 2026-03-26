@@ -13,5 +13,6 @@ func registerUsuarioRoutes(rg *gin.RouterGroup, h *Handlers) {
 		h.UpdateFantasia.Handle,
 	)
 	rg.GET("/usuarios", h.PesquisaUsuarios.Handle)
+	rg.GET("/usuarios/:usuarioId", h.RetornaUsuario.Handle)
 	rg.GET("/usuarios-conectados", h.ConnectedUsers.Handle)
 }

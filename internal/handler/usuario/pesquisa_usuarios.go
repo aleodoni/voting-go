@@ -24,9 +24,10 @@ func NewPesquisaUsuariosHandler(listUsuariosUseCase *ucUsuario.ListUsuariosUseCa
 //	@Description	Retorna uma lista paginada de usuários (requer admin)
 //	@Tags			usuários
 //	@Produce		json
-//	@Param			search	query		string	false	"Termo de busca"
-//	@Param			page	query		int		false	"Página"	default(1)
-//	@Param			limit	query		int		false	"Limite"	default(20)
+//	@Param			Nome	query		string	false	"Nome do usuario"	default()
+//	@Param			Email	query		string	false	"Email do usuario"	default()
+//	@Param			page	query		int		false	"Página"			default(1)
+//	@Param			limit	query		int		false	"Limite"			default(20)
 //	@Success		200		{object}	ListUsuariosResponse
 //	@Failure		403		{object}	ErrorResponse
 //	@Security		BearerAuth
@@ -46,7 +47,8 @@ func (h *PesquisaUsuariosHandler) Handle(c *gin.Context) {
 
 	input := ucUsuario.ListUsuariosInput{
 		LoggedInUserKeycloakID: loggedUserKeycloakID,
-		Search:                 c.Query("search"),
+		Nome:                   c.Query("Nome"),
+		Email:                  c.Query("Email"),
 		Page:                   page,
 		Limit:                  limit,
 	}

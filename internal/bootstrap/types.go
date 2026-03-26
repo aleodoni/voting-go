@@ -23,6 +23,7 @@ type useCases struct {
 	updateDisplayName            *ucUsuario.UpdateDisplayNameUseCase
 	updateCredencial             *ucUsuario.UpdateCredencialUseCase
 	listUsuarios                 *ucUsuario.ListUsuariosUseCase
+	retornaUsuario               *ucUsuario.RetornaUsuarioUseCase
 	retornaReunioesDia           *ucVotacao.RetornaReunioesDiaUseCase
 	retornaProjetos              *ucVotacao.RetornaProjetosCompletosUseCase
 	abreVotacao                  *ucVotacao.AbreVotacaoUseCase

@@ -18,6 +18,7 @@ func buildUseCases(r *repositories, bus *event.Bus) *useCases {
 		updateDisplayNamePermissions: ucUsuario.NewUpdateDisplayNamePermissionsUseCase(r.usuario),
 		updateCredencial:             ucUsuario.NewUpdateCredencialUseCase(r.usuario),
 		listUsuarios:                 ucUsuario.NewListUsuariosUseCase(r.usuario),
+		retornaUsuario:               ucUsuario.NewRetornaUsuarioUseCase(r.usuario),
 		retornaReunioesDia:           ucVotacao.NewRetornaReunioesDiaUseCase(r.usuario, r.reuniao),
 		retornaProjetos:              ucVotacao.NewRetornaProjetosCompletosUseCase(r.usuario, r.reuniao),
 		abreVotacao:                  ucVotacao.NewAbreVotacaoUseCase(r.usuario, r.reuniao, r.votacao, bus),

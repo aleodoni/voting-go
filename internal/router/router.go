@@ -24,6 +24,7 @@ type Handlers struct {
 	UpdateFantasiaCredenciais *usuarioHandler.AtualizaFantasiaCredenciaisHandler
 	UpdateFantasia            *usuarioHandler.AtualizaFantasiaHandler
 	PesquisaUsuarios          *usuarioHandler.PesquisaUsuariosHandler
+	RetornaUsuario            *usuarioHandler.RetornaUsuarioHandler
 	ConnectedUsers            *usuarioHandler.ConnectedUsersHandler
 
 	RetornaReunioesDia       *reuniaoHandler.RetornaReunioesDiaHandler

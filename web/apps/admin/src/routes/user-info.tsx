@@ -1,5 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { Header, useAuth, useTheme } from '@voting/shared';
+import {
+	ContainerPage,
+	H2,
+	Header,
+	P,
+	useAuth,
+	useTheme,
+} from '@voting/shared';
 import { FormUserInfo } from '@/components/FormUserInfo';
 
 export const Route = createFileRoute('/user-info')({
@@ -18,7 +25,20 @@ function UserInfo() {
 					logout={logout}
 					setTheme={setTheme}
 				/>
-				{user && <FormUserInfo userInfo={user} />}
+				<ContainerPage>
+					<H2>Usuário logado</H2>
+					<P>
+						<b>Usuário: </b>
+						{user?.nome}
+					</P>
+					<P>
+						<b>email: </b>
+						{user?.email}
+					</P>
+					<div className="flex w-full items-center gap-2 mt-8">
+						{user && <FormUserInfo userInfo={user} />}
+					</div>
+				</ContainerPage>
 			</div>
 		</div>
 	);

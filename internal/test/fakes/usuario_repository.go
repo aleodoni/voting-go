@@ -48,9 +48,10 @@ type UpdateDisplayNameArgs struct {
 
 // ListUsersArgs registra os argumentos de cada chamada ao método.
 type ListUsersArgs struct {
-	Search string
-	Page   int
-	Limit  int
+	Nome  string
+	Email string
+	Page  int
+	Limit int
 }
 
 // Verificação em tempo de compilação: garante que FakeUsuarioRepository implementa UsuarioRepository.
@@ -182,11 +183,17 @@ func (f *FakeUsuarioRepository) UpdateDisplayName(
 }
 
 // ListUsers retorna os usuários filtrados pelo search ou o erro configurado.
-func (f *FakeUsuarioRepository) ListUsers(ctx context.Context, search string, page, limit int) ([]*usuario.Usuario, int64, error) {
+func (f *FakeUsuarioRepository) ListUsers(
+	ctx context.Context,
+	nome string,
+	email string,
+	page, limit int,
+) ([]*usuario.Usuario, int64, error) {
 	f.ListUsersCalls = append(f.ListUsersCalls, ListUsersArgs{
-		Search: search,
-		Page:   page,
-		Limit:  limit,
+		Nome:  nome,
+		Email: email,
+		Page:  page,
+		Limit: limit,
 	})
 
 	if f.ListUsersErr != nil {
@@ -194,8 +201,12 @@ func (f *FakeUsuarioRepository) ListUsers(ctx context.Context, search string, pa
 	}
 
 	var result []*usuario.Usuario
+
 	for _, u := range f.usuarios {
-		if search == "" || strings.Contains(u.Username, search) {
+		matchNome := nome == "" || strings.Contains(strings.ToLower(u.Nome), strings.ToLower(nome))
+		matchEmail := email == "" || strings.Contains(strings.ToLower(u.Email), strings.ToLower(email))
+
+		if matchNome && matchEmail {
 			result = append(result, u)
 		}
 	}

@@ -106,16 +106,19 @@ func (r *usuarioRepositorySQLC) UpdateDisplayNamePermissions(
 
 func (r *usuarioRepositorySQLC) ListUsers(
 	ctx context.Context,
-	search string,
+	nome string,
+	email string,
 	page, limit int,
 ) ([]*usuario.Usuario, int64, error) {
 	offset := (page - 1) * limit
 
 	rows, err := r.queries(ctx).ListUsers(ctx, db.ListUsersParams{
-		Search:     search,
+		Nome:       nome,
+		Email:      email,
 		LimitRows:  int32(limit),
 		OffsetRows: int32(offset),
 	})
+
 	if err != nil {
 		return nil, 0, fmt.Errorf("ListUsers: %w", err)
 	}
