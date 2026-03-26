@@ -1,4 +1,4 @@
-import { useNavigate } from '@tanstack/react-router';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import { TableCell, TableRow, User } from '@voting/shared';
 import { PermissionIcon } from './PermissionIcon';
 
@@ -8,11 +8,13 @@ type UserItemProps = {
 
 export function UserItem({ user }: UserItemProps) {
 	const navigate = useNavigate();
+	const search = useSearch({ from: '/manage-users' });
 
 	function handleClick() {
 		navigate({
 			to: '/user/$userId',
 			params: { userId: user.id },
+			search: { returnSearch: search },
 		});
 	}
 

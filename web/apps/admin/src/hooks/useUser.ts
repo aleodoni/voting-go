@@ -9,6 +9,5 @@ export function useUser(userId: string) {
 			return data;
 		},
 		enabled: !!userId,
-		staleTime: 1000 * 60 * 5,
 	});
 }

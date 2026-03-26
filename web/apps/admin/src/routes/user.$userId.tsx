@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import {
 	Button,
 	ContainerPage,
@@ -19,17 +19,28 @@ import {
 } from '@voting/shared';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
 import { z } from 'zod';
 import { useUpdateUser } from '@/hooks/useUpdateUser';
 import { useUser } from '@/hooks/useUser';
 
 export const Route = createFileRoute('/user/$userId')({
 	component: UserDetail,
+	validateSearch: (search) =>
+		z
+			.object({
+				returnSearch: z
+					.object({
+						nome: z.string().optional(),
+						email: z.string().optional(),
+						page: z.number().optional(),
+					})
+					.optional(),
+			})
+			.parse(search),
 });
 
 const schema = z.object({
-	nome: z.string().min(1, 'Nome obrigatório'),
-	email: z.string().email('Email inválido'),
 	nome_fantasia: z.string().min(1, 'Nome fantasia obrigatório'),
 	ativo: z.boolean(),
 	pode_administrar: z.boolean(),
@@ -41,7 +52,11 @@ type FormData = z.infer<typeof schema>;
 function UserDetail() {
 	const { userId } = Route.useParams();
 
-	const { data: user, isLoading } = useUser(userId);
+	const { returnSearch } = Route.useSearch();
+
+	const navigate = useNavigate();
+
+	const { data: user } = useUser(userId);
 	const { updateUser, isPending } = useUpdateUser();
 
 	const { setTheme } = useTheme();
@@ -50,8 +65,6 @@ function UserDetail() {
 	const form = useForm<FormData>({
 		resolver: zodResolver(schema),
 		defaultValues: {
-			nome: '',
-			email: '',
 			nome_fantasia: '',
 			ativo: false,
 			pode_administrar: false,
@@ -62,8 +75,6 @@ function UserDetail() {
 	useEffect(() => {
 		if (user) {
 			form.reset({
-				nome: user.nome,
-				email: user.email,
 				nome_fantasia: user.nome_fantasia ?? '',
 				ativo: user.credencial.ativo,
 				pode_administrar: user.credencial.pode_administrar,
@@ -74,6 +85,8 @@ function UserDetail() {
 
 	async function onSubmit(values: FormData) {
 		await updateUser(userId, values);
+		toast.success('Usuário atualizado com sucesso!');
+		navigate({ to: '/manage-users', search: returnSearch ?? {} });
 	}
 
 	if (!user) {
@@ -97,33 +110,15 @@ function UserDetail() {
 							onSubmit={form.handleSubmit(onSubmit)}
 							className="w-full space-y-4 py-6"
 						>
-							<FormField
-								control={form.control}
-								name="nome"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Nome</FormLabel>
-										<FormControl>
-											<Input {...field} disabled={isPending} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+							<div className="space-y-2">
+								<p className="text-sm font-medium">Nome</p>
+								<p className="text-sm text-muted-foreground">{user.nome}</p>
+							</div>
 
-							<FormField
-								control={form.control}
-								name="email"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Email</FormLabel>
-										<FormControl>
-											<Input {...field} disabled={isPending} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+							<div className="space-y-2">
+								<p className="text-sm font-medium">Email</p>
+								<p className="text-sm text-muted-foreground">{user.email}</p>
+							</div>
 
 							<FormField
 								control={form.control}
