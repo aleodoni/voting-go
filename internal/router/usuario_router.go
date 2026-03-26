@@ -8,6 +8,10 @@ func registerUsuarioRoutes(rg *gin.RouterGroup, h *Handlers) {
 		"/usuarios/fantasia-credenciais",
 		h.UpdateFantasiaCredenciais.Handle,
 	)
+	rg.PUT(
+		"/usuarios/fantasia",
+		h.UpdateFantasia.Handle,
+	)
 	rg.GET("/usuarios", h.PesquisaUsuarios.Handle)
 	rg.GET("/usuarios-conectados", h.ConnectedUsers.Handle)
 }

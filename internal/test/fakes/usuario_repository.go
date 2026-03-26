@@ -20,12 +20,14 @@ type FakeUsuarioRepository struct {
 	CreateErr                       error
 	UpdateDisplayNamePermissionsErr error
 	ListUsersErr                    error
+	UpdateDisplayNameErr            error
 
 	// Chamadas registradas para asserção nos testes
 	FindByKeycloakIDCalls             []string
 	FindByUsernameCalls               []string
 	CreateCalls                       []*usuario.Usuario
 	UpdateDisplayNamePermissionsCalls []UpdateDisplayNamePermissionsArgs
+	UpdateDisplayNameCalls            []UpdateDisplayNameArgs
 	ListUsersCalls                    []ListUsersArgs
 }
 
@@ -36,6 +38,12 @@ type UpdateDisplayNamePermissionsArgs struct {
 	IsActive    bool
 	CanAdmin    bool
 	CanVote     bool
+}
+
+// UpdateDisplayNameArgs registra os argumentos de cada chamada ao método.
+type UpdateDisplayNameArgs struct {
+	UserID      string
+	DisplayName *string
 }
 
 // ListUsersArgs registra os argumentos de cada chamada ao método.
@@ -136,6 +144,34 @@ func (f *FakeUsuarioRepository) UpdateDisplayNamePermissions(
 				u.Credencial.Ativo = isActive
 				u.Credencial.PodeAdministrar = canAdmin
 				u.Credencial.PodeVotar = canVote
+			}
+
+			return nil
+		}
+	}
+
+	return usuario.ErrUserNotFound
+}
+
+// UpdateDisplayName atualiza o usuário armazenado ou retorna o erro configurado.
+func (f *FakeUsuarioRepository) UpdateDisplayName(
+	ctx context.Context,
+	userID string,
+	displayName *string,
+) error {
+	f.UpdateDisplayNameCalls = append(f.UpdateDisplayNameCalls, UpdateDisplayNameArgs{
+		UserID:      userID,
+		DisplayName: displayName,
+	})
+
+	if f.UpdateDisplayNameErr != nil {
+		return f.UpdateDisplayNameErr
+	}
+
+	for _, u := range f.usuarios {
+		if u.ID == userID {
+			if displayName != nil {
+				u.NomeFantasia = displayName
 			}
 
 			return nil

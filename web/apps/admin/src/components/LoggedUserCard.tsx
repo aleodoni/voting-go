@@ -32,7 +32,7 @@ export function LoggedUserCard({ userInfo }: LoggedUserCardProps) {
 					<p className="text-muted-foreground text-sm">{userInfo?.email}</p>
 				</div>
 				<Button asChild className="justify-center" variant="outline">
-					<Link to="/perfil">Editar</Link>
+					<Link to="/user-info">Editar</Link>
 				</Button>
 			</CardFooter>
 		</Card>

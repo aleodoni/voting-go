@@ -344,6 +344,22 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]ListUse
 	return items, nil
 }
 
+const updateDisplayName = `-- name: UpdateDisplayName :exec
+UPDATE usuario
+SET nome_fantasia = $1
+WHERE id = $2
+`
+
+type UpdateDisplayNameParams struct {
+	DisplayName pgtype.Text
+	UserID      string
+}
+
+func (q *Queries) UpdateDisplayName(ctx context.Context, arg UpdateDisplayNameParams) error {
+	_, err := q.db.Exec(ctx, updateDisplayName, arg.DisplayName, arg.UserID)
+	return err
+}
+
 const updateDisplayNamePermissions = `-- name: UpdateDisplayNamePermissions :exec
 SELECT public.f_update_user_with_permissions(
     $1,

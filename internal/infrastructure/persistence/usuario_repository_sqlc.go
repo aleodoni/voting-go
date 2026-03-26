@@ -151,3 +151,16 @@ func (r *usuarioRepositorySQLC) FindByID(ctx context.Context, id string) (*usuar
 
 	return mappers.MapFindByIDRowToDomain(row), nil
 }
+
+func (r *usuarioRepositorySQLC) UpdateDisplayName(
+	ctx context.Context,
+	userID string,
+	displayName *string) error {
+	return r.queries(ctx).UpdateDisplayName(ctx, db.UpdateDisplayNameParams{
+		UserID: userID,
+		DisplayName: pgtype.Text{
+			String: derefOrEmpty(displayName),
+			Valid:  displayName != nil,
+		},
+	})
+}

@@ -15,7 +15,8 @@ func buildHandlers(uc *useCases, repos *repositories, bus *event.Bus, jwtMiddlew
 	return &router.Handlers{
 		Me:                          usuarioHandler.NewMeHandler(uc.ensureUsuario),
 		UpdateCredenciais:           usuarioHandler.NewUpdateCredencialHandler(uc.updateCredencial),
-		UpdateFantasiaCredenciais:   usuarioHandler.NewAtualizaFantasiaCredenciaisHandler(uc.updateDisplayName),
+		UpdateFantasiaCredenciais:   usuarioHandler.NewAtualizaFantasiaCredenciaisHandler(uc.updateDisplayNamePermissions),
+		UpdateFantasia:              usuarioHandler.NewAtualizaFantasiaHandler(uc.updateDisplayName),
 		RetornaReunioesDia:          reuniaoHandler.NewRetornaReunioesDiaHandler(uc.retornaReunioesDia),
 		RetornaProjetosCompletos:    reuniaoHandler.NewRetornaProjetosCompletosHandler(uc.retornaProjetos),
 		AbreVotacao:                 votacaoHandler.NewAbreVotacaoHandler(uc.abreVotacao),

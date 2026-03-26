@@ -127,3 +127,8 @@ SELECT public.f_update_user_with_permissions(
     sqlc.arg(can_vote)
 );
 
+-- name: UpdateDisplayName :exec
+UPDATE usuario
+SET nome_fantasia = sqlc.arg(display_name)
+WHERE id = sqlc.arg(user_id);
+

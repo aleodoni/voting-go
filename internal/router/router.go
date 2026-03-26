@@ -22,6 +22,7 @@ type Handlers struct {
 	Me                        *usuarioHandler.MeHandler
 	UpdateCredenciais         *usuarioHandler.UpdateCredencialHandler
 	UpdateFantasiaCredenciais *usuarioHandler.AtualizaFantasiaCredenciaisHandler
+	UpdateFantasia            *usuarioHandler.AtualizaFantasiaHandler
 	PesquisaUsuarios          *usuarioHandler.PesquisaUsuariosHandler
 	ConnectedUsers            *usuarioHandler.ConnectedUsersHandler
 

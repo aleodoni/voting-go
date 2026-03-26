@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.2.8",
+    "@hookform/resolvers": "^5.2.2",
     "@tanstack/react-router": "^1.168.3",
     "@voting/shared": "workspace:*",
     "class-variance-authority": "^0.7.1",
@@ -19,6 +20,8 @@
     "radix-ui": "^1.4.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-hook-form": "^7.72.0",
+    "react-hot-toast": "^2.6.0",
     "react-router-dom": "^6.26.0",
     "shadcn": "^4.1.0",
     "tailwind-merge": "^3.5.0",

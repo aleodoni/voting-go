@@ -6,7 +6,7 @@ import {
 	useRef,
 	useState,
 } from 'react';
-import { initApi } from './api-client';
+import { getApi, initApi } from './api-client';
 import { Button } from './components';
 import { getKeycloak, initKeycloak } from './keycloak';
 import type { User } from './types';
@@ -24,6 +24,7 @@ interface AuthConfig {
 interface AuthContextValue {
 	user: User | null;
 	logout: () => void;
+	refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -98,6 +99,15 @@ export function AuthProvider({
 		getKeycloak().logout({ redirectUri: window.location.origin });
 	};
 
+	const refreshUser = async () => {
+		try {
+			const { data } = await getApi().get<User>('/me');
+			setUser(data);
+		} catch {
+			setError('Erro ao buscar dados do usuário.');
+		}
+	};
+
 	if (error) {
 		return (
 			<div
@@ -134,7 +144,7 @@ export function AuthProvider({
 	}
 
 	return (
-		<AuthContext.Provider value={{ user, logout }}>
+		<AuthContext.Provider value={{ user, logout, refreshUser }}>
 			{children}
 		</AuthContext.Provider>
 	);

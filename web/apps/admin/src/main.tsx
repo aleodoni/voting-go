@@ -11,6 +11,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { routeTree } from './routeTree.gen';
 import './index.css';
+import { Toaster } from 'react-hot-toast';
 
 const router = createRouter({ routeTree });
 
@@ -27,6 +28,7 @@ const authConfig = {
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
 		<ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+			<Toaster position="bottom-right" />
 			<ClientWrapper>
 				<App />
 			</ClientWrapper>
