@@ -11,11 +11,8 @@ import {
 	FormLabel,
 	FormMessage,
 	H2,
-	Header,
 	Input,
 	Switch,
-	useAuth,
-	useTheme,
 } from '@voting/shared';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -59,9 +56,6 @@ function UserDetail() {
 	const { data: user } = useUser(userId);
 	const { updateUser, isPending } = useUpdateUser();
 
-	const { setTheme } = useTheme();
-	const { logout } = useAuth();
-
 	const form = useForm<FormData>({
 		resolver: zodResolver(schema),
 		defaultValues: {
@@ -94,125 +88,111 @@ function UserDetail() {
 	}
 
 	return (
-		<div className="w-full min-h-screen px-6 py-4">
-			<div className="max-w-7xl mx-auto flex flex-col gap-4">
-				<Header
-					subtitulo="Módulo administrativo"
-					logout={logout}
-					setTheme={setTheme}
-				/>
+		<ContainerPage>
+			<H2>Manutenção de usuário</H2>
 
-				<ContainerPage>
-					<H2>Manutenção de usuário</H2>
+			<Form {...form}>
+				<form
+					onSubmit={form.handleSubmit(onSubmit)}
+					className="w-full space-y-4 py-6"
+				>
+					<div className="space-y-2">
+						<p className="text-sm font-medium">Nome</p>
+						<p className="text-sm text-muted-foreground">{user.nome}</p>
+					</div>
 
-					<Form {...form}>
-						<form
-							onSubmit={form.handleSubmit(onSubmit)}
-							className="w-full space-y-4 py-6"
-						>
-							<div className="space-y-2">
-								<p className="text-sm font-medium">Nome</p>
-								<p className="text-sm text-muted-foreground">{user.nome}</p>
-							</div>
+					<div className="space-y-2">
+						<p className="text-sm font-medium">Email</p>
+						<p className="text-sm text-muted-foreground">{user.email}</p>
+					</div>
 
-							<div className="space-y-2">
-								<p className="text-sm font-medium">Email</p>
-								<p className="text-sm text-muted-foreground">{user.email}</p>
-							</div>
+					<FormField
+						control={form.control}
+						name="nome_fantasia"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Nome fantasia</FormLabel>
+								<FormControl>
+									<Input {...field} disabled={isPending} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
 
-							<FormField
-								control={form.control}
-								name="nome_fantasia"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Nome fantasia</FormLabel>
-										<FormControl>
-											<Input {...field} disabled={isPending} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+					<FormField
+						control={form.control}
+						name="ativo"
+						render={({ field }) => (
+							<FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+								<div className="space-y-0.5">
+									<FormLabel>Usuário ativo</FormLabel>
+									<FormDescription>
+										Usuário está ativo no sistema.
+									</FormDescription>
+								</div>
+								<FormControl>
+									<Switch
+										checked={field.value}
+										onCheckedChange={field.onChange}
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
 
-							<FormField
-								control={form.control}
-								name="ativo"
-								render={({ field }) => (
-									<FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-										<div className="space-y-0.5">
-											<FormLabel>Usuário ativo</FormLabel>
-											<FormDescription>
-												Usuário está ativo no sistema.
-											</FormDescription>
-										</div>
-										<FormControl>
-											<Switch
-												checked={field.value}
-												onCheckedChange={field.onChange}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+					<FormField
+						control={form.control}
+						name="pode_administrar"
+						render={({ field }) => (
+							<FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+								<div className="space-y-0.5">
+									<FormLabel>Pode administrar</FormLabel>
+									<FormDescription>
+										Usuário pode executar ações administrativas.
+									</FormDescription>
+								</div>
+								<FormControl>
+									<Switch
+										checked={field.value}
+										onCheckedChange={field.onChange}
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
 
-							<FormField
-								control={form.control}
-								name="pode_administrar"
-								render={({ field }) => (
-									<FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-										<div className="space-y-0.5">
-											<FormLabel>Pode administrar</FormLabel>
-											<FormDescription>
-												Usuário pode executar ações administrativas.
-											</FormDescription>
-										</div>
-										<FormControl>
-											<Switch
-												checked={field.value}
-												onCheckedChange={field.onChange}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+					<FormField
+						control={form.control}
+						name="pode_votar"
+						render={({ field }) => (
+							<FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+								<div className="space-y-0.5">
+									<FormLabel>Pode votar</FormLabel>
+									<FormDescription>
+										Usuário pode participar das votações.
+									</FormDescription>
+								</div>
+								<FormControl>
+									<Switch
+										checked={field.value}
+										onCheckedChange={field.onChange}
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
 
-							<FormField
-								control={form.control}
-								name="pode_votar"
-								render={({ field }) => (
-									<FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-										<div className="space-y-0.5">
-											<FormLabel>Pode votar</FormLabel>
-											<FormDescription>
-												Usuário pode participar das votações.
-											</FormDescription>
-										</div>
-										<FormControl>
-											<Switch
-												checked={field.value}
-												onCheckedChange={field.onChange}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							<div className="flex w-full justify-end">
-								<Button type="submit" disabled={isPending}>
-									{isPending ? (
-										<span className="animate-spin">⏳</span>
-									) : (
-										'Salvar'
-									)}
-								</Button>
-							</div>
-						</form>
-					</Form>
-				</ContainerPage>
-			</div>
-		</div>
+					<div className="flex w-full justify-end">
+						<Button type="submit" disabled={isPending} variant={'outline'}>
+							{isPending ? <span className="animate-spin">⏳</span> : 'Salvar'}
+						</Button>
+					</div>
+				</form>
+			</Form>
+		</ContainerPage>
 	);
 }

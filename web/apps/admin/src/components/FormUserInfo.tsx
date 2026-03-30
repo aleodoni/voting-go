@@ -71,7 +71,7 @@ export function FormUserInfo({ userInfo }: FormUserInfoProps) {
 				/>
 
 				<div className="flex w-full justify-end">
-					<Button type="submit" disabled={isLoading}>
+					<Button type="submit" disabled={isLoading} variant="outline">
 						{isLoading ? <span className="animate-spin">⏳</span> : 'Salvar'}
 					</Button>
 				</div>

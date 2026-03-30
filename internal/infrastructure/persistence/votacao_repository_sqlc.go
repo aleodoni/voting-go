@@ -131,9 +131,13 @@ func (r *votacaoRepositorySQLC) GetProjetoVotacaoAberta(ctx context.Context) (*v
 	data, err := r.queries(ctx).GetProjectOpenVoting(ctx)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, votacao.ErrVotacaoNaoEncontrada
+			return nil, nil
 		}
 		return nil, fmt.Errorf("GetProjetoVotacaoAberta: %w", err)
+	}
+
+	if len(data) == 0 {
+		return nil, nil
 	}
 
 	projeto, err := mappers.ToDomainProjetoVotacaoAberta(data)

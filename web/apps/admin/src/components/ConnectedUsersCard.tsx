@@ -33,9 +33,9 @@ export function ConnectedUsersCard() {
 						Carregando usuários...
 					</p>
 				) : (
-					users.map((user) => (
+					users.map((user, index) => (
 						<div
-							key={user.user_id}
+							key={`${user.user_id}-${index}`}
 							className="flex gap-2 justify-between items-center w-full py-0.5"
 						>
 							<p className="text-sm">{user.username}</p>

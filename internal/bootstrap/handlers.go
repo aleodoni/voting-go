@@ -19,6 +19,7 @@ func buildHandlers(uc *useCases, repos *repositories, bus *event.Bus, jwtMiddlew
 		UpdateFantasia:              usuarioHandler.NewAtualizaFantasiaHandler(uc.updateDisplayName),
 		RetornaReunioesDia:          reuniaoHandler.NewRetornaReunioesDiaHandler(uc.retornaReunioesDia),
 		RetornaProjetosCompletos:    reuniaoHandler.NewRetornaProjetosCompletosHandler(uc.retornaProjetos),
+		RetornaProjetoCompleto:      reuniaoHandler.NewRetornaProjetoCompletoHandler(uc.retornaProjeto),
 		AbreVotacao:                 votacaoHandler.NewAbreVotacaoHandler(uc.abreVotacao),
 		FechaVotacao:                votacaoHandler.NewFechaVotacaoHandler(uc.fechaVotacao),
 		CancelaVotacao:              votacaoHandler.NewCancelaVotacaoHandler(uc.cancelaVotacao),

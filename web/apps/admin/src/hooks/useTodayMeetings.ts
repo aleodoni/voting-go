@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getApi } from '@voting/shared';
 
 export type MeetingDTO = {
-	reuniao_id: string;
+	id: string;
 	con_id: number;
 	con_desc: string;
 	rec_id: number;

@@ -6,7 +6,7 @@ export * from './ContainerWrapper';
 export * from './Header';
 export * from './ThemeProvider';
 export * from './ThemeTogle';
-
+export * from './ui/badge';
 export * from './ui/button';
 export * from './ui/card';
 export * from './ui/circular-progress';

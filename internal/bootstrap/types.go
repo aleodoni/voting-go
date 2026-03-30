@@ -26,6 +26,7 @@ type useCases struct {
 	retornaUsuario               *ucUsuario.RetornaUsuarioUseCase
 	retornaReunioesDia           *ucVotacao.RetornaReunioesDiaUseCase
 	retornaProjetos              *ucVotacao.RetornaProjetosCompletosUseCase
+	retornaProjeto               *ucVotacao.RetornaProjetoCompletoUseCase
 	abreVotacao                  *ucVotacao.AbreVotacaoUseCase
 	fechaVotacao                 *ucVotacao.FechaVotacaoUseCase
 	cancelaVotacao               *ucVotacao.CancelaVotacaoUseCase

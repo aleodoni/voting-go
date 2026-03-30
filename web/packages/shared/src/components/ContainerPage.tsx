@@ -13,7 +13,7 @@ export function ContainerPage({
 	return (
 		<div
 			className={clsx(
-				'flex flex-col bg-background border rounded-xl p-8 my-8 items-start h-full w-full',
+				'flex flex-col bg-background border rounded-xl p-8 my-8 w-full',
 				className,
 			)}
 			{...props}

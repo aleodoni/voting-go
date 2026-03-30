@@ -45,7 +45,9 @@ export function SearchUsers() {
 				/>
 			</div>
 
-			<Button onClick={handleSearch}>Pesquisar</Button>
+			<Button onClick={handleSearch} variant="outline">
+				Pesquisar
+			</Button>
 		</section>
 	);
 }

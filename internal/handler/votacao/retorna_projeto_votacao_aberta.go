@@ -40,5 +40,10 @@ func (h *RetornaProjetoVotacaoAbertaHandler) Handle(c *gin.Context) {
 		return
 	}
 
+	if projeto == nil {
+		c.JSON(http.StatusOK, nil)
+		return
+	}
+
 	c.JSON(http.StatusOK, mappers.ToProjetoResponse(projeto))
 }

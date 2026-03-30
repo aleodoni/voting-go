@@ -29,6 +29,7 @@ type Handlers struct {
 
 	RetornaReunioesDia       *reuniaoHandler.RetornaReunioesDiaHandler
 	RetornaProjetosCompletos *reuniaoHandler.RetornaProjetosCompletosHandler
+	RetornaProjetoCompleto   *reuniaoHandler.RetornaProjetoCompletoHandler
 
 	AbreVotacao                 *votacaoHandler.AbreVotacaoHandler
 	FechaVotacao                *votacaoHandler.FechaVotacaoHandler
