@@ -22,11 +22,14 @@ type Handlers struct {
 	Me                        *usuarioHandler.MeHandler
 	UpdateCredenciais         *usuarioHandler.UpdateCredencialHandler
 	UpdateFantasiaCredenciais *usuarioHandler.AtualizaFantasiaCredenciaisHandler
+	UpdateFantasia            *usuarioHandler.AtualizaFantasiaHandler
 	PesquisaUsuarios          *usuarioHandler.PesquisaUsuariosHandler
+	RetornaUsuario            *usuarioHandler.RetornaUsuarioHandler
 	ConnectedUsers            *usuarioHandler.ConnectedUsersHandler
 
 	RetornaReunioesDia       *reuniaoHandler.RetornaReunioesDiaHandler
 	RetornaProjetosCompletos *reuniaoHandler.RetornaProjetosCompletosHandler
+	RetornaProjetoCompleto   *reuniaoHandler.RetornaProjetoCompletoHandler
 
 	AbreVotacao                 *votacaoHandler.AbreVotacaoHandler
 	FechaVotacao                *votacaoHandler.FechaVotacaoHandler

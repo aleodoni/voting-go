@@ -1,1 +1,1 @@
-export * from './useSSE'
+export * from './useSSE';

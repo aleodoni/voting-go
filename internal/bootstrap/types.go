@@ -18,17 +18,20 @@ type repositories struct {
 }
 
 type useCases struct {
-	ensureUsuario               *ucUsuario.EnsureUsuarioUseCase
-	updateDisplayName           *ucUsuario.UpdateDisplayNamePermissionsUseCase
-	updateCredencial            *ucUsuario.UpdateCredencialUseCase
-	listUsuarios                *ucUsuario.ListUsuariosUseCase
-	retornaReunioesDia          *ucVotacao.RetornaReunioesDiaUseCase
-	retornaProjetos             *ucVotacao.RetornaProjetosCompletosUseCase
-	abreVotacao                 *ucVotacao.AbreVotacaoUseCase
-	fechaVotacao                *ucVotacao.FechaVotacaoUseCase
-	cancelaVotacao              *ucVotacao.CancelaVotacaoUseCase
-	registraVoto                *ucVotacao.RegistraVotoUseCase
-	geraRelatorio               *ucRelatorio.GeraRelatorioReuniaoUseCase
-	retornaProjetoVotacaoAberta *ucVotacao.RetornaVotacaoAbertaUseCase
-	retornaStatsVotacao         *ucVotacao.RetornaVotingStatsUseCase
+	ensureUsuario                *ucUsuario.EnsureUsuarioUseCase
+	updateDisplayNamePermissions *ucUsuario.UpdateDisplayNamePermissionsUseCase
+	updateDisplayName            *ucUsuario.UpdateDisplayNameUseCase
+	updateCredencial             *ucUsuario.UpdateCredencialUseCase
+	listUsuarios                 *ucUsuario.ListUsuariosUseCase
+	retornaUsuario               *ucUsuario.RetornaUsuarioUseCase
+	retornaReunioesDia           *ucVotacao.RetornaReunioesDiaUseCase
+	retornaProjetos              *ucVotacao.RetornaProjetosCompletosUseCase
+	retornaProjeto               *ucVotacao.RetornaProjetoCompletoUseCase
+	abreVotacao                  *ucVotacao.AbreVotacaoUseCase
+	fechaVotacao                 *ucVotacao.FechaVotacaoUseCase
+	cancelaVotacao               *ucVotacao.CancelaVotacaoUseCase
+	registraVoto                 *ucVotacao.RegistraVotoUseCase
+	geraRelatorio                *ucRelatorio.GeraRelatorioReuniaoUseCase
+	retornaProjetoVotacaoAberta  *ucVotacao.RetornaVotacaoAbertaUseCase
+	retornaStatsVotacao          *ucVotacao.RetornaVotingStatsUseCase
 }

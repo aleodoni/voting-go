@@ -1,0 +1,5 @@
+            id            |             keycloak_id              |   username    |         email          |     nome      | nome_fantasia | ativo | pode_administrar | pode_votar | total_count 
+--------------------------+--------------------------------------+---------------+------------------------+---------------+---------------+-------+------------------+------------+-------------
+ b5vi3lmc9tsu5482p0o1ddcp | 9cdf5261-1a2a-44c2-9e2f-e206ce1d3862 | usuario.admin | usuario.admin@test.com | Usuario Admin | Usuário Admin | t     | t                | f          |           1
+(1 row)
+

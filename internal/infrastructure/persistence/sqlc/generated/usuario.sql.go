@@ -285,17 +285,23 @@ SELECT
     COUNT(*) OVER() AS total_count
 FROM usuario u
 JOIN credencial c ON c.usuario_id = u.id
-WHERE (
-    $1 = ''
-    OR u.nome ILIKE '%' || $1 || '%'
-)
+WHERE
+    (
+        $1 = ''
+        OR u.nome ILIKE '%' || $1 || '%'
+    )
+AND (
+        $2 = ''
+        OR u.email ILIKE '%' || $2 || '%'
+    )
 ORDER BY u.nome
-LIMIT $3
-OFFSET $2
+LIMIT $4
+OFFSET $3
 `
 
 type ListUsersParams struct {
-	Search     interface{}
+	Nome       interface{}
+	Email      interface{}
 	OffsetRows int32
 	LimitRows  int32
 }
@@ -314,7 +320,12 @@ type ListUsersRow struct {
 }
 
 func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]ListUsersRow, error) {
-	rows, err := q.db.Query(ctx, listUsers, arg.Search, arg.OffsetRows, arg.LimitRows)
+	rows, err := q.db.Query(ctx, listUsers,
+		arg.Nome,
+		arg.Email,
+		arg.OffsetRows,
+		arg.LimitRows,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -342,6 +353,22 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]ListUse
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateDisplayName = `-- name: UpdateDisplayName :exec
+UPDATE usuario
+SET nome_fantasia = $1
+WHERE id = $2
+`
+
+type UpdateDisplayNameParams struct {
+	DisplayName pgtype.Text
+	UserID      string
+}
+
+func (q *Queries) UpdateDisplayName(ctx context.Context, arg UpdateDisplayNameParams) error {
+	_, err := q.db.Exec(ctx, updateDisplayName, arg.DisplayName, arg.UserID)
+	return err
 }
 
 const updateDisplayNamePermissions = `-- name: UpdateDisplayNamePermissions :exec

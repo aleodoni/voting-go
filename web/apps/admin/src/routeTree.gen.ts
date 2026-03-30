@@ -9,38 +9,128 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UserInfoRouteImport } from './routes/user-info'
+import { Route as MeetingsRouteImport } from './routes/meetings'
+import { Route as ManageUsersRouteImport } from './routes/manage-users'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as VotingPanelProjectIdRouteImport } from './routes/voting-panel.$projectId'
+import { Route as UserUserIdRouteImport } from './routes/user.$userId'
 
+const UserInfoRoute = UserInfoRouteImport.update({
+  id: '/user-info',
+  path: '/user-info',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeetingsRoute = MeetingsRouteImport.update({
+  id: '/meetings',
+  path: '/meetings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManageUsersRoute = ManageUsersRouteImport.update({
+  id: '/manage-users',
+  path: '/manage-users',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VotingPanelProjectIdRoute = VotingPanelProjectIdRouteImport.update({
+  id: '/voting-panel/$projectId',
+  path: '/voting-panel/$projectId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UserUserIdRoute = UserUserIdRouteImport.update({
+  id: '/user/$userId',
+  path: '/user/$userId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/manage-users': typeof ManageUsersRoute
+  '/meetings': typeof MeetingsRoute
+  '/user-info': typeof UserInfoRoute
+  '/user/$userId': typeof UserUserIdRoute
+  '/voting-panel/$projectId': typeof VotingPanelProjectIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/manage-users': typeof ManageUsersRoute
+  '/meetings': typeof MeetingsRoute
+  '/user-info': typeof UserInfoRoute
+  '/user/$userId': typeof UserUserIdRoute
+  '/voting-panel/$projectId': typeof VotingPanelProjectIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/manage-users': typeof ManageUsersRoute
+  '/meetings': typeof MeetingsRoute
+  '/user-info': typeof UserInfoRoute
+  '/user/$userId': typeof UserUserIdRoute
+  '/voting-panel/$projectId': typeof VotingPanelProjectIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/manage-users'
+    | '/meetings'
+    | '/user-info'
+    | '/user/$userId'
+    | '/voting-panel/$projectId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/manage-users'
+    | '/meetings'
+    | '/user-info'
+    | '/user/$userId'
+    | '/voting-panel/$projectId'
+  id:
+    | '__root__'
+    | '/'
+    | '/manage-users'
+    | '/meetings'
+    | '/user-info'
+    | '/user/$userId'
+    | '/voting-panel/$projectId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ManageUsersRoute: typeof ManageUsersRoute
+  MeetingsRoute: typeof MeetingsRoute
+  UserInfoRoute: typeof UserInfoRoute
+  UserUserIdRoute: typeof UserUserIdRoute
+  VotingPanelProjectIdRoute: typeof VotingPanelProjectIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/user-info': {
+      id: '/user-info'
+      path: '/user-info'
+      fullPath: '/user-info'
+      preLoaderRoute: typeof UserInfoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meetings': {
+      id: '/meetings'
+      path: '/meetings'
+      fullPath: '/meetings'
+      preLoaderRoute: typeof MeetingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manage-users': {
+      id: '/manage-users'
+      path: '/manage-users'
+      fullPath: '/manage-users'
+      preLoaderRoute: typeof ManageUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +138,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/voting-panel/$projectId': {
+      id: '/voting-panel/$projectId'
+      path: '/voting-panel/$projectId'
+      fullPath: '/voting-panel/$projectId'
+      preLoaderRoute: typeof VotingPanelProjectIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/user/$userId': {
+      id: '/user/$userId'
+      path: '/user/$userId'
+      fullPath: '/user/$userId'
+      preLoaderRoute: typeof UserUserIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ManageUsersRoute: ManageUsersRoute,
+  MeetingsRoute: MeetingsRoute,
+  UserInfoRoute: UserInfoRoute,
+  UserUserIdRoute: UserUserIdRoute,
+  VotingPanelProjectIdRoute: VotingPanelProjectIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

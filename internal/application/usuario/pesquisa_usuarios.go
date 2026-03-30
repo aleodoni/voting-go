@@ -10,7 +10,8 @@ import (
 // ListUsuariosInput contém os dados necessários para listar usuários.
 type ListUsuariosInput struct {
 	LoggedInUserKeycloakID string
-	Search                 string
+	Nome                   string
+	Email                  string
 	Page                   int
 	Limit                  int
 }
@@ -53,7 +54,7 @@ func (uc *ListUsuariosUseCase) Execute(
 		limit = 20
 	}
 
-	usuarios, total, err := uc.repoUsuario.ListUsers(ctx, input.Search, page, limit)
+	usuarios, total, err := uc.repoUsuario.ListUsers(ctx, input.Nome, input.Email, input.Page, input.Limit)
 	if err != nil {
 		return nil, err
 	}

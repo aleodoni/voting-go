@@ -1,6 +1,13 @@
-import { Button, Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@voting/shared'
-import { Users } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
+import {
+	Button,
+	Card,
+	CardDescription,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from '@voting/shared';
+import { Users } from 'lucide-react';
 export function ManageUserCard() {
 	return (
 		<Card className="w-full h-fit">

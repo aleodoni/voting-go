@@ -4,43 +4,46 @@ import { ButtonLogout } from './ButtonLogout';
 import { ThemeTogle } from './ThemeTogle';
 
 interface HeaderProps {
-  subtitulo: string
-  logout: () => void
-  setTheme: (theme: 'light' | 'dark' | 'system') => void
+	subtitulo: string;
+	logout: () => void;
+	setTheme: (theme: 'light' | 'dark' | 'system') => void;
 }
-export function Header({logout, subtitulo, setTheme}: HeaderProps) {
+
+export function Header({ logout, subtitulo, setTheme }: HeaderProps) {
 	return (
-		<div className="flex items-center w-full justify-between border-b py-2">
-			<div className="flex h-full lg:w-2/3 py-3">
-				<Link
-					className="ml-4 flex items-center justify-center text-2xl"
-					to="/"
-					title="Página inicial"
-				>
-					<img
-						alt="Logo Câmara Municipal de Curitiba"
-						src={brasaoPng}
-						className="flex h-auto w-[50px] lg:w-[80px] items-center"
-					/>
-				</Link>
-				<div className="ml-4 flex flex-col justify-center gap-2">
-					<p className="flex text-lg lg:text-4xl font-bold">
-						Câmara Municipal de Curitiba
-					</p>
+		<header className="w-full rounded-xl border bg-background shadow-sm px-6 py-4">
+			<div className="flex items-center justify-between">
+				<div className="flex items-center gap-4">
+					<Link
+						to="/"
+						title="Página inicial"
+						className="flex items-center justify-center"
+					>
+						<img
+							alt="Logo Câmara Municipal de Curitiba"
+							src={brasaoPng}
+							className="h-auto w-14 lg:w-16"
+						/>
+					</Link>
+
 					<div className="flex flex-col">
-						<p className="text-base lg:text-2xl font-bold">
+						<p className="text-xl lg:text-3xl font-bold leading-tight">
+							Câmara Municipal de Curitiba
+						</p>
+
+						<p className="text-base lg:text-xl font-semibold">
 							Sistema de Votação
 						</p>
-						<p className="text-sm lg:text-md opacity-80">
-              {subtitulo}
-						</p>
+
+						<p className="text-sm opacity-70">{subtitulo}</p>
 					</div>
 				</div>
+
+				<nav className="flex items-center gap-3">
+					<ThemeTogle setTheme={setTheme} />
+					<ButtonLogout logout={logout} />
+				</nav>
 			</div>
-			<nav className=" flex lg:w-1/3 items-center justify-end gap-8">
-        <ButtonLogout logout={logout}/>
-				<ThemeTogle setTheme={setTheme}/>
-			</nav>
-		</div>
+		</header>
 	);
 }

@@ -110,10 +110,15 @@ SELECT
     COUNT(*) OVER() AS total_count
 FROM usuario u
 JOIN credencial c ON c.usuario_id = u.id
-WHERE (
-    sqlc.arg(search) = ''
-    OR u.nome ILIKE '%' || sqlc.arg(search) || '%'
-)
+WHERE
+    (
+        sqlc.arg(nome) = ''
+        OR u.nome ILIKE '%' || sqlc.arg(nome) || '%'
+    )
+AND (
+        sqlc.arg(email) = ''
+        OR u.email ILIKE '%' || sqlc.arg(email) || '%'
+    )
 ORDER BY u.nome
 LIMIT sqlc.arg(limit_rows)
 OFFSET sqlc.arg(offset_rows);
@@ -126,4 +131,10 @@ SELECT public.f_update_user_with_permissions(
     sqlc.arg(can_admin),
     sqlc.arg(can_vote)
 );
+
+-- name: UpdateDisplayName :exec
+UPDATE usuario
+SET nome_fantasia = sqlc.arg(display_name)
+WHERE id = sqlc.arg(user_id);
+
 
