@@ -1,6 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useAuth } from '@voting/shared';
 import { LoggedUserCard } from '@/components/LoggedUserCard';
+import { VotingCard } from '@/components/VotingCard';
+import { useIsProjectVoting } from '@/hooks/useIsProjectVoting';
 
 export const Route = createFileRoute('/')({
 	component: DashboardPage,
@@ -8,10 +10,11 @@ export const Route = createFileRoute('/')({
 
 function DashboardPage() {
 	const { user } = useAuth();
+	const { data: projectVoting } = useIsProjectVoting();
 
 	return (
-		<div className="grid grid-cols-3 gap-4 flex-1 auto-rows-fr">
-			<div className="flex col-span-3"></div>
+		<div className="flex flex-col justify-around flex-1 min-h-0 gap-8">
+			<VotingCard projectVoting={projectVoting || null} />
 			{user && <LoggedUserCard userInfo={user} />}
 		</div>
 	);

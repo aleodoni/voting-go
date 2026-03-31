@@ -7,126 +7,195 @@ import {
 	CardFooter,
 	CardHeader,
 	CardTitle,
+	calcularTotaisVotos,
 	EVoteType,
+	EVotingStatus,
 	ProjetoDTO,
 	useAuth,
+	VotingTotals,
 } from '@voting/shared';
-import { Clock, FileText, Info, Vote } from 'lucide-react';
+import {
+	AlertTriangle,
+	Check,
+	Clock,
+	Eye,
+	Info,
+	MinusCircle,
+	Vote,
+	X,
+} from 'lucide-react';
+import { useRegistraVoto } from '@/hooks/useRegistraVoto';
+
+const EMPTY_TOTALS: VotingTotals = {
+	totalFavorable: 0,
+	totalRestriction: 0,
+	totalAgainst: 0,
+	totalExamination: 0,
+	totalAbstention: 0,
+};
 
 type VotingCardProps = {
 	projectVoting: ProjetoDTO | null;
 };
 
-export function VotingCard({ projectVoting }: VotingCardProps) {
-	const router = useRouter();
+// ----- Components externos para performance -----
+type TotalsBadgeProps = {
+	totals: VotingTotals;
+};
 
-	const { user } = useAuth();
+export function VotingTotalsBadge({ totals }: TotalsBadgeProps) {
+	return (
+		<div className="flex flex-wrap gap-2">
+			<Badge className="bg-green-600 text-white flex items-center gap-1">
+				<Check className="w-3 h-3" />
+				{totals.totalFavorable} favorável
+			</Badge>
+			<Badge className="bg-orange-600 text-white flex items-center gap-1">
+				<AlertTriangle className="w-3 h-3" />
+				{totals.totalRestriction} com restrições
+			</Badge>
+			<Badge className="bg-red-600 text-white flex items-center gap-1">
+				<X className="w-3 h-3" />
+				{totals.totalAgainst} contra
+			</Badge>
+			<Badge className="bg-gray-600 text-white flex items-center gap-1">
+				<MinusCircle className="w-3 h-3" />
+				{totals.totalAbstention} abstenção
+			</Badge>
+			<Badge className="bg-cyan-600 text-white flex items-center gap-1">
+				<Eye className="w-3 h-3" />
+				{totals.totalExamination} vistas
+			</Badge>
+		</div>
+	);
+}
 
-	function handleVoteButton() {
-		if (projectVoting) {
-			router.navigate({
-				to: '/vote',
-				search: { votingId: projectVoting.votacao?.id },
-			});
-		}
-	}
+type UserVoteBadgeProps = {
+	userVote: { voto: string; usuario: { nome_fantasia: string } } | null;
+};
 
+export function UserVoteBadge({ userVote }: UserVoteBadgeProps) {
 	function voteBadge(vote: string) {
 		switch (vote) {
 			case EVoteType.FAVORAVEL:
 				return (
-					<Badge className="font-medium bg-green-600 text-white">
+					<Badge className="bg-green-600 text-white flex items-center gap-1">
+						<Check className="w-3 h-3" />
 						Favorável
 					</Badge>
 				);
 			case EVoteType.FAVORAVEL_RESTRICOES:
 				return (
-					<Badge className="font-medium bg-orange-600 text-white">
+					<Badge className="bg-orange-600 text-white flex items-center gap-1">
+						<AlertTriangle className="w-3 h-3" />
 						Favorável com restrições
 					</Badge>
 				);
 			case EVoteType.CONTRARIO:
 				return (
-					<Badge className="font-medium bg-red-600 text-white">Contrário</Badge>
+					<Badge className="bg-red-600 text-white flex items-center gap-1">
+						<X className="w-3 h-3" />
+						Contrário
+					</Badge>
 				);
 			case EVoteType.ABSTENCAO:
 				return (
-					<Badge className="font-medium bg-gray-600 text-white">
+					<Badge className="bg-gray-600 text-white flex items-center gap-1">
+						<MinusCircle className="w-3 h-3" />
 						Abstenção
 					</Badge>
 				);
 			case EVoteType.VISTA:
 				return (
-					<Badge className="font-medium bg-cyan-600 text-white">Vistas</Badge>
-				);
-			default:
-				return (
-					<Badge className="font-medium bg-gray-600 text-white">
-						Voto nulo
+					<Badge className="bg-cyan-600 text-white flex items-center gap-1">
+						<Eye className="w-3 h-3" />
+						Vistas
 					</Badge>
 				);
+			default:
+				return <Badge className="bg-gray-600 text-white">Voto nulo</Badge>;
 		}
 	}
 
-	function getUserVote() {
-		if (!projectVoting || !user) return null;
-		const alreadyVoted = projectVoting?.votacao?.votos.find(
-			(vote) => vote.usuario.id === user.id,
-		);
-
-		return alreadyVoted ? alreadyVoted : null;
-	}
-
-	const userVote = getUserVote();
+	if (!userVote) return null;
 
 	return (
-		<Card className="h-fit w-3xl">
+		<div className="flex items-center justify-center gap-2 text-sm w-full text-foreground/70">
+			<span>Seu voto ({userVote.usuario.nome_fantasia}):</span>
+			{voteBadge(userVote.voto)}
+		</div>
+	);
+}
+
+// ----- VotingCard principal -----
+export function VotingCard({ projectVoting }: VotingCardProps) {
+	const router = useRouter();
+	const { user } = useAuth();
+	const mutation = useRegistraVoto();
+
+	const totals = projectVoting?.votacao?.votos
+		? calcularTotaisVotos(projectVoting.votacao.votos)
+		: EMPTY_TOTALS;
+
+	const userVote =
+		projectVoting?.votacao?.votos.find(
+			(vote) => vote.usuario.id === user?.id,
+		) ?? null;
+
+	const isVotingOpen = projectVoting?.votacao?.status === EVotingStatus.ABERTA;
+
+	async function _handleVote(voto: EVoteType) {
+		if (!projectVoting?.votacao) return;
+		try {
+			await mutation.mutateAsync({
+				votacaoId: projectVoting.votacao.id,
+				body: { voto },
+			});
+		} catch {
+			// erro tratado pelo mutation.isError
+		}
+	}
+
+	return (
+		<Card className="h-fit w-full">
 			<CardHeader>
 				<CardTitle className="flex items-center gap-2">
-					<Info className="h-8 w-8 rounded-full border-primary text-primary " />
-					Votações em andamento
+					<Info className="h-6 w-6 text-primary" />
+					{projectVoting
+						? `Projeto ${projectVoting.codigo_proposicao}`
+						: 'Nenhuma votação em andamento'}
 				</CardTitle>
 			</CardHeader>
-			<CardContent>
+
+			<CardContent className="flex flex-col gap-4">
 				{projectVoting ? (
-					<div className="flex flex-col justify-center text-sm gap-2">
-						<div className="flex items-start gap-3 mb-4">
-							<div className="p-1.5 bg-foreground/10 rounded-lg">
-								<FileText className="w-4 h-4 text-foreground/50" />
-							</div>
-							<div>
-								<span className="text-sm font-medium text-foreground">
-									Projeto
-								</span>
-								<div className="text-lg font-mono font-semibold text-primary mt-1">
-									{projectVoting.codigo_proposicao}
-								</div>
-							</div>
+					<div className="flex flex-col gap-3">
+						{/* Súmula */}
+						<h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+							<div className="w-1 h-4 bg-primary rounded-full"></div>
+							Súmula
+						</h4>
+						<div className="text-sm text-foreground leading-relaxed pl-3">
+							{projectVoting.sumula}
 						</div>
-						<div>
-							<h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-								<div className="w-1 h-4 bg-primary rounded-full"></div>
-								Súmula
-							</h4>
-							<div className="text-sm text-foreground leading-relaxed pl-3">
-								{projectVoting.sumula}
-							</div>
-						</div>
+
+						{/* Totais de votos */}
+						<VotingTotalsBadge totals={totals} />
 					</div>
 				) : (
-					<div className="flex flex-col justify-center items-center py-4">
+					<div className="flex flex-col justify-center items-center py-6 gap-4">
 						<div className="relative flex items-center justify-center">
-							<div className="flex items-center justify-center w-12 h-12 bg-primary/50 rounded-full">
+							<div className="flex items-center justify-center w-14 h-14 bg-primary/50 rounded-full">
 								<Clock className="w-6 h-6 text-white/80" />
 							</div>
-							<div className="absolute inset-0 w-12 h-12 bg-primary rounded-full animate-ping opacity-20"></div>
-							<div className="absolute inset-0 w-12 h-12 bg-primary-foreground rounded-full animate-ping opacity-10 delay-75"></div>
+							<div className="absolute inset-0 w-14 h-14 bg-primary rounded-full animate-ping opacity-20"></div>
+							<div className="absolute inset-0 w-14 h-14 bg-primary-foreground rounded-full animate-ping opacity-10 delay-75"></div>
 						</div>
-						<div className="text-muted-foreground text-sm pt-8 font-bold">
-							Nenhuma votação em andamento
+						<div className="text-muted-foreground text-sm font-bold">
+							Aguardando votação
 						</div>
-						<div className="text-muted-foreground text-xs flex items-center justify-center gap-2 pt-4">
-							<span>Aguardando votação ser liberada</span>
+						<div className="text-muted-foreground text-xs flex items-center gap-2">
+							<span>Em breve será liberada</span>
 							<div className="flex gap-1">
 								<div className="w-1 h-1 bg-gray-500 rounded-full animate-pulse"></div>
 								<div className="w-1 h-1 bg-gray-500 rounded-full animate-pulse delay-100"></div>
@@ -136,47 +205,35 @@ export function VotingCard({ projectVoting }: VotingCardProps) {
 					</div>
 				)}
 			</CardContent>
+
 			{projectVoting && (
-				<CardFooter className="flex flex-col gap-2 justify-between items-center w-full h-fit">
-					<div className="flex items-center justify-between">
-						<div className="flex items-center gap-4 text-xs">
-							<Badge className="font-medium bg-green-600 text-white">
-								{projectVoting?.votacao?.totals.totalFavorable || 0} favorável
-							</Badge>
-							<Badge className="font-medium bg-orange-600 text-white">
-								{projectVoting?.votacao?.totals.totalRestriction || 0} favorável
-								com restrições
-							</Badge>
-							<Badge className="font-medium bg-red-600 text-white">
-								{projectVoting?.votacao?.totals.totalAgainst || 0} contra
-							</Badge>
-							<Badge className="font-medium bg-gray-600 text-white">
-								{projectVoting?.votacao?.totals.totalAbstention || 0} abstenção
-							</Badge>
-							<Badge className="font-medium bg-cyan-600 text-white">
-								{projectVoting?.votacao?.totals.totalExamination || 0} vistas
-							</Badge>
-						</div>
-					</div>
+				<CardFooter className="flex flex-col gap-3 w-full">
+					{/* User vote or vote button */}
 					{userVote ? (
-						<div className="flex w-full text-md items-center text-foreground/50 pt-4">
-							<div className="flex items-center justify-center gap-2 text-sm w-full">
-								<span>Voto do vereador {userVote.usuario.nome_fantasia}:</span>
-								{voteBadge(userVote.voto)}
-							</div>
-						</div>
+						<UserVoteBadge userVote={userVote} />
 					) : (
-						<div className="flex w-full justify-end pt-4">
+						<div className="flex w-full justify-end">
 							<Button
-								variant={'outline'}
-								className="justify-end"
-								disabled={!projectVoting || !!userVote}
-								onClick={() => handleVoteButton()}
+								variant="outline"
+								disabled={!isVotingOpen} // desabilita se votação não estiver aberta
+								onClick={() =>
+									router.navigate({
+										to: '/vote/:votingId',
+										params: { votingId: projectVoting.votacao?.id },
+									})
+								}
 							>
 								<Vote className="mr-2 h-4 w-4" />
 								Votar agora
 							</Button>
 						</div>
+					)}
+
+					{/* Error feedback */}
+					{mutation.isError && (
+						<p className="text-sm text-destructive w-full text-center">
+							{mutation.error.message}
+						</p>
 					)}
 				</CardFooter>
 			)}

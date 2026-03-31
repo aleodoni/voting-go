@@ -32,7 +32,7 @@ BEGIN
 
         -- Encerra a votação
         UPDATE votacao
-        SET status = 'F'
+        SET status = 'V'
         WHERE id = p_votacao_id;
 
         RETURN;

@@ -17,14 +17,23 @@ function RootComponent() {
 		},
 		onEvent: (event) => {
 			switch (event.type) {
+				case 'votacao_aberta':
+					queryClient.invalidateQueries({
+						queryKey: ['open-voting'],
+					});
+					break;
 				case 'votacao_fechada':
+					queryClient.invalidateQueries({
+						queryKey: ['open-voting'],
+					});
+					break;
 				case 'votacao_cancelada':
 					queryClient.invalidateQueries({
-						queryKey: ['voting-stats'],
+						queryKey: ['open-voting'],
 					});
 					break;
 				case 'voto_registrado':
-					queryClient.invalidateQueries({ queryKey: ['project'] });
+					queryClient.invalidateQueries({ queryKey: ['open-voting'] });
 					break;
 			}
 		},
@@ -32,7 +41,7 @@ function RootComponent() {
 
 	return (
 		<div className="w-full min-h-screen bg-muted/30 px-6 py-6">
-			<div className="max-w-7xl mx-auto flex flex-col gap-6">
+			<div className="max-w-7xl mx-auto flex flex-col gap-6 min-h-full">
 				<Header
 					subtitulo="Módulo vereador"
 					logout={logout}

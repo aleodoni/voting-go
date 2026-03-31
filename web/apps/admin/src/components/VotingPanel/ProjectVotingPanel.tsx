@@ -16,19 +16,19 @@ export function ProjectVotingPanel({ project }: ProjectVotingPanelProps) {
 	const totals: Totals = project.votacao?.votos.reduce(
 		(acc, voto) => {
 			switch (voto.voto) {
-				case 'favoravel':
+				case 'F':
 					acc.totalFavorable += 1;
 					break;
-				case 'restricao':
+				case 'R':
 					acc.totalRestriction += 1;
 					break;
-				case 'contrario':
+				case 'C':
 					acc.totalAgainst += 1;
 					break;
-				case 'abstencao':
+				case 'A':
 					acc.totalAbstention += 1;
 					break;
-				case 'vista':
+				case 'V':
 					acc.totalExamination += 1;
 					break;
 				default:
