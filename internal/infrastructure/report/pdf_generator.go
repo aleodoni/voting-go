@@ -162,7 +162,7 @@ func drawProjeto(pdf *fpdf.Fpdf, p domainRelatorio.ProjetoItem) {
 			pdf.SetX(marginL + 4)
 			pdf.SetFont("DejaVu", "", 9)
 			pdf.SetTextColor(80, 80, 80)
-			pdf.MultiCell(contentW-4, smallH, fmt.Sprintf("Motivo: %s", voto.VotoContrario), "", "L", false)
+			pdf.MultiCell(contentW-4, smallH, voto.VotoContrario, "", "L", false)
 			pdf.SetTextColor(0, 0, 0)
 		}
 	}
@@ -175,8 +175,8 @@ func drawProjeto(pdf *fpdf.Fpdf, p domainRelatorio.ProjetoItem) {
 		label string
 	}{
 		{"F", "TOTAL VOTOS FAVORÁVEL"},
-		{"C", "TOTAL VOTOS FAVORÁVEL COM RESTRIÇÕES"},
-		{"R", "TOTAL VOTOS CONTRÁRIO"},
+		{"R", "TOTAL VOTOS FAVORÁVEL COM RESTRIÇÕES"},
+		{"C", "TOTAL VOTOS CONTRÁRIO"},
 		{"V", "TOTAL VOTOS VISTAS"},
 		{"A", "TOTAL VOTOS ABSTENÇÃO"},
 	}
@@ -204,9 +204,9 @@ func opcaoVotoDesc(o string) string {
 	case "F":
 		return "FAVORÁVEL"
 	case "R":
-		return "CONTRÁRIO"
-	case "C":
 		return "FAVORÁVEL COM RESTRIÇÕES"
+	case "C":
+		return "CONTRÁRIO"
 	case "V":
 		return "VISTAS"
 	case "A":

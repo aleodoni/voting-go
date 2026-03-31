@@ -1,5 +1,5 @@
+import { calcularTotaisVotos, VotingTotals } from '@voting/shared';
 import { ProjectDTO } from '@/types/meeting';
-import { calcularTotaisVotos, VotingTotals } from '@/utils/votacao';
 import { OpenVotingPanelButton } from './OpenVotingPanelButton';
 
 const EMPTY_TOTALS: VotingTotals = {

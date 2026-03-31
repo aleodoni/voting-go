@@ -1,5 +1,4 @@
-// utils/votacao.ts
-import { VotoDTO } from '@/types/meeting';
+import { VotoDTO } from '../types';
 
 export type VotingTotals = {
 	totalFavorable: number;

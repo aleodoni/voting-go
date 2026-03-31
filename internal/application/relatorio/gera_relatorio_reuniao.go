@@ -89,7 +89,7 @@ func buildVotacaoItem(v *domainVotacao.Votacao) *domainRelatorio.VotacaoItem {
 			}
 
 			if voto.VotoContrario != nil && voto.VotoContrario.Parecer != nil {
-				item.VotoContrario = voto.VotoContrario.Parecer.Vereador
+				item.VotoContrario = voto.VotoContrario.Parecer.TCPNome + " - " + voto.VotoContrario.Parecer.Vereador
 			}
 
 			votos = append(votos, item)
