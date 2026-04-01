@@ -26,9 +26,19 @@ type App struct {
 func NewApp() *App {
 	cfg := config.LoadConfig()
 
+	if err := database.RunMigrations(cfg); err != nil {
+		log.Fatal(err)
+	}
+
 	pgxPool, err := database.ConnectPGX(cfg)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if cfg.AppEnv == "development" || cfg.AppEnv == "staging" {
+		if err := database.RunSeed(pgxPool); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	bus := event.NewBus()

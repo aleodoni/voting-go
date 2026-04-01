@@ -1,6 +1,235 @@
 DELETE FROM votacao;
 DELETE FROM reuniao;
--- DELETE FROM usuario;
+DELETE FROM usuario;
+
+INSERT INTO usuario(
+  id,
+  keycloak_id,
+  username,
+  email,
+  nome,
+  nome_fantasia,
+  created_at,
+  updated_at
+) VALUES (
+  'pw9n8nvtwttmluap74387x1p',
+  '11111111-1111-1111-1111-111111111111',
+  'usuario.admin',
+  'usuario.admin@test.com',
+  'Usuario Admin',
+  'Usuário Admin',
+  NOW(),
+  NOW()
+);
+
+INSERT INTO usuario(
+  id,
+  keycloak_id,
+  username,
+  email,
+  nome,
+  nome_fantasia,
+  created_at,
+  updated_at
+) VALUES (
+  'vubwugaokqrcei5pxc57e2v7',
+  '66666666-6666-6666-6666-666666666666',
+  'usuario.vereador1',
+  'usuario.vereador1@test.com',
+  'Usuário Vereador Um',
+  'Vereador Um',
+  NOW(),
+  NOW()
+);
+
+INSERT INTO usuario(
+  id,
+  keycloak_id,
+  username,
+  email,
+  nome,
+  nome_fantasia,
+  created_at,
+  updated_at
+) VALUES (
+  'w6ipjm5snzbsl1it0etp8sjw',
+  '22222222-2222-2222-2222-222222222222',
+  'usuario.vereador2',
+  'usuario.vereador2@test.com',
+  'Usuário Vereador Dois',
+  'Vereador Dois',
+  NOW(),
+  NOW()
+);
+
+INSERT INTO usuario(
+  id,
+  keycloak_id,
+  username,
+  email,
+  nome,
+  nome_fantasia,
+  created_at,
+  updated_at
+) VALUES (
+  'y6l0nrankl5jx41khfqsp8lt',
+  '33333333-3333-3333-3333-333333333333',
+  'usuario.vereador3',
+  'usuario.vereador3@test.com',
+  'Usuário Vereador Três',
+  'Vereador Três',
+  NOW(),
+  NOW()
+);
+
+INSERT INTO usuario(
+  id,
+  keycloak_id,
+  username,
+  email,
+  nome,
+  nome_fantasia,
+  created_at,
+  updated_at
+) VALUES (
+  'e2bh4aucl5ez9jtd1f62fmns',
+  '44444444-4444-4444-4444-444444444444',
+  'usuario.vereador4',
+  'usuario.vereador4@test.com',
+  'Usuário Vereador Quatro',
+  'Vereador Quatro',
+  NOW(),
+  NOW()
+);
+
+INSERT INTO usuario(
+  id,
+  keycloak_id,
+  username,
+  email,
+  nome,
+  nome_fantasia,
+  created_at,
+  updated_at
+) VALUES (
+  'wsvqbz1rz0zsqpfzw6b3vodz',
+  '55555555-5555-5555-5555-555555555555',
+  'usuario.vereador5',
+  'usuario.vereador5@test.com',
+  'Usuário Vereador Cinco',
+  'Vereador Cinco',
+  NOW(),
+  NOW()
+);
+
+-- Credenciais
+INSERT INTO credencial(
+  id,
+  ativo,
+  pode_administrar,
+  pode_votar,
+  created_at,
+  updated_at,
+  usuario_id 
+) VALUES (
+  'qugd2lb7773unmh6vv3qrxax',
+  true,
+  true,
+  false,
+  NOW(),
+  NOW(),
+  'pw9n8nvtwttmluap74387x1p'
+);
+
+INSERT INTO credencial(
+  id,
+  ativo,
+  pode_administrar,
+  pode_votar,
+  created_at,
+  updated_at,
+  usuario_id 
+) VALUES (
+  'qgy2hyt2p26vqemkw4t63xji',
+  true,
+  false,
+  true,
+  NOW(),
+  NOW(),
+  'w6ipjm5snzbsl1it0etp8sjw'
+);
+
+INSERT INTO credencial(
+  id,
+  ativo,
+  pode_administrar,
+  pode_votar,
+  created_at,
+  updated_at,
+  usuario_id 
+) VALUES (
+  'vlx2pu5yqquhktltm0vnfbv8',
+  true,
+  false,
+  true,
+  NOW(),
+  NOW(),
+  'y6l0nrankl5jx41khfqsp8lt'
+);
+
+INSERT INTO credencial(
+  id,
+  ativo,
+  pode_administrar,
+  pode_votar,
+  created_at,
+  updated_at,
+  usuario_id 
+) VALUES (
+  'auskwz6gz3fntep4ppkx8qc9',
+  true,
+  false,
+  true,
+  NOW(),
+  NOW(),
+  'e2bh4aucl5ez9jtd1f62fmns'
+);
+
+INSERT INTO credencial(
+  id,
+  ativo,
+  pode_administrar,
+  pode_votar,
+  created_at,
+  updated_at,
+  usuario_id 
+) VALUES (
+  'k01vqgza536zqhh6yu0fan61',
+  true,
+  false,
+  true,
+  NOW(),
+  NOW(),
+  'wsvqbz1rz0zsqpfzw6b3vodz'
+);
+
+INSERT INTO credencial(
+  id,
+  ativo,
+  pode_administrar,
+  pode_votar,
+  created_at,
+  updated_at,
+  usuario_id 
+) VALUES (
+  'wo3l2p84260rgl9rp2rb0iav',
+  true,
+  false,
+  true,
+  NOW(),
+  NOW(),
+  'vubwugaokqrcei5pxc57e2v7'
+);
 
 INSERT INTO reuniao(
   id, 
