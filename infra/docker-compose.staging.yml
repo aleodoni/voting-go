@@ -16,6 +16,26 @@ services:
       timeout: 5s
       retries: 5
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: voting-keycloak
+    command: start-dev --import-realm
+    restart: unless-stopped
+
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+
+    ports:
+      - "8081:8080"
+
+    volumes:
+      - ./keycloak/realm-import:/opt/keycloak/data/import
+
+    depends_on: 
+      db: 
+        condition: service_healthy
+
   api:
     image: ${API_IMAGE}
     restart: unless-stopped
@@ -32,13 +52,37 @@ services:
       DBUSER: ${DBUSER}
       DBPASSWORD: ${DBPASSWORD}
       DBSSLMODE: ${DBSSLMODE}
-      KEYCLOAK_ISSUER: ${KEYCLOAK_ISSUER}
-      JWKSURL: ${JWKSURL}
+      KEYCLOAK_ISSUER: http://keycloak:8080/realms/voting-realm
+      JWKSURL: http://keycloak:8080/realms/voting-realm/protocol/openid-connect/certs
       PUBLIC_KEY: ${PUBLIC_KEY}
       USER_ACCESS: ${USER_ACCESS}
     depends_on:
       db:
         condition: service_healthy
+      keycloak: 
+        condition: service_started
+
+  admin:
+    build:
+      context: ../web
+      dockerfile: ../infra/docker/admin/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+      - keycloak
+
+  vereador:
+    build:
+      context: ../web
+      dockerfile: ../infra/docker/vereador/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3001:80"
+    depends_on:
+      - api
+      - keycloak
 
 volumes:
   pgdata:

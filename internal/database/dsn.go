@@ -8,12 +8,12 @@ import (
 
 func BuildDSN(cfg *config.Config) string {
 	return fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=UTC",
-		cfg.DBHost,
+		"postgres://%s:%s@%s:%s/%s?sslmode=%s&TimeZone=UTC",
 		cfg.DBUser,
 		cfg.DBPassword,
-		cfg.DBName,
+		cfg.DBHost,
 		cfg.DBPort,
+		cfg.DBName,
 		cfg.DBSSLMODE,
 	)
 }

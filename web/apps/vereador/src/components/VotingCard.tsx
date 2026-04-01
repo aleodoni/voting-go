@@ -144,17 +144,17 @@ export function VotingCard({ projectVoting }: VotingCardProps) {
 
 	const isVotingOpen = projectVoting?.votacao?.status === EVotingStatus.ABERTA;
 
-	async function _handleVote(voto: EVoteType) {
-		if (!projectVoting?.votacao) return;
-		try {
-			await mutation.mutateAsync({
-				votacaoId: projectVoting.votacao.id,
-				body: { voto },
-			});
-		} catch {
-			// erro tratado pelo mutation.isError
-		}
-	}
+	// async function _handleVote(voto: EVoteType) {
+	// 	if (!projectVoting?.votacao) return;
+	// 	try {
+	// 		await mutation.mutateAsync({
+	// 			votacaoId: projectVoting.votacao.id,
+	// 			body: { voto },
+	// 		});
+	// 	} catch {
+	// 		// erro tratado pelo mutation.isError
+	// 	}
+	// }
 
 	return (
 		<Card className="h-fit w-full">

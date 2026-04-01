@@ -9,7 +9,7 @@ export function SearchUsers() {
 	const navigate = useNavigate();
 
 	const match = useMatch({ from: ManageUsersRoute.id });
-	const { nome = '', email = '', page = 1 } = match.search ?? {};
+	const { nome = '', email = '' } = match.search ?? {};
 
 	function handleSearch() {
 		navigate({
