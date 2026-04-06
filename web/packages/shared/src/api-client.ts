@@ -3,25 +3,23 @@ import { getKeycloak } from './keycloak';
 
 let apiInstance: ReturnType<typeof axios.create> | null = null;
 
-export function getApi() {
-	if (!apiInstance) {
-		throw new Error('API não foi inicializada. Chame initApi() primeiro.');
-	}
-	return apiInstance;
-}
-
 export function initApi(baseURL: string) {
 	apiInstance = axios.create({ baseURL });
 
+	// Interceptor adiciona token em todas as requisições
 	apiInstance.interceptors.request.use(async (config) => {
 		const keycloak = getKeycloak();
-		await keycloak.updateToken(30);
-		if (keycloak.token) {
-			config.headers.Authorization = `Bearer ${keycloak.token}`;
+
+		if (!keycloak.token) {
+			throw new Error('Token do Keycloak não disponível');
 		}
+
+		await keycloak.updateToken(30); // renova se faltar menos de 30s
+		config.headers.Authorization = `Bearer ${keycloak.token}`;
 		return config;
 	});
 
+	// Interceptor de resposta
 	apiInstance.interceptors.response.use(
 		(response) => response,
 		(error) => {
@@ -32,5 +30,11 @@ export function initApi(baseURL: string) {
 		},
 	);
 
+	return apiInstance;
+}
+
+export function getApi() {
+	if (!apiInstance)
+		throw new Error('API não inicializada. Chame initApi() primeiro.');
 	return apiInstance;
 }

@@ -1,8 +1,6 @@
 services:
   db:
-    build:
-      context: ./docker/postgres
-      dockerfile: Dockerfile
+    image: ${DB_IMAGE}
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DBUSER}
@@ -11,78 +9,57 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DBUSER} -d ${DBNAME}"]
-      interval: 10s
-      timeout: 5s
+      test: ["CMD-SHELL", "pg_isready -U ${DBUSER}"]
+      interval: 5s
       retries: 5
 
   keycloak:
-    image: quay.io/keycloak/keycloak:24.0
-    container_name: voting-keycloak
-    command: start-dev --import-realm
-    restart: unless-stopped
-
+    image: quay.io/keycloak/keycloak:24.0.5
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
-
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+    command: start-dev --import-realm
     ports:
       - "8081:8080"
-
     volumes:
-      - ./keycloak/realm-import:/opt/keycloak/data/import
-
-    depends_on: 
-      db: 
-        condition: service_healthy
+      - ./keycloak/realm-import/voting-realm.json:/opt/keycloak/data/import/voting-realm.json
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && echo -e 'GET /realms/voting-realm HTTP/1.0\r\nHost: localhost\r\n\r\n' >&3 && timeout 3 cat <&3 | grep -q 'voting-realm' || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 90s
 
   api:
     image: ${API_IMAGE}
     restart: unless-stopped
+    env_file:
+      - .env
     ports:
       - "8080:8080"
-    environment:
-      APPNAME: "Voting API"
-      APPVERSION: "1.0.0"
-      APPPORT: "8080"
-      APPENV: ${APPENV}
-      DBHOST: db
-      DBPORT: ${DBPORT}
-      DBNAME: ${DBNAME}
-      DBUSER: ${DBUSER}
-      DBPASSWORD: ${DBPASSWORD}
-      DBSSLMODE: ${DBSSLMODE}
-      KEYCLOAK_ISSUER: http://keycloak:8080/realms/voting-realm
-      JWKSURL: http://keycloak:8080/realms/voting-realm/protocol/openid-connect/certs
-      PUBLIC_KEY: ${PUBLIC_KEY}
-      USER_ACCESS: ${USER_ACCESS}
     depends_on:
       db:
         condition: service_healthy
-      keycloak: 
-        condition: service_started
+      keycloak:
+        condition: service_healthy
 
   admin:
-    build:
-      context: ../web
-      dockerfile: ../infra/docker/admin/Dockerfile
+    image: ${ADMIN_IMAGE}
     restart: unless-stopped
     ports:
       - "3000:80"
     depends_on:
       - api
-      - keycloak
 
   vereador:
-    build:
-      context: ../web
-      dockerfile: ../infra/docker/vereador/Dockerfile
+    image: ${VEREADOR_IMAGE}
     restart: unless-stopped
     ports:
       - "3001:80"
     depends_on:
       - api
-      - keycloak
 
 volumes:
   pgdata:

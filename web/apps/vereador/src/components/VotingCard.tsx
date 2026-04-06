@@ -38,7 +38,6 @@ type VotingCardProps = {
 	projectVoting: ProjetoDTO | null;
 };
 
-// ----- Components externos para performance -----
 type TotalsBadgeProps = {
 	totals: VotingTotals;
 };
@@ -46,23 +45,23 @@ type TotalsBadgeProps = {
 export function VotingTotalsBadge({ totals }: TotalsBadgeProps) {
 	return (
 		<div className="flex flex-wrap gap-2">
-			<Badge className="bg-green-600 text-white flex items-center gap-1">
+			<Badge className="bg-green-600 text-white flex items-center gap-1 text-xs">
 				<Check className="w-3 h-3" />
 				{totals.totalFavorable} favorável
 			</Badge>
-			<Badge className="bg-orange-600 text-white flex items-center gap-1">
+			<Badge className="bg-orange-600 text-white flex items-center gap-1 text-xs">
 				<AlertTriangle className="w-3 h-3" />
 				{totals.totalRestriction} com restrições
 			</Badge>
-			<Badge className="bg-red-600 text-white flex items-center gap-1">
+			<Badge className="bg-red-600 text-white flex items-center gap-1 text-xs">
 				<X className="w-3 h-3" />
 				{totals.totalAgainst} contra
 			</Badge>
-			<Badge className="bg-gray-600 text-white flex items-center gap-1">
+			<Badge className="bg-gray-600 text-white flex items-center gap-1 text-xs">
 				<MinusCircle className="w-3 h-3" />
 				{totals.totalAbstention} abstenção
 			</Badge>
-			<Badge className="bg-cyan-600 text-white flex items-center gap-1">
+			<Badge className="bg-cyan-600 text-white flex items-center gap-1 text-xs">
 				<Eye className="w-3 h-3" />
 				{totals.totalExamination} vistas
 			</Badge>
@@ -120,14 +119,15 @@ export function UserVoteBadge({ userVote }: UserVoteBadgeProps) {
 	if (!userVote) return null;
 
 	return (
-		<div className="flex items-center justify-center gap-2 text-sm w-full text-foreground/70">
-			<span>Seu voto ({userVote.usuario.nome_fantasia}):</span>
+		<div className="flex flex-wrap items-center justify-center gap-2 text-sm w-full text-foreground/70">
+			<span className="text-center">
+				Seu voto ({userVote.usuario.nome_fantasia}):
+			</span>
 			{voteBadge(userVote.voto)}
 		</div>
 	);
 }
 
-// ----- VotingCard principal -----
 export function VotingCard({ projectVoting }: VotingCardProps) {
 	const router = useRouter();
 	const { user } = useAuth();
@@ -144,42 +144,27 @@ export function VotingCard({ projectVoting }: VotingCardProps) {
 
 	const isVotingOpen = projectVoting?.votacao?.status === EVotingStatus.ABERTA;
 
-	// async function _handleVote(voto: EVoteType) {
-	// 	if (!projectVoting?.votacao) return;
-	// 	try {
-	// 		await mutation.mutateAsync({
-	// 			votacaoId: projectVoting.votacao.id,
-	// 			body: { voto },
-	// 		});
-	// 	} catch {
-	// 		// erro tratado pelo mutation.isError
-	// 	}
-	// }
-
 	return (
 		<Card className="h-fit w-full">
-			<CardHeader>
-				<CardTitle className="flex items-center gap-2">
-					<Info className="h-6 w-6 text-primary" />
+			<CardHeader className="p-4 sm:p-6">
+				<CardTitle className="flex items-center gap-2 text-base sm:text-xl">
+					<Info className="h-5 w-5 sm:h-6 sm:w-6 text-primary shrink-0" />
 					{projectVoting
 						? `Projeto ${projectVoting.codigo_proposicao}`
 						: 'Nenhuma votação em andamento'}
 				</CardTitle>
 			</CardHeader>
 
-			<CardContent className="flex flex-col gap-4">
+			<CardContent className="flex flex-col gap-4 p-4 sm:p-6 pt-0 sm:pt-0">
 				{projectVoting ? (
 					<div className="flex flex-col gap-3">
-						{/* Súmula */}
-						<h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
-							<div className="w-1 h-4 bg-primary rounded-full"></div>
+						<h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+							<div className="w-1 h-4 bg-primary rounded-full shrink-0" />
 							Súmula
 						</h4>
 						<div className="text-sm text-foreground leading-relaxed pl-3">
 							{projectVoting.sumula}
 						</div>
-
-						{/* Totais de votos */}
 						<VotingTotalsBadge totals={totals} />
 					</div>
 				) : (
@@ -188,8 +173,8 @@ export function VotingCard({ projectVoting }: VotingCardProps) {
 							<div className="flex items-center justify-center w-14 h-14 bg-primary/50 rounded-full">
 								<Clock className="w-6 h-6 text-white/80" />
 							</div>
-							<div className="absolute inset-0 w-14 h-14 bg-primary rounded-full animate-ping opacity-20"></div>
-							<div className="absolute inset-0 w-14 h-14 bg-primary-foreground rounded-full animate-ping opacity-10 delay-75"></div>
+							<div className="absolute inset-0 w-14 h-14 bg-primary rounded-full animate-ping opacity-20" />
+							<div className="absolute inset-0 w-14 h-14 bg-primary-foreground rounded-full animate-ping opacity-10 delay-75" />
 						</div>
 						<div className="text-muted-foreground text-sm font-bold">
 							Aguardando votação
@@ -197,9 +182,9 @@ export function VotingCard({ projectVoting }: VotingCardProps) {
 						<div className="text-muted-foreground text-xs flex items-center gap-2">
 							<span>Em breve será liberada</span>
 							<div className="flex gap-1">
-								<div className="w-1 h-1 bg-gray-500 rounded-full animate-pulse"></div>
-								<div className="w-1 h-1 bg-gray-500 rounded-full animate-pulse delay-100"></div>
-								<div className="w-1 h-1 bg-gray-500 rounded-full animate-pulse delay-200"></div>
+								<div className="w-1 h-1 bg-gray-500 rounded-full animate-pulse" />
+								<div className="w-1 h-1 bg-gray-500 rounded-full animate-pulse delay-100" />
+								<div className="w-1 h-1 bg-gray-500 rounded-full animate-pulse delay-200" />
 							</div>
 						</div>
 					</div>
@@ -207,15 +192,15 @@ export function VotingCard({ projectVoting }: VotingCardProps) {
 			</CardContent>
 
 			{projectVoting && (
-				<CardFooter className="flex flex-col gap-3 w-full">
-					{/* User vote or vote button */}
+				<CardFooter className="flex flex-col gap-3 w-full px-4 py-3 sm:px-6 sm:py-4 border-t">
 					{userVote ? (
 						<UserVoteBadge userVote={userVote} />
 					) : (
-						<div className="flex w-full justify-end">
+						<div className="flex w-full justify-stretch sm:justify-end">
 							<Button
+								className="w-full sm:w-auto"
 								variant="outline"
-								disabled={!isVotingOpen} // desabilita se votação não estiver aberta
+								disabled={!isVotingOpen}
 								onClick={() =>
 									router.navigate({
 										to: '/vote/:votingId',
@@ -229,7 +214,6 @@ export function VotingCard({ projectVoting }: VotingCardProps) {
 						</div>
 					)}
 
-					{/* Error feedback */}
 					{mutation.isError && (
 						<p className="text-sm text-destructive w-full text-center">
 							{mutation.error.message}

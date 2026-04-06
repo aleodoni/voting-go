@@ -59,8 +59,8 @@ function Meetings() {
 		<ContainerPage>
 			<H2>Reuniões de hoje, {new Date().toLocaleDateString('pt-BR')}</H2>
 
-			<div className="flex w-full gap-8 mt-6 items-start">
-				<div className="w-1/3 sticky top-6 self-start">
+			<div className="flex flex-col w-full gap-6 mt-6 lg:flex-row lg:gap-8 lg:items-start">
+				<div className="w-full lg:w-1/3 lg:sticky lg:top-6 lg:self-start">
 					<MeetingSelect
 						meetings={todayMeetings ?? []}
 						handleMeetingSelect={handleMeetingSelect}
@@ -72,7 +72,7 @@ function Meetings() {
 					/>
 				</div>
 
-				<div className="w-2/3">
+				<div className="w-full lg:w-2/3">
 					<ProjectsMeeting
 						projects={projectsMeeting ?? []}
 						isFetching={isFetching}

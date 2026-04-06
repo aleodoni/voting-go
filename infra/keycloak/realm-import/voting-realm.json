@@ -34,10 +34,11 @@
       ]
     },
     { 
-      "clientId": "voting-api", 
-      "enabled": true, 
-      "protocol": "openid-connect", 
-      "bearerOnly": true 
+      "clientId": "voting-api",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "directAccessGrantsEnabled": true
     }
   ],
   "users": [

@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"strings"
 
 	"github.com/aleodoni/voting-go/pkg/logger"
 	"github.com/joho/godotenv"
@@ -21,6 +22,7 @@ type Config struct {
 	DBSSLMODE      string
 	JWKSURL        string
 	KeycloakIssuer string
+	AllowOrigins   []string
 }
 
 // LoadConfig carrega as configurações da aplicação a partir de variáveis de ambiente.
@@ -33,6 +35,10 @@ func LoadConfig() *Config {
 	if err := godotenv.Load(); err != nil {
 		logger.Warning("No .env file found.")
 	}
+
+	allowOrigins := parseOrigins(
+		getEnv("ALLOW_ORIGINS", "http://localhost:5173,http://localhost:5174"),
+	)
 
 	return &Config{
 		AppName:        getEnv("APPNAME", "Voting API"),
@@ -47,6 +53,7 @@ func LoadConfig() *Config {
 		DBSSLMODE:      getEnv("DBSSLMODE", "disable"),
 		JWKSURL:        getEnv("JWKSURL", "http://localhost:8081/realms/voting-realm/protocol/openid-connect/certs"),
 		KeycloakIssuer: getEnv("KEYCLOAK_ISSUER", "http://localhost:8081/realms/voting-realm"),
+		AllowOrigins:   allowOrigins,
 	}
 }
 
@@ -58,4 +65,12 @@ func getEnv(key, fallback string) string {
 		return fallback
 	}
 	return value
+}
+
+func parseOrigins(origins string) []string {
+	list := strings.Split(origins, ",")
+	for i := range list {
+		list[i] = strings.TrimSpace(list[i])
+	}
+	return list
 }

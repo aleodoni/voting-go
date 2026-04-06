@@ -50,7 +50,7 @@ func SetupRouter(jwtMiddleware *middleware.JWTMiddleware, h *Handlers) *gin.Engi
 	r.Use(gin.Recovery())
 
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173", "http://localhost:5174"},
+		AllowOrigins:     []string{"http://localhost:5173", "http://localhost:5174", "https://admin.alexandre.odoni.nom.br", "https://vereador.alexandre.odoni.nom.br"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
