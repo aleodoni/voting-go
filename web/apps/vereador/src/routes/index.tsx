@@ -13,7 +13,7 @@ function DashboardPage() {
 	const { data: projectVoting } = useIsProjectVoting();
 
 	return (
-		<div className="flex flex-col justify-around flex-1 min-h-0 gap-8">
+		<div className="flex flex-col flex-1 gap-4">
 			<VotingCard projectVoting={projectVoting || null} />
 			{user && <LoggedUserCard userInfo={user} />}
 		</div>

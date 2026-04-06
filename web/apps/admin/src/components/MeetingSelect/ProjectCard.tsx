@@ -14,39 +14,55 @@ type ProjectCardProps = {
 export function ProjectCard({ project, isVotingProject }: ProjectCardProps) {
 	return (
 		<Card className="w-full transition-all hover:shadow-md border-muted">
-			<CardContent className="p-5 space-y-5">
-				<div className="flex items-center justify-between">
-					<Badge variant="secondary" className="text-sm font-semibold">
+			<CardContent className="p-4 sm:p-5 space-y-4">
+				{/* Cabeçalho: código + status */}
+				<div className="flex items-center justify-between gap-2 flex-wrap">
+					<Badge
+						variant="secondary"
+						className="text-xs sm:text-sm font-semibold"
+					>
 						{project.codigo_proposicao}
 					</Badge>
-
 					<StatusBadge project={project} />
 				</div>
 
-				<div>
-					<p className="text-sm leading-relaxed text-foreground">
-						{project.sumula}
-					</p>
-				</div>
+				{/* Súmula */}
+				<p className="text-sm leading-relaxed text-foreground">
+					{project.sumula}
+				</p>
 
-				<div className="grid grid-cols-2 gap-6 text-sm">
+				{/* Iniciativa + Relator */}
+				<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
 					<div className="flex items-start gap-2">
-						<User size={16} strokeWidth={1} className="mt-1" />
+						<User
+							size={15}
+							strokeWidth={1}
+							className="mt-0.5 shrink-0 text-muted-foreground"
+						/>
 						<div>
-							<p className="font-medium text-muted-foreground">Iniciativa</p>
-							<p>{project.iniciativa}</p>
+							<p className="font-medium text-muted-foreground text-xs">
+								Iniciativa
+							</p>
+							<p className="text-sm">{project.iniciativa}</p>
 						</div>
 					</div>
 
 					<div className="flex items-start gap-2">
-						<User size={16} strokeWidth={1} className="mt-1" />
+						<User
+							size={15}
+							strokeWidth={1}
+							className="mt-0.5 shrink-0 text-muted-foreground"
+						/>
 						<div>
-							<p className="font-medium text-muted-foreground">Relator</p>
-							<p>{project.relator}</p>
+							<p className="font-medium text-muted-foreground text-xs">
+								Relator
+							</p>
+							<p className="text-sm">{project.relator}</p>
 						</div>
 					</div>
 				</div>
 
+				{/* Painel de votação */}
 				{project.votacao?.status === EVotingStatus.VOTADA ||
 				project.votacao?.status === EVotingStatus.ABERTA ? (
 					<div className="border-t pt-4">
@@ -54,6 +70,7 @@ export function ProjectCard({ project, isVotingProject }: ProjectCardProps) {
 					</div>
 				) : null}
 
+				{/* Ação */}
 				<div className="border-t pt-4">
 					<ActionButton project={project} isVotingProject={isVotingProject} />
 				</div>

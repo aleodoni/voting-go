@@ -24,9 +24,9 @@ export function SearchUsers() {
 	}
 
 	return (
-		<section className="flex w-full items-end gap-4">
+		<section className="flex flex-col w-full gap-4 sm:flex-row sm:items-end">
 			<div className="flex flex-col w-full gap-2">
-				<p className="whitespace-nowrap">Usuário :</p>
+				<p className="text-sm font-medium">Usuário</p>
 				<Input
 					type="text"
 					ref={nomeRef}
@@ -36,7 +36,7 @@ export function SearchUsers() {
 			</div>
 
 			<div className="flex flex-col w-full gap-2">
-				<p className="whitespace-nowrap">E-mail :</p>
+				<p className="text-sm font-medium">E-mail</p>
 				<Input
 					type="text"
 					ref={emailRef}
@@ -45,7 +45,11 @@ export function SearchUsers() {
 				/>
 			</div>
 
-			<Button onClick={handleSearch} variant="outline">
+			<Button
+				onClick={handleSearch}
+				variant="outline"
+				className="w-full sm:w-auto shrink-0"
+			>
 				Pesquisar
 			</Button>
 		</section>

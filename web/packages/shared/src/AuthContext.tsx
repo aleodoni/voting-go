@@ -58,14 +58,23 @@ export function AuthProvider({
 					return;
 				}
 
+				// Atualiza token a cada 1 hora, renova se faltar menos de 5 min
 				interval = setInterval(
 					() => {
-						keycloak.updateToken(3600).catch(() => {
-							keycloak.login();
-						});
+						keycloak
+							.updateToken(300)
+							.then((refreshed) => {
+								if (refreshed) console.log('Token renovado automaticamente.');
+							})
+							.catch(() => {
+								console.warn(
+									'Falha ao renovar token, redirecionando para login...',
+								);
+								keycloak.login();
+							});
 					},
 					60 * 60 * 1000,
-				);
+				); // 1h
 
 				try {
 					const { data } = await api.get<User>('/me');
@@ -82,11 +91,13 @@ export function AuthProvider({
 
 					setUser(data);
 					setReady(true);
-				} catch {
+				} catch (err) {
+					console.error('Erro ao buscar dados do usuário:', err);
 					setError('Erro ao buscar dados do usuário.');
 				}
 			})
-			.catch(() => {
+			.catch((err) => {
+				console.error('Erro ao inicializar Keycloak:', err);
 				setError('Erro ao inicializar autenticação.');
 			});
 
@@ -103,7 +114,8 @@ export function AuthProvider({
 		try {
 			const { data } = await getApi().get<User>('/me');
 			setUser(data);
-		} catch {
+		} catch (err) {
+			console.error('Erro ao atualizar usuário:', err);
 			setError('Erro ao buscar dados do usuário.');
 		}
 	};
@@ -121,7 +133,7 @@ export function AuthProvider({
 				}}
 			>
 				<p style={{ color: 'red' }}>{error}</p>
-				<Button variant={'outline'} onClick={logout}>
+				<Button variant="outline" onClick={logout}>
 					Sair
 				</Button>
 			</div>

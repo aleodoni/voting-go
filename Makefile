@@ -1,5 +1,5 @@
 APP_NAME=voting-api
-IMAGE_NAME=aleodoni/voting-api
+IMAGE_NAME=aleodoni/voting-api:28ea61a
 
 DB_URL=postgres://postgres:postgres@localhost:15432/voting_db?sslmode=disable
 
@@ -58,10 +58,10 @@ docker-build:
 	docker build -t $(IMAGE_NAME):latest -f infra/docker/api/Dockerfile .
 
 docker-build-amd64:
-	docker buildx build --platform linux/amd64 -t $(IMAGE_NAME):amd64 -f infra/docker/api/Dockerfile . 
+	docker buildx build --platform linux/amd64 -t $(IMAGE_NAME) -f infra/docker/api/Dockerfile . 
 
 docker-build-arm64:
-	docker buildx build --platform linux/arm64 -t $(IMAGE_NAME):arm64 -f infra/docker/api/Dockerfile . 
+	docker buildx build --platform linux/arm64 -t $(IMAGE_NAME) -f infra/docker/api/Dockerfile . 
 
 docker-build-multi:
 	docker buildx build \
