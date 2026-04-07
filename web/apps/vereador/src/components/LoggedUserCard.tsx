@@ -36,7 +36,7 @@ export function LoggedUserCard({ userInfo }: LoggedUserCardProps) {
 						{userInfo?.email}
 					</p>
 				</div>
-				<Button asChild className="shrink-0" variant="outline" size="sm">
+				<Button asChild className="justify-center" variant="outline">
 					<Link to="/user-info">Editar</Link>
 				</Button>
 			</CardFooter>

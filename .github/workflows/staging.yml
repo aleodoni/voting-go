@@ -1,0 +1,46 @@
+name: Deploy Staging
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  deploy:
+    name: Staging — migrate, seed, fdw
+    runs-on: ubuntu-latest
+
+    env:
+      APPENV: staging
+      DBHOST: ${{ secrets.STAGING_DBHOST }}
+      DBPORT: ${{ secrets.STAGING_DBPORT }}
+      DBUSER: ${{ secrets.STAGING_DBUSER }}
+      DBPASSWORD: ${{ secrets.STAGING_DBPASSWORD }}
+      DBNAME: ${{ secrets.STAGING_DBNAME }}
+      DBSSLMODE: ${{ secrets.STAGING_DBSSLMODE }}
+      DB_SPL_HOST: ${{ secrets.STAGING_DB_SPL_HOST }}
+      DB_SPL_PORT: ${{ secrets.STAGING_DB_SPL_PORT }}
+      DB_SPL_NAME: ${{ secrets.STAGING_DB_SPL_NAME }}
+      DB_SPL_USER: ${{ secrets.STAGING_DB_SPL_USER }}
+      DB_SPL_PASSWORD: ${{ secrets.STAGING_DB_SPL_PASSWORD }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build CLI
+        run: go build -ldflags="-s -w" -o voting-cli cmd/cli/main/main.go
+
+      - name: Run migrations
+        run: ./voting-cli migrate
+
+      - name: Run seed
+        run: ./voting-cli seed
+
+      - name: Run FDW setup
+        run: ./voting-cli fdw

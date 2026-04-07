@@ -62,12 +62,12 @@ check-env:
 # ────────────────────────────────────────────────────────────
 .PHONY: build
 build:
-# 	@echo "→ Build API"
-# 	cd .. && docker buildx build \
-# 		--platform $(PLATFORM) \
-# 		-t $(API_IMAGE) \
-# 		-f infra/docker/api/Dockerfile \
-# 		. --push
+	@echo "→ Build API"
+	cd .. && docker buildx build \
+		--platform $(PLATFORM) \
+		-t $(API_IMAGE) \
+		-f infra/docker/api/Dockerfile \
+		. --push
 
 	@echo "→ Build Admin"
 	cd ../web && docker buildx build \
@@ -91,12 +91,12 @@ build:
 		-f ../infra/docker/vereador/Dockerfile \
 		. --push
 
-# 	@echo "→ Build Postgres"
-# 	docker buildx build \
-# 		--platform $(PLATFORM) \
-# 		-t $(DB_IMAGE) \
-# 		-f docker/postgres/Dockerfile \
-# 		. --push
+	@echo "→ Build Postgres"
+	docker buildx build \
+		--platform $(PLATFORM) \
+		-t $(DB_IMAGE) \
+		-f docker/postgres/Dockerfile \
+		. --push
 
 # ────────────────────────────────────────────────────────────
 # PREPARE ENV
@@ -130,4 +130,20 @@ deploy: sync
 	@echo "✓ Deploy concluído"
 
 # ────────────────────────────────────────────────────────────
-# Outros targets (logs, restart, down, rollback etc) continuam iguais
+# DATABASE (delegado para raiz)
+# ────────────────────────────────────────────────────────────
+.PHONY: migrate
+migrate:
+	$(MAKE) -C .. migrate
+
+.PHONY: seed
+seed:
+	$(MAKE) -C .. seed
+
+.PHONY: fdw
+fdw:
+	$(MAKE) -C .. fdw
+
+.PHONY: bootstrap
+bootstrap:
+	$(MAKE) -C .. bootstrap

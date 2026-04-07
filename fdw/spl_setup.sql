@@ -21,9 +21,9 @@ BEGIN
     CREATE SERVER server_spl
       FOREIGN DATA WRAPPER postgres_fdw
       OPTIONS (
-        host '{{DB_SPL_HOST}}',
-        dbname '{{DB_SPL_NAME}}',
-        port '{{DB_SPL_PORT}}',
+        host '${DB_SPL_HOST}',
+        dbname '${DB_SPL_NAME}',
+        port '${DB_SPL_PORT}',
         sslmode 'disable'
       );
   END IF;
@@ -44,8 +44,8 @@ BEGIN
     CREATE USER MAPPING FOR postgres
       SERVER server_spl
       OPTIONS (
-        user '{{DB_SPL_USER}}',
-        password '{{DB_SPL_PASSWORD}}'
+        user '${DB_SPL_USER}',
+        password '${DB_SPL_PASSWORD}'
       );
   END IF;
 END

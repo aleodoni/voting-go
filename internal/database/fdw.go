@@ -9,9 +9,15 @@ import (
 	"github.com/aleodoni/voting-go/internal/config"
 )
 
+// RunFDW configura o Foreign Data Wrapper no PostgreSQL
 func RunFDW(cfg *config.Config) error {
-	if cfg.DBSPLHost == "" {
-		return fmt.Errorf("configuração SPL ausente")
+	files := []string{
+		"fdw/01_extension.sql",
+		"fdw/02_server.sql",
+		"fdw/03_user_mapping.sql",
+		"fdw/04_reunioes.sql",
+		"fdw/05_pareceres.sql",
+		"fdw/06_projetos.sql",
 	}
 
 	pool, err := ConnectPGX(cfg)
@@ -20,64 +26,53 @@ func RunFDW(cfg *config.Config) error {
 	}
 	defer pool.Close()
 
-	var serverExists bool
-	var tableExists bool
+	for _, file := range files {
+		content, err := os.ReadFile(file)
+		if err != nil {
+			return err
+		}
 
-	serverSQL := `
-	SELECT EXISTS (
-		SELECT 1
-		FROM pg_foreign_server
-		WHERE srvname = 'server_spl'
-	)
-	`
+		sqlText := string(content)
 
-	err = pool.QueryRow(context.Background(), serverSQL).Scan(&serverExists)
+		replacer := strings.NewReplacer(
+			"${DB_SPL_HOST}", cfg.DBSPLHost,
+			"${DB_SPL_NAME}", cfg.DBSPLName,
+			"${DB_SPL_PORT}", cfg.DBSPLPort,
+			"${DB_SPL_USER}", cfg.DBSPLUser,
+			"${DB_SPL_PASSWORD}", cfg.DBSPLPassword,
+		)
+
+		sqlText = replacer.Replace(sqlText)
+
+		_, err = pool.Exec(context.Background(), sqlText)
+		if err != nil {
+			return fmt.Errorf("erro em %s: %w", file, err)
+		}
+
+		fmt.Printf("✅ %s executado\n", file)
+	}
+
+	fmt.Println("🚀 FDW configurado com sucesso")
+	return nil
+}
+
+func RunFDWDrop(localCfg *config.Config) error {
+	pool, err := ConnectPGX(localCfg)
 	if err != nil {
-		return fmt.Errorf("erro ao verificar foreign server: %w", err)
+		return err
 	}
+	defer pool.Close()
 
-	tableSQL := `
-	SELECT EXISTS (
-		SELECT 1
-		FROM information_schema.foreign_tables
-		WHERE foreign_table_schema = 'public'
-		  AND foreign_table_name = 'spl_votacao_reunioes_foreign'
-	)
-	`
-
-	err = pool.QueryRow(context.Background(), tableSQL).Scan(&tableExists)
+	content, err := os.ReadFile("fdw/drop.sql")
 	if err != nil {
-		return fmt.Errorf("erro ao verificar foreign table: %w", err)
+		return err
 	}
 
-	if serverExists && tableExists {
-		fmt.Println("FDW já configurado completamente ✅")
-		return nil
-	}
-
-	content, err := os.ReadFile("db/fdw/spl_setup.sql")
+	_, err = pool.Exec(context.Background(), string(content))
 	if err != nil {
-		return fmt.Errorf("erro ao ler sql fdw: %w", err)
+		return err
 	}
 
-	sqlText := string(content)
-
-	replacer := strings.NewReplacer(
-		"{{DB_SPL_HOST}}", cfg.DBSPLHost,
-		"{{DB_SPL_NAME}}", cfg.DBSPLName,
-		"{{DB_SPL_PORT}}", cfg.DBSPLPort,
-		"{{DB_SPL_USER}}", cfg.DBSPLUser,
-		"{{DB_SPL_PASSWORD}}", cfg.DBSPLPassword,
-	)
-
-	sqlText = replacer.Replace(sqlText)
-
-	_, err = pool.Exec(context.Background(), sqlText)
-	if err != nil {
-		return fmt.Errorf("erro ao executar fdw: %w", err)
-	}
-
-	fmt.Println("FDW configurado com sucesso 🚀")
-
+	fmt.Println("🗑️ FDW removido com sucesso")
 	return nil
 }
