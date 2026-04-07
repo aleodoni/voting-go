@@ -54,7 +54,7 @@ func NewApp() *App {
 	useCases := buildUseCases(repos, bus)
 	handlers := buildHandlers(useCases, repos, bus, jwtMiddleware)
 
-	r := router.SetupRouter(jwtMiddleware, handlers)
+	r := router.SetupRouter(cfg, jwtMiddleware, handlers)
 
 	return &App{
 		Config: cfg,

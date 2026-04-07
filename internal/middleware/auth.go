@@ -19,7 +19,9 @@ type JWTMiddleware struct {
 
 func NewJWTMiddleware(cfg *config.Config) *JWTMiddleware {
 	jwks, err := keyfunc.Get(cfg.JWKSURL, keyfunc.Options{
-		RefreshInterval: time.Hour,
+		RefreshInterval:   5 * time.Minute, // Atualiza periodicamente
+		RefreshTimeout:    10 * time.Second,
+		RefreshUnknownKID: true, // Chave nova dispara refresh imediato
 	})
 
 	if err != nil {
@@ -35,34 +37,20 @@ func NewJWTMiddleware(cfg *config.Config) *JWTMiddleware {
 func (m *JWTMiddleware) Handler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := extractToken(c)
-
 		if tokenString == "" {
 			c.AbortWithStatusJSON(401, gin.H{"error": "Missing token"})
 			return
 		}
 
-		token, err := jwt.Parse(tokenString, m.jwks.Keyfunc)
-
-		if err != nil || !token.Valid {
+		claims, err := m.ValidateToken(tokenString)
+		if err != nil {
 			c.AbortWithStatusJSON(401, gin.H{"error": "Invalid token"})
 			return
 		}
 
-		claims := token.Claims.(jwt.MapClaims)
-
-		loggedUserKeycloakID, ok := claims["sub"].(string)
-
-		if !ok {
-			c.AbortWithStatusJSON(401, gin.H{"error": "Subject (sub) not found in token"})
-			return
-		}
-
-		loggedUserName := claims["preferred_username"].(string)
-
-		c.Set("loggedUserKeycloakID", loggedUserKeycloakID)
-		c.Set("loggedUserName", loggedUserName)
 		c.Set("claims", claims)
-
+		c.Set("loggedUserKeycloakID", claims["sub"].(string))
+		c.Set("loggedUserName", claims["preferred_username"].(string))
 		c.Next()
 	}
 }
@@ -70,13 +58,17 @@ func (m *JWTMiddleware) Handler() gin.HandlerFunc {
 func extractToken(c *gin.Context) string {
 	authHeader := c.GetHeader("Authorization")
 	if authHeader == "" {
-		return ""
+		// também tenta query string para SSE
+		return c.Query("token")
 	}
 	return strings.TrimPrefix(authHeader, "Bearer ")
 }
 
 func (m *JWTMiddleware) ValidateToken(tokenString string) (jwt.MapClaims, error) {
-	token, err := jwt.Parse(tokenString, m.jwks.Keyfunc)
+	token, err := jwt.Parse(tokenString, m.jwks.Keyfunc,
+		jwt.WithIssuer(m.cfg.KeycloakIssuer),
+		jwt.WithAudience("voting-api"),
+	)
 	if err != nil || !token.Valid {
 		return nil, err
 	}

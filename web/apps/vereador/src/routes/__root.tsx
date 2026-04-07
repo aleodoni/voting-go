@@ -13,27 +13,23 @@ function RootComponent() {
 
 	useSSE({
 		onConnect: () => {
-			queryClient.invalidateQueries({ queryKey: ['connected-users'] });
+			queryClient.invalidateQueries({
+				queryKey: ['connected-users'],
+			});
+
+			queryClient.invalidateQueries({
+				queryKey: ['open-voting'],
+			});
 		},
 		onEvent: (event) => {
 			switch (event.type) {
 				case 'votacao_aberta':
-					queryClient.invalidateQueries({
-						queryKey: ['open-voting'],
-					});
-					break;
 				case 'votacao_fechada':
-					queryClient.invalidateQueries({
-						queryKey: ['open-voting'],
-					});
-					break;
 				case 'votacao_cancelada':
+				case 'voto_registrado':
 					queryClient.invalidateQueries({
 						queryKey: ['open-voting'],
 					});
-					break;
-				case 'voto_registrado':
-					queryClient.invalidateQueries({ queryKey: ['open-voting'] });
 					break;
 			}
 		},

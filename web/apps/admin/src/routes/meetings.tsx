@@ -39,15 +39,33 @@ function Meetings() {
 	}
 
 	const handleVotacaoEvent = useCallback(
-		(_event: SSEEvent) => {
-			queryClient.invalidateQueries({
-				queryKey: ['projects-meeting', selectedMeeting?.id],
-			});
+		(event: SSEEvent) => {
+			if (!selectedMeeting?.id) return;
+
+			switch (event.type) {
+				case 'votacao_aberta':
+				case 'votacao_fechada':
+				case 'votacao_cancelada':
+				case 'voto_registrado':
+					queryClient.invalidateQueries({
+						queryKey: ['projects-meeting', selectedMeeting.id],
+					});
+					break;
+			}
 		},
 		[queryClient, selectedMeeting?.id],
 	);
 
-	useSSE({ onEvent: handleVotacaoEvent });
+	useSSE({
+		onConnect: () => {
+			if (selectedMeeting?.id) {
+				queryClient.invalidateQueries({
+					queryKey: ['projects-meeting', selectedMeeting.id],
+				});
+			}
+		},
+		onEvent: handleVotacaoEvent,
+	});
 
 	const {
 		data: projectsMeeting,

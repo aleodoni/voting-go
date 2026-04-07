@@ -14,6 +14,8 @@ function RootComponent() {
 	useSSE({
 		onConnect: () => {
 			queryClient.invalidateQueries({ queryKey: ['connected-users'] });
+			queryClient.invalidateQueries({ queryKey: ['voting-stats'] });
+			queryClient.invalidateQueries({ queryKey: ['project'] });
 		},
 		onEvent: (event) => {
 			switch (event.type) {
