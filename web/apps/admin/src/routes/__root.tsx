@@ -16,17 +16,29 @@ function RootComponent() {
 			queryClient.invalidateQueries({ queryKey: ['connected-users'] });
 			queryClient.invalidateQueries({ queryKey: ['voting-stats'] });
 			queryClient.invalidateQueries({ queryKey: ['project'] });
+			queryClient.invalidateQueries({ queryKey: ['projects-meeting'] });
+			queryClient.invalidateQueries({ queryKey: ['open-voting'] });
 		},
 		onEvent: (event) => {
 			switch (event.type) {
+				case 'votacao_aberta':
+					queryClient.invalidateQueries({
+						queryKey: ['voting-stats'],
+					});
+					queryClient.invalidateQueries({ queryKey: ['projects-meeting'] });
+					queryClient.invalidateQueries({ queryKey: ['open-voting'] });
+					break;
 				case 'votacao_fechada':
 				case 'votacao_cancelada':
 					queryClient.invalidateQueries({
 						queryKey: ['voting-stats'],
 					});
+					queryClient.invalidateQueries({ queryKey: ['projects-meeting'] });
+					queryClient.invalidateQueries({ queryKey: ['open-voting'] });
 					break;
 				case 'voto_registrado':
 					queryClient.invalidateQueries({ queryKey: ['project'] });
+					queryClient.invalidateQueries({ queryKey: ['projects-meeting'] });
 					break;
 			}
 		},

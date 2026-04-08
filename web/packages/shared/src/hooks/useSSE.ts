@@ -27,6 +27,7 @@ const SSE_EVENTS: SSEEventType[] = [
 
 export function useSSE({ onConnect, onEvent, onError }: UseSSEOptions) {
 	const abortRef = useRef<AbortController | null>(null);
+	const isConnectingRef = useRef(false); // ← novo: evita conexões paralelas
 	const onConnectRef = useRef(onConnect);
 	const onEventRef = useRef(onEvent);
 	const onErrorRef = useRef(onError);
@@ -41,22 +42,35 @@ export function useSSE({ onConnect, onEvent, onError }: UseSSEOptions) {
 		const keycloak = getKeycloak();
 
 		const connect = async () => {
+			// ← Aborta conexão anterior antes de criar nova
+			if (abortRef.current) {
+				abortRef.current.abort();
+				abortRef.current = null;
+			}
+
+			if (isConnectingRef.current) return; // ← evita chamadas paralelas
+			isConnectingRef.current = true;
+
 			try {
 				await keycloak?.updateToken(30);
 			} catch {
+				isConnectingRef.current = false;
 				keycloak?.login();
 				return;
 			}
 
 			const token = keycloak?.token;
 			if (!token) {
-				console.warn('SSE: No token available.');
+				isConnectingRef.current = false;
+				console.warn('SSE: No token available, retrying in 3s...');
+				setTimeout(connect, 3000);
 				return;
 			}
 
 			const url = `${import.meta.env.VITE_API_URL}/eventos?token=${token}`;
 			const controller = new AbortController();
 			abortRef.current = controller;
+			isConnectingRef.current = false; // ← libera após criar o controller
 
 			try {
 				const response = await fetch(url, {
@@ -109,7 +123,6 @@ export function useSSE({ onConnect, onEvent, onError }: UseSSEOptions) {
 				if ((err as Error).name === 'AbortError') return;
 				console.error('SSE error:', err);
 				onErrorRef.current?.(err as Event);
-				// Reconecta após 3s
 				setTimeout(connect, 3000);
 			}
 		};
@@ -118,6 +131,8 @@ export function useSSE({ onConnect, onEvent, onError }: UseSSEOptions) {
 
 		return () => {
 			abortRef.current?.abort();
+			abortRef.current = null;
+			isConnectingRef.current = false; // ← limpa flag no unmount
 		};
 	}, []);
 }

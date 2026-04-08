@@ -59,22 +59,20 @@ export function AuthProvider({
 				}
 
 				// Atualiza token a cada 1 hora, renova se faltar menos de 5 min
-				interval = setInterval(
-					() => {
-						keycloak
-							.updateToken(300)
-							.then((refreshed) => {
-								if (refreshed) console.log('Token renovado automaticamente.');
-							})
-							.catch(() => {
-								console.warn(
-									'Falha ao renovar token, redirecionando para login...',
-								);
-								keycloak.login();
-							});
-					},
-					60 * 60 * 1000,
-				); // 1h
+				// CORRETO: verifica frequentemente, renova só quando necessário
+				interval = setInterval(() => {
+					keycloak
+						.updateToken(300) // renova se faltar menos de 5 min para expirar
+						.then((refreshed) => {
+							if (refreshed) console.log('Token renovado automaticamente.');
+						})
+						.catch(() => {
+							console.warn(
+								'Falha ao renovar token, redirecionando para login...',
+							);
+							keycloak.login();
+						});
+				}, 30 * 1000); // ← verifica a cada 30s
 
 				try {
 					const { data } = await api.get<User>('/me');

@@ -14,7 +14,6 @@ export function initApi(baseURL: string) {
 			throw new Error('Token do Keycloak não disponível');
 		}
 
-		await keycloak.updateToken(30); // renova se faltar menos de 30s
 		config.headers.Authorization = `Bearer ${keycloak.token}`;
 		return config;
 	});
@@ -23,7 +22,7 @@ export function initApi(baseURL: string) {
 	apiInstance.interceptors.response.use(
 		(response) => response,
 		(error) => {
-			if (error.response?.status === 401) {
+			if (error.response?.status === 401 || error.response?.status === 403) {
 				getKeycloak().login();
 			}
 			return Promise.reject(error);
