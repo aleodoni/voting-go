@@ -26,7 +26,7 @@ func buildHandlers(uc *useCases, repos *repositories, bus *event.Bus, jwtMiddlew
 		RegistraVoto:                votacaoHandler.NewRegistraVotoHandler(uc.registraVoto),
 		PesquisaUsuarios:            usuarioHandler.NewPesquisaUsuariosHandler(uc.listUsuarios),
 		RetornaUsuario:              usuarioHandler.NewRetornaUsuarioHandler(uc.retornaUsuario),
-		SSE:                         votacaoHandler.NewSSEHandler(bus, repos.usuario, jwtMiddleware),
+		SSE:                         votacaoHandler.NewSSEHandler(bus, jwtMiddleware, repos.usuario),
 		GeraRelatorioReuniao:        relatorioHandler.NewGeraRelatorioReuniaoHandler(uc.geraRelatorio),
 		RetornaProjetoVotacaoAberta: votacaoHandler.NewRetornaProjetoVotacaoAbertaHandler(uc.retornaProjetoVotacaoAberta),
 		RetornaStatsVotacao:         votacaoHandler.NewRetornaVotingStatsHandler(uc.retornaStatsVotacao),

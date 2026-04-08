@@ -26,11 +26,8 @@ const SSE_EVENTS: SSEEventType[] = [
 ];
 
 export function useSSE({ onConnect, onEvent, onError }: UseSSEOptions) {
-	// 1. Pegamos o token no topo do hook para usá-lo como dependência
-	const keycloak = getKeycloak();
-	const token = keycloak.token;
-
-	// 2. Refs para manter os callbacks sempre atualizados sem reiniciar o efeito
+	const abortRef = useRef<AbortController | null>(null);
+	const isConnectingRef = useRef(false); // ← novo: evita conexões paralelas
 	const onConnectRef = useRef(onConnect);
 	const onEventRef = useRef(onEvent);
 	const onErrorRef = useRef(onError);
@@ -41,36 +38,101 @@ export function useSSE({ onConnect, onEvent, onError }: UseSSEOptions) {
 		onErrorRef.current = onError;
 	}, [onConnect, onEvent, onError]);
 
-	// 3. Efeito principal que gerencia a conexão
 	useEffect(() => {
-		// Se não houver token, não iniciamos a conexão
-		if (!token) return;
+		const keycloak = getKeycloak();
 
-		const url = `${import.meta.env.VITE_API_URL}/eventos?token=${token}`;
-		const eventSource = new EventSource(url);
+		const connect = async () => {
+			// ← Aborta conexão anterior antes de criar nova
+			if (abortRef.current) {
+				abortRef.current.abort();
+				abortRef.current = null;
+			}
 
-		eventSource.onopen = () => {
-			onConnectRef.current?.();
-		};
+			if (isConnectingRef.current) return; // ← evita chamadas paralelas
+			isConnectingRef.current = true;
 
-		SSE_EVENTS.forEach((type) => {
-			eventSource.addEventListener(type, (e: MessageEvent) => {
-				try {
-					const payload = e.data ? JSON.parse(e.data) : undefined;
-					onEventRef.current({ type, payload });
-				} catch (_err) {
-					onEventRef.current({ type });
+			try {
+				await keycloak?.updateToken(30);
+			} catch {
+				isConnectingRef.current = false;
+				keycloak?.login();
+				return;
+			}
+
+			const token = keycloak?.token;
+			if (!token) {
+				isConnectingRef.current = false;
+				console.warn('SSE: No token available, retrying in 3s...');
+				setTimeout(connect, 3000);
+				return;
+			}
+
+			const url = `${import.meta.env.VITE_API_URL}/eventos?token=${token}`;
+			const controller = new AbortController();
+			abortRef.current = controller;
+			isConnectingRef.current = false; // ← libera após criar o controller
+
+			try {
+				const response = await fetch(url, {
+					signal: controller.signal,
+					headers: { Accept: 'text/event-stream' },
+				});
+
+				if (!response.ok || !response.body) {
+					throw new Error(`SSE response error: ${response.status}`);
 				}
-			});
-		});
 
-		eventSource.onerror = (e) => {
-			onErrorRef.current?.(e);
+				onConnectRef.current?.();
+
+				const reader = response.body.getReader();
+				const decoder = new TextDecoder();
+				let buffer = '';
+
+				while (true) {
+					const { done, value } = await reader.read();
+					if (done) break;
+
+					buffer += decoder.decode(value, { stream: true });
+					const lines = buffer.split('\n');
+					buffer = lines.pop() ?? '';
+
+					let eventType = '';
+					let eventData = '';
+
+					for (const line of lines) {
+						if (line.startsWith('event:')) {
+							eventType = line.slice(6).trim();
+						} else if (line.startsWith('data:')) {
+							eventData = line.slice(5).trim();
+						} else if (line === '' && eventType) {
+							const type = eventType as SSEEventType;
+							if (SSE_EVENTS.includes(type)) {
+								try {
+									const payload = eventData ? JSON.parse(eventData) : undefined;
+									onEventRef.current({ type, payload });
+								} catch {
+									onEventRef.current({ type });
+								}
+							}
+							eventType = '';
+							eventData = '';
+						}
+					}
+				}
+			} catch (err) {
+				if ((err as Error).name === 'AbortError') return;
+				console.error('SSE error:', err);
+				onErrorRef.current?.(err as Event);
+				setTimeout(connect, 3000);
+			}
 		};
+
+		connect();
 
 		return () => {
-			eventSource.close();
+			abortRef.current?.abort();
+			abortRef.current = null;
+			isConnectingRef.current = false; // ← limpa flag no unmount
 		};
-		// Agora o 'token' existe neste escopo e o efeito reinicia se ele mudar
-	}, [token]);
+	}, []);
 }

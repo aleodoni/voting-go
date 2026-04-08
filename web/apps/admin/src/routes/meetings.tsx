@@ -1,7 +1,6 @@
-import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { ContainerPage, H2, SSEEvent, useSSE } from '@voting/shared';
-import { useCallback, useEffect, useState } from 'react';
+import { ContainerPage, H2 } from '@voting/shared';
+import { useEffect, useState } from 'react';
 import { MeetingSelect } from '@/components/MeetingSelect';
 import { ProjectsMeeting } from '@/components/MeetingSelect/ProjectsMeeting';
 import { useIsProjectVoting } from '@/hooks/useIsProjectVoting';
@@ -17,8 +16,7 @@ function Meetings() {
 		MeetingDTO | undefined
 	>(undefined);
 
-	const queryClient = useQueryClient();
-
+	// Reuniões de hoje
 	const {
 		data: todayMeetings,
 		isLoading: isMeetingsLoading,
@@ -26,8 +24,17 @@ function Meetings() {
 		isRefetching: isMeetingsRefetching,
 	} = useTodayMeetings();
 
+	// Projetos da reunião selecionada
+	const {
+		data: projectsMeeting,
+		isFetching,
+		isRefetching,
+	} = useProjectsMeeting(selectedMeeting?.id);
+
+	// Votação aberta (hook não recebe argumentos)
 	const { data: openVotingProject } = useIsProjectVoting();
 
+	// Inicializa selectedMeeting com a primeira reunião disponível
 	useEffect(() => {
 		if (todayMeetings?.length && !selectedMeeting) {
 			setSelectedMeeting(todayMeetings[0]);
@@ -37,23 +44,6 @@ function Meetings() {
 	function handleMeetingSelect(meeting: MeetingDTO) {
 		setSelectedMeeting(meeting);
 	}
-
-	const handleVotacaoEvent = useCallback(
-		(_event: SSEEvent) => {
-			queryClient.invalidateQueries({
-				queryKey: ['projects-meeting', selectedMeeting?.id],
-			});
-		},
-		[queryClient, selectedMeeting?.id],
-	);
-
-	useSSE({ onEvent: handleVotacaoEvent });
-
-	const {
-		data: projectsMeeting,
-		isFetching,
-		isRefetching,
-	} = useProjectsMeeting(selectedMeeting?.id);
 
 	return (
 		<ContainerPage>

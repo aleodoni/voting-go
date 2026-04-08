@@ -30,6 +30,12 @@ func NewApp() *App {
 		log.Fatal(err)
 	}
 
+	if cfg.AppEnv == "staging" || cfg.AppEnv == "production" {
+		if err := database.RunFDW(cfg); err != nil {
+			log.Println("FDW warning:", err)
+		}
+	}
+
 	pgxPool, err := database.ConnectPGX(cfg)
 	if err != nil {
 		log.Fatal(err)
@@ -48,7 +54,7 @@ func NewApp() *App {
 	useCases := buildUseCases(repos, bus)
 	handlers := buildHandlers(useCases, repos, bus, jwtMiddleware)
 
-	r := router.SetupRouter(jwtMiddleware, handlers)
+	r := router.SetupRouter(cfg, jwtMiddleware, handlers)
 
 	return &App{
 		Config: cfg,
