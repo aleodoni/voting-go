@@ -56,18 +56,25 @@ func NewAbreVotacaoUseCase(
 
 // Execute abre uma votação para o projeto informado em [AbreVotacaoInput.ProjetoID].
 func (uc *AbreVotacaoUseCase) Execute(ctx context.Context, input AbreVotacaoInput) error {
+	println("-------------1")
 	if err := shared.VerificarAdmin(ctx, uc.repoUsuario, input.LoggedInUserKeycloakID); err != nil {
 		return err
 	}
 
+	println("-------------2")
 	votacaoExistente, err := uc.repoVotacao.GetVotacaoAberta(ctx)
 	if err != nil {
+		println("-------------5")
+		println(err.Error())
 		return err
 	}
+
+	println("-------------3")
 	if votacaoExistente != nil {
 		return domainVotacao.ErrVotacaoAberta
 	}
 
+	println("-------------4")
 	projeto, err := uc.repoReuniao.GetProjetoCompleto(ctx, input.ProjetoID)
 	if err != nil {
 		return err

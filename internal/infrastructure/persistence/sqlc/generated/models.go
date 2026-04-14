@@ -5,7 +5,6 @@
 package db
 
 import (
-	"github.com/aleodoni/voting-go/internal/infrastructure/persistence/sqlc/enums"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -113,14 +112,14 @@ type VUsuariosPermisso struct {
 type Votacao struct {
 	ID        string
 	ProjetoID pgtype.Text
-	Status    enums.StatusVotacao
+	Status    interface{}
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
 }
 
 type Voto struct {
 	ID        string
-	Voto      enums.OpcaoVoto
+	Voto      interface{}
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
 	VotacaoID string

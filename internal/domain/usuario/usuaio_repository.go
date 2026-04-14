@@ -19,6 +19,7 @@ type UsuarioRepository interface {
 		ctx context.Context,
 		nome string,
 		email string,
+		listarInativos bool,
 		page, limit int,
 	) ([]*Usuario, int64, error)
 	FindByID(ctx context.Context, id string) (*Usuario, error)

@@ -10,6 +10,7 @@ export const Route = createFileRoute('/manage-users')({
 			.object({
 				nome: z.string().optional(),
 				email: z.string().optional(),
+				listarInativos: z.boolean().optional(),
 				page: z.number().optional(),
 			})
 			.parse(search),
@@ -17,7 +18,7 @@ export const Route = createFileRoute('/manage-users')({
 
 function ManageUsers() {
 	const match = useMatch({ from: Route.id });
-	const { email, nome, page } = match.search ?? {};
+	const { email, nome, page, listarInativos } = match.search ?? {};
 
 	return (
 		<ContainerPage>
@@ -25,7 +26,12 @@ function ManageUsers() {
 			<div className="flex w-full py-8">
 				<SearchUsers />
 			</div>
-			<TableUsers email={email} nome={nome} page={page} />
+			<TableUsers
+				email={email}
+				nome={nome}
+				page={page}
+				listarInativos={listarInativos}
+			/>
 		</ContainerPage>
 	);
 }

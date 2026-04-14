@@ -11,16 +11,4 @@ sql:
         package: "db"
         out: "internal/infrastructure/persistence/sqlc/generated"
         sql_package: "pgx/v5"
-        overrides:
-          - db_type: "status_votacao"
-            go_type:
-              import: "github.com/aleodoni/voting-go/internal/infrastructure/persistence/sqlc/enums"
-              type: "StatusVotacao"
-          - db_type: "opcao_voto"
-            go_type:
-              import: "github.com/aleodoni/voting-go/internal/infrastructure/persistence/sqlc/enums"
-              type: "OpcaoVoto"
-          - db_type: "timestamp"
-            go_type: "time.Time"
-          - db_type: "jsonb"
-            go_type: "encoding/json.RawMessage"
+        

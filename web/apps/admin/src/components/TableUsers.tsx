@@ -15,14 +15,21 @@ type TableUserProps = {
 	nome?: string;
 	email?: string;
 	page?: number;
+	listarInativos?: boolean;
 };
 
 export function TableUsers({
 	email = '',
 	nome = '',
 	page = 1,
+	listarInativos = false,
 }: TableUserProps) {
-	const { data: users, isLoading } = useUsers(nome, email, page);
+	const { data: users, isLoading } = useUsers(
+		nome,
+		email,
+		listarInativos,
+		page,
+	);
 
 	if (isLoading) {
 		return (

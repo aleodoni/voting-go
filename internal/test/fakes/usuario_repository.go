@@ -48,10 +48,11 @@ type UpdateDisplayNameArgs struct {
 
 // ListUsersArgs registra os argumentos de cada chamada ao método.
 type ListUsersArgs struct {
-	Nome  string
-	Email string
-	Page  int
-	Limit int
+	Nome           string
+	Email          string
+	ListarInativos bool
+	Page           int
+	Limit          int
 }
 
 // Verificação em tempo de compilação: garante que FakeUsuarioRepository implementa UsuarioRepository.
@@ -187,13 +188,15 @@ func (f *FakeUsuarioRepository) ListUsers(
 	ctx context.Context,
 	nome string,
 	email string,
+	listarInativos bool,
 	page, limit int,
 ) ([]*usuario.Usuario, int64, error) {
 	f.ListUsersCalls = append(f.ListUsersCalls, ListUsersArgs{
-		Nome:  nome,
-		Email: email,
-		Page:  page,
-		Limit: limit,
+		Nome:           nome,
+		Email:          email,
+		ListarInativos: listarInativos,
+		Page:           page,
+		Limit:          limit,
 	})
 
 	if f.ListUsersErr != nil {
@@ -205,8 +208,9 @@ func (f *FakeUsuarioRepository) ListUsers(
 	for _, u := range f.usuarios {
 		matchNome := nome == "" || strings.Contains(strings.ToLower(u.Nome), strings.ToLower(nome))
 		matchEmail := email == "" || strings.Contains(strings.ToLower(u.Email), strings.ToLower(email))
+		matchAtivo := listarInativos || (u.Credencial != nil && u.Credencial.Ativo)
 
-		if matchNome && matchEmail {
+		if matchNome && matchEmail && matchAtivo {
 			result = append(result, u)
 		}
 	}

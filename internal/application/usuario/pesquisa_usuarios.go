@@ -12,6 +12,7 @@ type ListUsuariosInput struct {
 	LoggedInUserKeycloakID string
 	Nome                   string
 	Email                  string
+	ListarInativos         bool
 	Page                   int
 	Limit                  int
 }
@@ -54,7 +55,7 @@ func (uc *ListUsuariosUseCase) Execute(
 		limit = 20
 	}
 
-	usuarios, total, err := uc.repoUsuario.ListUsers(ctx, input.Nome, input.Email, input.Page, input.Limit)
+	usuarios, total, err := uc.repoUsuario.ListUsers(ctx, input.Nome, input.Email, input.ListarInativos, input.Page, input.Limit)
 	if err != nil {
 		return nil, err
 	}

@@ -37,7 +37,7 @@ func (r *votacaoRepositorySQLC) SalvaVotacao(ctx context.Context, v *votacao.Vot
 	err := r.queries(ctx).UpsertVotacao(ctx, db.UpsertVotacaoParams{
 		ID:        v.ID,
 		ProjetoID: pgtype.Text{String: derefOrEmpty(v.ProjetoID), Valid: v.ProjetoID != nil},
-		Status:    enums.StatusVotacao(v.Status),
+		Status:    string(enums.StatusVotacao(v.Status)),
 	})
 	if err != nil {
 		return fmt.Errorf("SalvaVotacao: %w", err)
@@ -60,18 +60,18 @@ func (r *votacaoRepositorySQLC) BuscaVotacao(ctx context.Context, votacaoID stri
 		}
 		return nil, fmt.Errorf("BuscaVotacao: %w", err)
 	}
-	return mappers.ToDomainVotacaoFromSQLC(row), nil
+	return mappers.ToDomainVotacaoFromFindByID(row), nil
 }
 
 func (r *votacaoRepositorySQLC) GetVotacaoAberta(ctx context.Context) (*votacao.Votacao, error) {
-	row, err := r.queries(ctx).FindVotacaoAberta(ctx, enums.StatusVotacaoA)
+	row, err := r.queries(ctx).FindVotacaoAberta(ctx, string(enums.StatusVotacaoA))
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("GetVotacaoAberta: %w", err)
 	}
-	return mappers.ToDomainVotacaoFromSQLC(row), nil
+	return mappers.ToDomainVotacaoFromFindAberta(row), nil
 }
 
 func (r *votacaoRepositorySQLC) UsuarioJaVotou(ctx context.Context, usuarioID, votacaoID string) (bool, error) {
@@ -113,7 +113,7 @@ func (r *votacaoRepositorySQLC) SalvaVoto(ctx context.Context, v *votacao.Voto) 
 		PVotoID:        v.ID,
 		PUsuarioID:     v.UsuarioID,
 		PVotacaoID:     v.VotacaoID,
-		PVoto:          enums.OpcaoVoto(v.Voto),
+		PVoto:          string(enums.OpcaoVoto(v.Voto)),
 		PRestricao:     restricaoJSON,
 		PVotoContrario: votoContrarioJSON,
 	})
