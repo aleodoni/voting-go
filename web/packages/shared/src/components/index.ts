@@ -9,6 +9,7 @@ export * from './ThemeTogle';
 export * from './ui/badge';
 export * from './ui/button';
 export * from './ui/card';
+export * from './ui/checkbox';
 export * from './ui/circular-progress';
 export * from './ui/dialog';
 export * from './ui/dropdown-menu';

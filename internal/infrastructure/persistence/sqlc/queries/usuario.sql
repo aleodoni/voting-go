@@ -1,5 +1,5 @@
 -- ============================================
--- USUÁRIO
+-- USUARIO
 -- ============================================
 
 -- name: FindByKeycloakID :one
@@ -118,6 +118,10 @@ WHERE
 AND (
         sqlc.arg(email) = ''
         OR u.email ILIKE '%' || sqlc.arg(email) || '%'
+    )
+AND (
+        sqlc.arg(listar_inativos)::bool = true
+        OR c.ativo = true
     )
 ORDER BY u.nome
 LIMIT sqlc.arg(limit_rows)

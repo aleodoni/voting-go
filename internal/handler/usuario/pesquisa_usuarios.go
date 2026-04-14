@@ -34,6 +34,7 @@ func NewPesquisaUsuariosHandler(listUsuariosUseCase *ucUsuario.ListUsuariosUseCa
 //	@Router			/usuarios [get]
 func (h *PesquisaUsuariosHandler) Handle(c *gin.Context) {
 	loggedUserKeycloakID := c.GetString("loggedUserKeycloakID")
+	listarInativos, _ := strconv.ParseBool(c.DefaultQuery("listarInativos", "false"))
 
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil || page < 1 {
@@ -49,6 +50,7 @@ func (h *PesquisaUsuariosHandler) Handle(c *gin.Context) {
 		LoggedInUserKeycloakID: loggedUserKeycloakID,
 		Nome:                   c.Query("Nome"),
 		Email:                  c.Query("Email"),
+		ListarInativos:         listarInativos,
 		Page:                   page,
 		Limit:                  limit,
 	}
