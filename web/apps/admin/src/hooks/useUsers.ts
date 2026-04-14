@@ -12,6 +12,7 @@ type UsersResponse = {
 type FetchUsersParams = {
 	nome?: string;
 	email?: string;
+	listarInativos?: boolean;
 	page?: number;
 	limit?: number;
 };
@@ -23,6 +24,7 @@ async function fetchUsers(
 		params: {
 			Nome: params.nome ?? '',
 			Email: params.email ?? '',
+			listarInativos: params.listarInativos ?? false,
 			page: params.page ?? 1,
 			limit: params.limit ?? 10,
 		},
@@ -31,13 +33,19 @@ async function fetchUsers(
 	return data;
 }
 
-export function useUsers(nome = '', email = '', page = 1) {
+export function useUsers(
+	nome = '',
+	email = '',
+	listarInativos = false,
+	page = 1,
+) {
 	return useQuery({
-		queryKey: ['users', nome, email, page],
+		queryKey: ['users', nome, email, listarInativos, page],
 		queryFn: () =>
 			fetchUsers({
 				nome,
 				email,
+				listarInativos,
 				page,
 				limit: 10,
 			}),

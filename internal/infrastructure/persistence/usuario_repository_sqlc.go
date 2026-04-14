@@ -108,15 +108,17 @@ func (r *usuarioRepositorySQLC) ListUsers(
 	ctx context.Context,
 	nome string,
 	email string,
+	listarInativos bool,
 	page, limit int,
 ) ([]*usuario.Usuario, int64, error) {
 	offset := (page - 1) * limit
 
 	rows, err := r.queries(ctx).ListUsers(ctx, db.ListUsersParams{
-		Nome:       nome,
-		Email:      email,
-		LimitRows:  int32(limit),
-		OffsetRows: int32(offset),
+		Nome:           nome,
+		Email:          email,
+		ListarInativos: listarInativos,
+		LimitRows:      int32(limit),
+		OffsetRows:     int32(offset),
 	})
 
 	if err != nil {

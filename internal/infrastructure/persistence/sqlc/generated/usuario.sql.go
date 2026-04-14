@@ -207,7 +207,7 @@ type FindByKeycloakIDRow struct {
 }
 
 // ============================================
-// USUÁRIO
+// USUARIO
 // ============================================
 func (q *Queries) FindByKeycloakID(ctx context.Context, keycloakID string) (FindByKeycloakIDRow, error) {
 	row := q.db.QueryRow(ctx, findByKeycloakID, keycloakID)
@@ -294,16 +294,21 @@ AND (
         $2 = ''
         OR u.email ILIKE '%' || $2 || '%'
     )
+AND (
+        $3::bool = true
+        OR c.ativo = true
+    )
 ORDER BY u.nome
-LIMIT $4
-OFFSET $3
+LIMIT $5
+OFFSET $4
 `
 
 type ListUsersParams struct {
-	Nome       interface{}
-	Email      interface{}
-	OffsetRows int32
-	LimitRows  int32
+	Nome           interface{}
+	Email          interface{}
+	ListarInativos bool
+	OffsetRows     int32
+	LimitRows      int32
 }
 
 type ListUsersRow struct {
@@ -323,6 +328,7 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]ListUse
 	rows, err := q.db.Query(ctx, listUsers,
 		arg.Nome,
 		arg.Email,
+		arg.ListarInativos,
 		arg.OffsetRows,
 		arg.LimitRows,
 	)

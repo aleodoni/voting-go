@@ -1,15 +1,24 @@
 import { useMatch, useNavigate } from '@tanstack/react-router';
-import { Button, Input } from '@voting/shared';
-import { useRef } from 'react';
+import { Button, Checkbox, Input } from '@voting/shared';
+import { useRef, useState } from 'react';
 import { Route as ManageUsersRoute } from '@/routes/manage-users';
 
 export function SearchUsers() {
 	const nomeRef = useRef<HTMLInputElement>(null);
 	const emailRef = useRef<HTMLInputElement>(null);
+
 	const navigate = useNavigate();
 
 	const match = useMatch({ from: ManageUsersRoute.id });
-	const { nome = '', email = '' } = match.search ?? {};
+	const {
+		nome = '',
+		email = '',
+		listarInativos: listarInativosDefault = false,
+	} = match.search ?? {};
+
+	const [listarInativos, setListarInativos] = useState<boolean>(
+		listarInativosDefault,
+	);
 
 	function handleSearch() {
 		navigate({
@@ -17,6 +26,7 @@ export function SearchUsers() {
 			search: {
 				nome: nomeRef.current?.value || '',
 				email: emailRef.current?.value || '',
+				listarInativos,
 				page: 1,
 			},
 			replace: true,
@@ -43,6 +53,18 @@ export function SearchUsers() {
 					defaultValue={email}
 					onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
 				/>
+			</div>
+
+			<div className="flex flex-col gap-1">
+				<p className="text-sm font-medium invisible">Filtro</p>
+
+				<div className="flex items-center gap-2 h-[40px]">
+					<Checkbox
+						checked={listarInativos}
+						onCheckedChange={(value) => setListarInativos(!!value)}
+					/>
+					<p className="text-sm font-medium">Inativos</p>
+				</div>
 			</div>
 
 			<Button

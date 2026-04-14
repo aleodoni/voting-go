@@ -7,9 +7,7 @@ package db
 
 import (
 	"context"
-	"encoding/json"
 
-	"github.com/aleodoni/voting-go/internal/infrastructure/persistence/sqlc/enums"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -24,15 +22,28 @@ func (q *Queries) DeleteVotacao(ctx context.Context, id string) error {
 }
 
 const findVotacaoAberta = `-- name: FindVotacaoAberta :one
-SELECT id, projeto_id, status, created_at, updated_at
+SELECT 
+    id, 
+    projeto_id, 
+    status::text as status, 
+    created_at, 
+    updated_at
 FROM votacao
 WHERE status = $1
 LIMIT 1
 `
 
-func (q *Queries) FindVotacaoAberta(ctx context.Context, status enums.StatusVotacao) (Votacao, error) {
+type FindVotacaoAbertaRow struct {
+	ID        string
+	ProjetoID pgtype.Text
+	Status    string
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
+}
+
+func (q *Queries) FindVotacaoAberta(ctx context.Context, status interface{}) (FindVotacaoAbertaRow, error) {
 	row := q.db.QueryRow(ctx, findVotacaoAberta, status)
-	var i Votacao
+	var i FindVotacaoAbertaRow
 	err := row.Scan(
 		&i.ID,
 		&i.ProjetoID,
@@ -44,14 +55,22 @@ func (q *Queries) FindVotacaoAberta(ctx context.Context, status enums.StatusVota
 }
 
 const findVotacaoByID = `-- name: FindVotacaoByID :one
-SELECT id, projeto_id, status, created_at, updated_at
+SELECT id, projeto_id, status::text as status, created_at, updated_at
 FROM votacao
 WHERE id = $1
 `
 
-func (q *Queries) FindVotacaoByID(ctx context.Context, id string) (Votacao, error) {
+type FindVotacaoByIDRow struct {
+	ID        string
+	ProjetoID pgtype.Text
+	Status    string
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
+}
+
+func (q *Queries) FindVotacaoByID(ctx context.Context, id string) (FindVotacaoByIDRow, error) {
 	row := q.db.QueryRow(ctx, findVotacaoByID, id)
-	var i Votacao
+	var i FindVotacaoByIDRow
 	err := row.Scan(
 		&i.ID,
 		&i.ProjetoID,
@@ -85,16 +104,23 @@ func (q *Queries) GetVotingStats(ctx context.Context, pStatsDate pgtype.Date) ([
 }
 
 const saveVoto = `-- name: SaveVoto :exec
-SELECT f_save_vote($1, $2, $3, $4, $5, $6)
+SELECT f_save_vote(
+    $1,
+    $2,
+    $3,
+    $4::text,
+    $5,
+    $6
+)
 `
 
 type SaveVotoParams struct {
 	PVotoID        string
 	PUsuarioID     string
 	PVotacaoID     string
-	PVoto          enums.OpcaoVoto
-	PRestricao     json.RawMessage
-	PVotoContrario json.RawMessage
+	PVoto          string
+	PRestricao     []byte
+	PVotoContrario []byte
 }
 
 func (q *Queries) SaveVoto(ctx context.Context, arg SaveVotoParams) error {
@@ -111,7 +137,13 @@ func (q *Queries) SaveVoto(ctx context.Context, arg SaveVotoParams) error {
 
 const upsertVotacao = `-- name: UpsertVotacao :exec
 INSERT INTO votacao (id, projeto_id, status, created_at, updated_at)
-VALUES ($1, $2, $3, NOW(), NOW())
+VALUES (
+    $1,
+    $2,
+    $3,
+    NOW(),
+    NOW()
+)
 ON CONFLICT (id) DO UPDATE
     SET projeto_id = EXCLUDED.projeto_id,
         status     = EXCLUDED.status,
@@ -121,7 +153,7 @@ ON CONFLICT (id) DO UPDATE
 type UpsertVotacaoParams struct {
 	ID        string
 	ProjetoID pgtype.Text
-	Status    enums.StatusVotacao
+	Status    interface{}
 }
 
 func (q *Queries) UpsertVotacao(ctx context.Context, arg UpsertVotacaoParams) error {
