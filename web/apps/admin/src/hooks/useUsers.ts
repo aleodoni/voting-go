@@ -38,16 +38,17 @@ export function useUsers(
 	email = '',
 	listarInativos = false,
 	page = 1,
+	limit = 10,
 ) {
 	return useQuery({
-		queryKey: ['users', nome, email, listarInativos, page],
+		queryKey: ['users', nome, email, listarInativos, page, limit],
 		queryFn: () =>
 			fetchUsers({
 				nome,
 				email,
 				listarInativos,
 				page,
-				limit: 10,
+				limit,
 			}),
 		staleTime: 0,
 	});

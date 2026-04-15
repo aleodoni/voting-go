@@ -1,8 +1,9 @@
-import { createFileRoute, useMatch } from '@tanstack/react-router';
+import { createFileRoute, useMatch, useNavigate } from '@tanstack/react-router';
 import { ContainerPage, H2 } from '@voting/shared';
 import { z } from 'zod';
 import { SearchUsers } from '@/components/SearchUsers';
 import { TableUsers } from '@/components/TableUsers';
+
 export const Route = createFileRoute('/manage-users')({
 	component: ManageUsers,
 	validateSearch: (search) =>
@@ -17,8 +18,15 @@ export const Route = createFileRoute('/manage-users')({
 });
 
 function ManageUsers() {
+	const navigate = useNavigate({ from: Route.id });
 	const match = useMatch({ from: Route.id });
 	const { email, nome, page, listarInativos } = match.search ?? {};
+
+	function handlePageChange(newPage: number) {
+		navigate({
+			search: (prev: Record<string, unknown>) => ({ ...prev, page: newPage }),
+		});
+	}
 
 	return (
 		<ContainerPage>
@@ -31,6 +39,7 @@ function ManageUsers() {
 				nome={nome}
 				page={page}
 				listarInativos={listarInativos}
+				onPageChange={handlePageChange}
 			/>
 		</ContainerPage>
 	);

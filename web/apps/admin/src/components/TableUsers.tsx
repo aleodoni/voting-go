@@ -1,4 +1,11 @@
 import {
+	Pagination,
+	PaginationContent,
+	PaginationEllipsis,
+	PaginationItem,
+	PaginationLink,
+	PaginationNext,
+	PaginationPrevious,
 	Table,
 	TableBody,
 	TableCaption,
@@ -16,6 +23,7 @@ type TableUserProps = {
 	email?: string;
 	page?: number;
 	listarInativos?: boolean;
+	onPageChange?: (page: number) => void;
 };
 
 export function TableUsers({
@@ -23,12 +31,14 @@ export function TableUsers({
 	nome = '',
 	page = 1,
 	listarInativos = false,
+	onPageChange,
 }: TableUserProps) {
 	const { data: users, isLoading } = useUsers(
 		nome,
 		email,
 		listarInativos,
 		page,
+		10,
 	);
 
 	if (isLoading) {
@@ -49,8 +59,33 @@ export function TableUsers({
 		);
 	}
 
+	const totalPages = Math.ceil(users.total / users.limit);
+
+	function getPageNumbers(
+		current: number,
+		total: number,
+	): (number | 'ellipsis')[] {
+		if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1);
+
+		if (current <= 3) return [1, 2, 3, 4, 'ellipsis', total];
+		if (current >= total - 2)
+			return [1, 'ellipsis', total - 3, total - 2, total - 1, total];
+
+		return [
+			1,
+			'ellipsis',
+			current - 1,
+			current,
+			current + 1,
+			'ellipsis',
+			total,
+		];
+	}
+
+	const pageNumbers = getPageNumbers(page, totalPages);
+
 	return (
-		<>
+		<div className="flex flex-col gap-4">
 			{/* Mobile: cards */}
 			<div className="flex flex-col gap-3 md:hidden">
 				{users.usuarios.map((user: User) => (
@@ -79,6 +114,69 @@ export function TableUsers({
 					</TableBody>
 				</Table>
 			</div>
-		</>
+
+			{/* Paginação */}
+			{totalPages > 1 && (
+				<Pagination>
+					<PaginationContent>
+						<PaginationItem>
+							<PaginationPrevious
+								href="#"
+								onClick={(e) => {
+									e.preventDefault();
+									if (page > 1) onPageChange?.(page - 1);
+								}}
+								aria-disabled={page === 1}
+								className={
+									page === 1
+										? 'pointer-events-none opacity-50'
+										: 'cursor-pointer'
+								}
+							/>
+						</PaginationItem>
+
+						{pageNumbers.map((p) =>
+							p === 'ellipsis' ? (
+								<PaginationItem
+									key={`ellipsis-${p === pageNumbers[1] ? 'start' : 'end'}`}
+								>
+									<PaginationEllipsis />
+								</PaginationItem>
+							) : (
+								<PaginationItem key={p}>
+									<PaginationLink
+										href="#"
+										isActive={p === page}
+										onClick={(e) => {
+											e.preventDefault();
+											onPageChange?.(p);
+										}}
+										className="cursor-pointer"
+									>
+										{p}
+									</PaginationLink>
+								</PaginationItem>
+							),
+						)}
+
+						<PaginationItem>
+							<PaginationNext
+								href="#"
+								onClick={(e) => {
+									e.preventDefault();
+									if (page < totalPages) onPageChange?.(page + 1);
+								}}
+								aria-disabled={page === totalPages}
+								className={
+									page === totalPages
+										? 'pointer-events-none opacity-50'
+										: 'cursor-pointer'
+								}
+							/>
+						</PaginationItem>
+					</PaginationContent>
+				</Pagination>
+			)}
+		</div>
 	);
 }
