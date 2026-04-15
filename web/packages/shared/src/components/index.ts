@@ -19,6 +19,7 @@ export * from './ui/h2';
 export * from './ui/input';
 export * from './ui/label';
 export * from './ui/p';
+export * from './ui/pagination';
 export * from './ui/select';
 export * from './ui/switch';
 export * from './ui/table';

@@ -61,7 +61,9 @@ export function SearchUsers() {
 				<div className="flex items-center gap-2 h-[40px]">
 					<Checkbox
 						checked={listarInativos}
-						onCheckedChange={(value) => setListarInativos(!!value)}
+						onCheckedChange={(value: boolean | 'indeterminate') =>
+							setListarInativos(!!value)
+						}
 					/>
 					<p className="text-sm font-medium">Inativos</p>
 				</div>
