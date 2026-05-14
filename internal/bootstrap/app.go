@@ -30,7 +30,14 @@ func NewApp() *App {
 		log.Fatal(err)
 	}
 
-	if cfg.AppEnv == "staging" || cfg.AppEnv == "production" {
+	// if cfg.AppEnv == "staging" || cfg.AppEnv == "production" {
+	// 	if err := database.RunFDW(cfg); err != nil {
+	// 		log.Println("FDW warning:", err)
+	// 	}
+	// }
+
+	// Só rodar o FDW em production, para evitar problemas development e staging
+	if cfg.AppEnv == "production" {
 		if err := database.RunFDW(cfg); err != nil {
 			log.Println("FDW warning:", err)
 		}
