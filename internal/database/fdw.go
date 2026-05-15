@@ -20,6 +20,7 @@ func RunFDW(cfg *config.Config) error {
 		"fdw/06_projetos.sql",
 		"fdw/07_cuid2.sql",
 		"fdw/08_daily_sync.sql",
+		"fdw/09_tabela_sinc.sql",
 	}
 
 	pool, err := ConnectPGX(cfg)
