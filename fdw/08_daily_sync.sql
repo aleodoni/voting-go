@@ -39,6 +39,7 @@ BEGIN
     -- =========================================================
 
     -- Remove reuniões do dia que não existem mais na origem
+    -- CASCADE remove projetos, pareceres e votações
     DELETE FROM public.reuniao r
     WHERE r.rec_data::date = CURRENT_DATE
       AND NOT EXISTS (
@@ -92,7 +93,8 @@ BEGIN
     -- SINCRONIZA PROJETOS
     -- =========================================================
 
-    -- Remove projetos NÃO votados que não existem mais na origem
+    -- Remove projetos do dia que não existem mais na origem
+    -- CASCADE remove pareceres e votações
     DELETE FROM public.projeto p
     WHERE EXISTS (
       SELECT 1
@@ -106,14 +108,9 @@ BEGIN
       WHERE s.pac_id = p.pac_id
         AND s.par_id = p.par_id
         AND s.codigo_proposicao = p.codigo_proposicao
-    )
-    AND NOT EXISTS (
-      SELECT 1
-      FROM public.votacao v
-      WHERE v.projeto_id = p.id
     );
 
-    -- Insere ou atualiza projetos NÃO votados
+    -- Insere ou atualiza projetos
     INSERT INTO public.projeto (
       id,
       sumula,
@@ -155,12 +152,7 @@ BEGIN
       iniciativa = EXCLUDED.iniciativa,
       conclusao_comissao = EXCLUDED.conclusao_comissao,
       conclusao_relator = EXCLUDED.conclusao_relator,
-      updated_at = now()
-    WHERE NOT EXISTS (
-      SELECT 1
-      FROM public.votacao v
-      WHERE v.projeto_id = projeto.id
-    );
+      updated_at = now();
 
     GET DIAGNOSTICS v_projetos = ROW_COUNT;
 
@@ -168,7 +160,8 @@ BEGIN
     -- SINCRONIZA PARECERES
     -- =========================================================
 
-    -- Remove pareceres de projetos NÃO votados
+    -- Remove pareceres do dia que não existem mais na origem
+    -- VERIFICAR QUANDO OS PARECERES SÃO EXCLUÍDOS
     DELETE FROM public.parecer pa
     WHERE EXISTS (
       SELECT 1
@@ -183,14 +176,9 @@ BEGIN
       FROM spl_votacao_pareceres_foreign s
       WHERE s.pro_codigo = pa.codigo_proposicao
         AND s.txt_id = pa.id_texto
-    )
-    AND NOT EXISTS (
-      SELECT 1
-      FROM public.votacao v
-      WHERE v.projeto_id = pa.projeto_id
     );
 
-    -- Insere ou atualiza pareceres de projetos NÃO votados
+    -- Insere ou atualiza pareceres
     INSERT INTO public.parecer (
       id,
       codigo_proposicao,
@@ -221,12 +209,7 @@ BEGIN
       tcp_nome = EXCLUDED.tcp_nome,
       vereador = EXCLUDED.vereador,
       id_texto = EXCLUDED.id_texto,
-      updated_at = now()
-    WHERE NOT EXISTS (
-      SELECT 1
-      FROM public.votacao v
-      WHERE v.projeto_id = parecer.projeto_id
-    );
+      updated_at = now();
 
     GET DIAGNOSTICS v_pareceres = ROW_COUNT;
 
