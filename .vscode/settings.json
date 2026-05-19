@@ -1,0 +1,12 @@
+{
+  "editor.formatOnSave": true,
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "biome.lsp.bin": "./web/node_modules/.bin/biome",
+  "biome.configurationPath": "./web/biome.json",
+  "biome.requireConfiguration": true
+}

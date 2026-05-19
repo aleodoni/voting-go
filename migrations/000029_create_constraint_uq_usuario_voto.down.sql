@@ -1,0 +1,2 @@
+ALTER TABLE voto
+DROP CONSTRAINT IF EXISTS uq_usuario_votacao;

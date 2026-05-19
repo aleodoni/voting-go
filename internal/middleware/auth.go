@@ -1,0 +1,76 @@
+// Package middleware provides HTTP middleware for authentication and authorization.
+package middleware
+
+import (
+	"strings"
+	"time"
+
+	"github.com/MicahParks/keyfunc/v2"
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
+
+	"github.com/aleodoni/voting-go/internal/config"
+)
+
+type JWTMiddleware struct {
+	jwks *keyfunc.JWKS
+	cfg  *config.Config
+}
+
+func NewJWTMiddleware(cfg *config.Config) *JWTMiddleware {
+	jwks, err := keyfunc.Get(cfg.JWKSURL, keyfunc.Options{
+		RefreshInterval:   5 * time.Minute, // Atualiza periodicamente
+		RefreshTimeout:    10 * time.Second,
+		RefreshUnknownKID: true, // Chave nova dispara refresh imediato
+	})
+
+	if err != nil {
+		panic("failed to get JWKS: " + err.Error())
+	}
+
+	return &JWTMiddleware{
+		jwks: jwks,
+		cfg:  cfg,
+	}
+}
+
+func (m *JWTMiddleware) Handler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		tokenString := extractToken(c)
+		if tokenString == "" {
+			c.AbortWithStatusJSON(401, gin.H{"error": "Missing token"})
+			return
+		}
+
+		claims, err := m.ValidateToken(tokenString)
+		if err != nil {
+			c.AbortWithStatusJSON(401, gin.H{"error": "Invalid token"})
+			return
+		}
+
+		c.Set("claims", claims)
+		c.Set("loggedUserKeycloakID", claims["sub"].(string))
+		c.Set("loggedUserName", claims["preferred_username"].(string))
+		c.Next()
+	}
+}
+
+func extractToken(c *gin.Context) string {
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		// também tenta query string para SSE
+		return c.Query("token")
+	}
+	return strings.TrimPrefix(authHeader, "Bearer ")
+}
+
+func (m *JWTMiddleware) ValidateToken(tokenString string) (jwt.MapClaims, error) {
+	token, err := jwt.Parse(tokenString, m.jwks.Keyfunc,
+		jwt.WithIssuer(m.cfg.KeycloakIssuer),
+		jwt.WithAudience("voting-api"),
+	)
+	if err != nil || !token.Valid {
+		return nil, err
+	}
+	return token.Claims.(jwt.MapClaims), nil
+}

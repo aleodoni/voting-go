@@ -1,0 +1,41 @@
+name: Deploy Production
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Production — migrate, fdw
+    runs-on: ubuntu-latest
+
+    env:
+      APPENV: production
+      DBHOST: ${{ secrets.PROD_DBHOST }}
+      DBPORT: ${{ secrets.PROD_DBPORT }}
+      DBUSER: ${{ secrets.PROD_DBUSER }}
+      DBPASSWORD: ${{ secrets.PROD_DBPASSWORD }}
+      DBNAME: ${{ secrets.PROD_DBNAME }}
+      DBSSLMODE: ${{ secrets.PROD_DBSSLMODE }}
+      DB_SPL_HOST: ${{ secrets.PROD_DB_SPL_HOST }}
+      DB_SPL_PORT: ${{ secrets.PROD_DB_SPL_PORT }}
+      DB_SPL_NAME: ${{ secrets.PROD_DB_SPL_NAME }}
+      DB_SPL_USER: ${{ secrets.PROD_DB_SPL_USER }}
+      DB_SPL_PASSWORD: ${{ secrets.PROD_DB_SPL_PASSWORD }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build CLI
+        run: go build -ldflags="-s -w" -o voting-cli cmd/cli/main/main.go
+
+      - name: Run migrations
+        run: ./voting-cli migrate
+
+      - name: Run FDW setup
+        run: ./voting-cli fdw

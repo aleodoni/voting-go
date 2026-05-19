@@ -1,0 +1,39 @@
+services:
+
+  postgres:
+    build: ./docker/postgres
+    container_name: voting-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: voting_db
+
+    ports:
+      - "15432:5432"
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: voting-keycloak
+    command: start-dev --import-realm
+
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+
+    ports:
+      - "8081:8080"
+
+    volumes:
+      - ./keycloak/realm-import:/opt/keycloak/data/import
+
+volumes:
+  postgres_data:

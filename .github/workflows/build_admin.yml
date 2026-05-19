@@ -1,0 +1,77 @@
+name: Build Admin
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+    paths:
+      - 'web/apps/admin/**'
+      - 'web/packages/shared/**'
+      - 'web/package.json'
+      - 'web/pnpm-lock.yaml'
+      - 'web/pnpm-workspace.yaml'
+      - 'infra/docker/admin/Dockerfile'
+      - '.github/workflows/build-admin.yml'
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/admin
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set tags and build args
+        id: config
+        run: |
+          SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          BRANCH=${{ github.ref_name }}
+
+          if [ "$BRANCH" = "main" ]; then
+            echo "tags=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHA}" >> $GITHUB_OUTPUT
+            echo "vite_api_url=${{ secrets.PROD_VITE_API_URL }}" >> $GITHUB_OUTPUT
+            echo "vite_keycloak_url=${{ secrets.PROD_VITE_KEYCLOAK_URL }}" >> $GITHUB_OUTPUT
+            echo "vite_keycloak_realm=${{ secrets.PROD_VITE_KEYCLOAK_REALM }}" >> $GITHUB_OUTPUT
+            echo "vite_keycloak_client_id=${{ secrets.PROD_VITE_KEYCLOAK_CLIENT_ID }}" >> $GITHUB_OUTPUT
+          else
+            echo "tags=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:staging,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHA}-staging" >> $GITHUB_OUTPUT
+            echo "vite_api_url=${{ secrets.STAGING_VITE_API_URL }}" >> $GITHUB_OUTPUT
+            echo "vite_keycloak_url=${{ secrets.STAGING_VITE_KEYCLOAK_URL }}" >> $GITHUB_OUTPUT
+            echo "vite_keycloak_realm=${{ secrets.STAGING_VITE_KEYCLOAK_REALM }}" >> $GITHUB_OUTPUT
+            echo "vite_keycloak_client_id=${{ secrets.STAGING_VITE_KEYCLOAK_CLIENT_ID }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: web
+          file: infra/docker/admin/Dockerfile
+          push: true
+          tags: ${{ steps.config.outputs.tags }}
+          build-args: |
+            VITE_API_URL=${{ steps.config.outputs.vite_api_url }}
+            VITE_KEYCLOAK_URL=${{ steps.config.outputs.vite_keycloak_url }}
+            VITE_KEYCLOAK_REALM=${{ steps.config.outputs.vite_keycloak_realm }}
+            VITE_KEYCLOAK_CLIENT_ID=${{ steps.config.outputs.vite_keycloak_client_id }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

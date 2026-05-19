@@ -1,1 +1,6 @@
 .env
+tmp/
+bin/
+.air.toml
+docs/
+*orange*

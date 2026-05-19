@@ -1,0 +1,1 @@
+DROP TYPE IF EXISTS opcao_voto;

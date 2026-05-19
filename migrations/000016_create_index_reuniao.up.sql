@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS "rec_id_con_id_pac_id_idx" ON "public"."reuniao" USING btree ("rec_id","con_id","pac_id");

@@ -1,0 +1,1 @@
+-- Função movida para 000030_create_function_f_get_project_open_voting.up.sql

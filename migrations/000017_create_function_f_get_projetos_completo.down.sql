@@ -1,0 +1,1 @@
+DROP FUNCTION IF EXISTS public.f_get_projetos_completo(varchar);

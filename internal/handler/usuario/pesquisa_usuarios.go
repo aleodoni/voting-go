@@ -1,0 +1,65 @@
+// Package usuario contains the handler for searching users.
+package usuario
+
+import (
+	"net/http"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
+
+	ucUsuario "github.com/aleodoni/voting-go/internal/application/usuario"
+)
+
+type PesquisaUsuariosHandler struct {
+	listUsuariosUseCase *ucUsuario.ListUsuariosUseCase
+}
+
+func NewPesquisaUsuariosHandler(listUsuariosUseCase *ucUsuario.ListUsuariosUseCase) *PesquisaUsuariosHandler {
+	return &PesquisaUsuariosHandler{listUsuariosUseCase: listUsuariosUseCase}
+}
+
+// Handle godoc
+//
+//	@Summary		Pesquisa usuários
+//	@Description	Retorna uma lista paginada de usuários (requer admin)
+//	@Tags			usuários
+//	@Produce		json
+//	@Param			Nome	query		string	false	"Nome do usuario"	default()
+//	@Param			Email	query		string	false	"Email do usuario"	default()
+//	@Param			page	query		int		false	"Página"			default(1)
+//	@Param			limit	query		int		false	"Limite"			default(20)
+//	@Success		200		{object}	ListUsuariosResponse
+//	@Failure		403		{object}	ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/usuarios [get]
+func (h *PesquisaUsuariosHandler) Handle(c *gin.Context) {
+	loggedUserKeycloakID := c.GetString("loggedUserKeycloakID")
+	listarInativos, _ := strconv.ParseBool(c.DefaultQuery("listarInativos", "false"))
+
+	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	if err != nil || limit < 1 || limit > 100 {
+		limit = 20
+	}
+
+	input := ucUsuario.ListUsuariosInput{
+		LoggedInUserKeycloakID: loggedUserKeycloakID,
+		Nome:                   c.Query("Nome"),
+		Email:                  c.Query("Email"),
+		ListarInativos:         listarInativos,
+		Page:                   page,
+		Limit:                  limit,
+	}
+
+	output, err := h.listUsuariosUseCase.Execute(c.Request.Context(), input)
+	if err != nil {
+		c.JSON(http.StatusForbidden, ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, toListUsuariosResponse(output))
+}
