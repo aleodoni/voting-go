@@ -1,20 +1,20 @@
 name: Build API
 
 on:
-  # push:
-  #   branches:
-  #     - main
-  #     - staging
-  #   paths:
-  #     - 'cmd/**'
-  #     - 'internal/**'
-  #     - 'pkg/**'
-  #     - 'migrations/**'
-  #     - 'seeds/**'
-  #     - 'go.mod'
-  #     - 'go.sum'
-  #     - 'infra/docker/api/Dockerfile'
-  #     - '.github/workflows/build-api.yml'
+  push:
+    branches:
+      - main
+      - staging
+    paths:
+      - 'cmd/**'
+      - 'internal/**'
+      - 'pkg/**'
+      - 'migrations/**'
+      - 'seeds/**'
+      - 'go.mod'
+      - 'go.sum'
+      - 'infra/docker/api/Dockerfile'
+      - '.github/workflows/build-api.yml'
   workflow_dispatch:
 
 env:
