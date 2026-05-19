@@ -20,10 +20,14 @@ ifeq ($(TARGET),orange)
 	PLATFORM := linux/arm64
 	ENV_FILE := .env.orange
 	COMPOSE_FILE := docker-compose.orange.yml
-else
-	PLATFORM := linux/amd64
+else ifeq ($(TARGET),staging)
+	PLATFORM := linux/arm64
 	ENV_FILE := .env.staging
 	COMPOSE_FILE := docker-compose.staging.yml
+else
+	PLATFORM := linux/amd64
+	ENV_FILE := .env.production
+	COMPOSE_FILE := docker-compose.production.yml
 endif
 
 API_IMAGE := $(DOCKER_USER)/voting-api:$(TAG)
