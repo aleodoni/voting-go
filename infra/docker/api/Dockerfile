@@ -1,18 +1,21 @@
 # ---------- Build Stage ----------
 FROM golang:1.26-alpine AS builder
 
-# Diretório de trabalho dentro do container
 WORKDIR /app
 
-# Dependências do sistema para build
 RUN apk add --no-cache git ca-certificates
 
-# Copia dependências
 COPY go.mod go.sum ./
 RUN go mod download
 
+# Instala swag
+RUN go install github.com/swaggo/swag/cmd/swag@latest
+
 # Copia código
 COPY . .
+
+# Gera docs
+RUN swag init -g cmd/api/main.go --output docs
 
 # Argumentos para cross-compiling
 ARG TARGETOS
@@ -28,21 +31,14 @@ RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build \
 # ---------- Runtime Stage ----------
 FROM alpine:3.20
 
-# Diretório de trabalho
 WORKDIR /app
 
-# Apenas runtime essencial
 RUN apk add --no-cache ca-certificates curl
 
-# Copia binário
 COPY --from=builder /app/api .
-
-# Copia assets
 COPY --from=builder /app/migrations ./migrations
 COPY --from=builder /app/seeds ./seeds
 
-# Porta exposta
 EXPOSE 8080
 
-# Executa API
 ENTRYPOINT ["/app/api"]
