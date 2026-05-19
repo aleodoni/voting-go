@@ -5,7 +5,7 @@ on:
 
 jobs:
   test-arm-runner:
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-latest
 
     steps:
       - name: Show architecture
