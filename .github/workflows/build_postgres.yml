@@ -1,25 +1,17 @@
-name: Build API
+name: Build Postgres
 
 on:
-  # push:
-  #   branches:
-  #     - main
-  #     - staging
-  #   paths:
-  #     - 'cmd/**'
-  #     - 'internal/**'
-  #     - 'pkg/**'
-  #     - 'migrations/**'
-  #     - 'seeds/**'
-  #     - 'go.mod'
-  #     - 'go.sum'
-  #     - 'infra/docker/api/Dockerfile'
-  #     - '.github/workflows/build-api.yml'
+  push:
+    branches:
+      - staging
+    paths:
+      - 'infra/docker/postgres/Dockerfile'
+      - '.github/workflows/build-postgres.yml'
   workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/api
+  IMAGE_NAME: ${{ github.repository_owner }}/postgres
 
 jobs:
   build:
@@ -47,19 +39,13 @@ jobs:
         id: tags
         run: |
           SHA=$(echo ${{ github.sha }} | cut -c1-7)
-          BRANCH=${{ github.ref_name }}
-
-          if [ "$BRANCH" = "main" ]; then
-            echo "tags=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHA}" >> $GITHUB_OUTPUT
-          else
-            echo "tags=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:staging,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHA}-staging" >> $GITHUB_OUTPUT
-          fi
+          echo "tags=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHA}" >> $GITHUB_OUTPUT
 
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: infra/docker/api/Dockerfile
+          context: infra/docker/postgres
+          file: infra/docker/postgres/Dockerfile
           push: true
           tags: ${{ steps.tags.outputs.tags }}
           cache-from: type=gha
