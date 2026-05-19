@@ -5,5 +5,5 @@ CREATE TABLE IF NOT EXISTS "votacao" (
   "created_at" timestamp DEFAULT now() NOT NULL,
   "updated_at" timestamp DEFAULT now() NOT NULL,
   CONSTRAINT "votacao_projeto_id_unique" UNIQUE("projeto_id"),
-  CONSTRAINT "votacao_projeto_id_fk" FOREIGN KEY ("projeto_id") REFERENCES "projeto"("id")
+  CONSTRAINT "votacao_projeto_id_fk" FOREIGN KEY ("projeto_id") REFERENCES "projeto"("id") ON DELETE CASCADE
 );
