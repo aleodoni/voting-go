@@ -54,6 +54,12 @@ func NewApp() *App {
 		}
 	}
 
+	if cfg.AppEnv == "staging" {
+		if err := database.RunStagingCron(pgxPool); err != nil {
+			log.Println("staging cron warning:", err)
+		}
+	}
+
 	bus := event.NewBus()
 	jwtMiddleware := middleware.NewJWTMiddleware(cfg)
 
