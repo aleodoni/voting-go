@@ -63,7 +63,7 @@ services:
     depends_on:
       - api
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health.txt"]
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health.txt"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -77,7 +77,7 @@ services:
     depends_on:
       - api
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health.txt"]
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health.txt"]
       interval: 10s
       timeout: 5s
       retries: 5
