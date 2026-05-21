@@ -59,7 +59,7 @@ services:
     image: ${ADMIN_IMAGE}
     restart: unless-stopped
     ports:
-      - "3000:80"
+      - "3000:3000"
     depends_on:
       - api
     healthcheck:
@@ -73,7 +73,7 @@ services:
     image: ${VEREADOR_IMAGE}
     restart: unless-stopped
     ports:
-      - "3001:80"
+      - "3001:3001"
     depends_on:
       - api
     healthcheck:
