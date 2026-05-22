@@ -1,8 +1,8 @@
 #!/bin/bash
 
-KEYCLOAK_URL="https://auth.alexandre.odoni.nom.br"
+KEYCLOAK_URL="http://localhost:8081"
 REALM="voting-realm"
-CLIENT_ID="voting-web"  # usar client do frontend
+CLIENT_ID="voting-web"
 
 USERNAME="$1"
 PASSWORD="$2"
@@ -12,10 +12,19 @@ if [[ -z "$USERNAME" || -z "$PASSWORD" ]]; then
   exit 1
 fi
 
-# gera token limpo
-curl -s -X POST "$KEYCLOAK_URL/realms/$REALM/protocol/openid-connect/token" \
+RESPONSE=$(curl -s -X POST \
+  "$KEYCLOAK_URL/realms/$REALM/protocol/openid-connect/token" \
   -d "grant_type=password" \
   -d "client_id=$CLIENT_ID" \
   -d "username=$USERNAME" \
-  -d "password=$PASSWORD" \
-  | jq -r '.access_token'
+  -d "password=$PASSWORD")
+
+TOKEN=$(echo "$RESPONSE" | jq -r '.access_token')
+
+if [[ "$TOKEN" == "null" || -z "$TOKEN" ]]; then
+  echo "Erro ao obter token"
+  echo "$RESPONSE"
+  exit 1
+fi
+
+echo "$TOKEN"

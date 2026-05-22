@@ -2,10 +2,12 @@ package bootstrap
 
 import (
 	ucRelatorio "github.com/aleodoni/voting-go/internal/application/relatorio"
+	ucSincronia "github.com/aleodoni/voting-go/internal/application/sincronia"
 	ucUsuario "github.com/aleodoni/voting-go/internal/application/usuario"
 	ucVotacao "github.com/aleodoni/voting-go/internal/application/votacao"
 
 	domainShared "github.com/aleodoni/voting-go/internal/domain/shared"
+	domainSincronia "github.com/aleodoni/voting-go/internal/domain/sincronia"
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 	domainVotacao "github.com/aleodoni/voting-go/internal/domain/votacao"
 )
@@ -15,6 +17,7 @@ type repositories struct {
 	transactor domainShared.UnitOfWork
 	reuniao    domainVotacao.ReuniaoRepository
 	votacao    domainVotacao.VotacaoRepository
+	sincronia  domainSincronia.SincroniaRepository
 }
 
 type useCases struct {
@@ -34,4 +37,6 @@ type useCases struct {
 	geraRelatorio                *ucRelatorio.GeraRelatorioReuniaoUseCase
 	retornaProjetoVotacaoAberta  *ucVotacao.RetornaVotacaoAbertaUseCase
 	retornaStatsVotacao          *ucVotacao.RetornaVotingStatsUseCase
+	retornaUltimasSincronias     *ucSincronia.RetornaSincroniasUseCase
+	executaSincronia             *ucSincronia.ExecutaSincroniaUseCase
 }
