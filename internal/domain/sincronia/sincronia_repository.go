@@ -3,5 +3,8 @@ package sincronia
 import "context"
 
 type SincroniaRepository interface {
-	sync(ctx context.Context) (*Sincronia, error)
+	Sync(ctx context.Context) (*Sincronia, error)
+	ListLastSincronias(
+		ctx context.Context,
+	) ([]*Sincronia, error)
 }

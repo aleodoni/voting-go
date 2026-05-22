@@ -9,12 +9,12 @@ import (
 type Sincronia struct {
 	domain.Entity[string]
 
-	sucesso                 *bool
-	mensagem_erro           *string
-	reunioes_sincronizadas  int
-	projetos_sincronizados  int
-	pareceres_sincronizados int
+	Sucesso                *bool
+	MensagemErro           *string
+	ReunioesSincronizadas  int
+	ProjetosSincronizados  int
+	PareceresSincronizados int
 
-	iniciado_em   time.Time
-	finalizado_em *time.Time
+	IniciadoEm   time.Time
+	FinalizadoEm *time.Time
 }
