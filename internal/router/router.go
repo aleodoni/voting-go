@@ -5,6 +5,7 @@ import (
 	"github.com/aleodoni/voting-go/internal/config"
 	relatorioHandler "github.com/aleodoni/voting-go/internal/handler/relatorio"
 	reuniaoHandler "github.com/aleodoni/voting-go/internal/handler/reuniao"
+	sincroniaHandler "github.com/aleodoni/voting-go/internal/handler/sincronia"
 	usuarioHandler "github.com/aleodoni/voting-go/internal/handler/usuario"
 	votacaoHandler "github.com/aleodoni/voting-go/internal/handler/votacao"
 	"github.com/aleodoni/voting-go/internal/middleware"
@@ -39,6 +40,9 @@ type Handlers struct {
 	SSE *votacaoHandler.SSEHandler
 
 	GeraRelatorioReuniao *relatorioHandler.GeraRelatorioReuniaoHandler
+
+	ExecutaSincronia         *sincroniaHandler.ExecutaSincroniaHandler
+	RetornaUltimasSincronias *sincroniaHandler.RetornaUltimasSincroniasHandler
 }
 
 func SetupRouter(cfg *config.Config, jwtMiddleware *middleware.JWTMiddleware, h *Handlers) *gin.Engine {
