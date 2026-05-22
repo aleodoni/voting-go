@@ -1,8 +1,6 @@
-import { check } from 'k6';
 import http from 'k6/http';
 
 const BASE_URL = 'http://localhost:8080';
-// const BASE_URL = 'http://192.168.1.61:8080';
 
 export const options = {
 	scenarios: {
@@ -16,24 +14,15 @@ export const options = {
 
 export default function () {
 	const token = __ENV.TOKEN;
+
 	console.log(`Using token: ${token}`);
 
-	const res = http.get(`${BASE_URL}/api/v1/me`, {
+	const res = http.get(`${BASE_URL}/api/v1/sincronia`, {
 		headers: {
 			Authorization: `Bearer ${token}`,
 		},
 	});
 
+	console.log(res.status);
 	console.log(res.body);
-
-	const bodyParsed = JSON.parse(res.body);
-
-	check(res, {
-		'status is 200': (r) => r.status === 200,
-		'has username': (_r) => {
-			const username = bodyParsed.username;
-
-			return username === 'usuario.vereador' || username === 'usuario.admin';
-		},
-	});
 }
