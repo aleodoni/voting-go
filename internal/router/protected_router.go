@@ -10,14 +10,9 @@ func registerProtectedRoutes(api *gin.RouterGroup, jwtMiddleware *middleware.JWT
 	protected := api.Group("")
 	protected.Use(jwtMiddleware.Handler())
 
-	protected.GET("/test", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"status": "route protected",
-		})
-	})
-
 	registerUsuarioRoutes(protected, h)
 	registerCredencialRoutes(protected, h)
 	registerReuniaoRoutes(protected, h)
 	registerVotacaoRoutes(protected, h)
+	registerSincroniaRoutes(protected, h)
 }

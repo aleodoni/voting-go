@@ -12,5 +12,6 @@ func buildRepositories(pgxPool *pgxpool.Pool) *repositories {
 		transactor: persistence.NewUnitOfWorkSQLC(pgxPool),
 		reuniao:    persistence.NewReuniaoRepositorySQLC(pgxPool),
 		votacao:    persistence.NewVotacaoRepositorySQLC(pgxPool),
+		sincronia:  persistence.NewSincroniaRepositorySQLC(pgxPool),
 	}
 }

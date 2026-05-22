@@ -3,6 +3,7 @@ package bootstrap
 import (
 	relatorioHandler "github.com/aleodoni/voting-go/internal/handler/relatorio"
 	reuniaoHandler "github.com/aleodoni/voting-go/internal/handler/reuniao"
+	sincroniaHandler "github.com/aleodoni/voting-go/internal/handler/sincronia"
 	usuarioHandler "github.com/aleodoni/voting-go/internal/handler/usuario"
 	votacaoHandler "github.com/aleodoni/voting-go/internal/handler/votacao"
 	"github.com/aleodoni/voting-go/internal/middleware"
@@ -31,5 +32,7 @@ func buildHandlers(uc *useCases, repos *repositories, bus *event.Bus, jwtMiddlew
 		RetornaProjetoVotacaoAberta: votacaoHandler.NewRetornaProjetoVotacaoAbertaHandler(uc.retornaProjetoVotacaoAberta),
 		RetornaStatsVotacao:         votacaoHandler.NewRetornaVotingStatsHandler(uc.retornaStatsVotacao),
 		ConnectedUsers:              usuarioHandler.NewConnectedUsersHandler(bus),
+		ExecutaSincronia:            sincroniaHandler.NewExecutaSincroniaHandler(uc.executaSincronia),
+		RetornaUltimasSincronias:    sincroniaHandler.NewRetornaUltimasSincroniasHandler(uc.retornaUltimasSincronias),
 	}
 }
