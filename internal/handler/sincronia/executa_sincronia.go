@@ -22,7 +22,7 @@ func NewExecutaSincroniaHandler(executaSincroniaUseCase *ucSincronia.ExecutaSinc
 //	@Description	Executa a sincronização de dados (requer admin)
 //	@Tags			sincronia
 //	@Produce		json
-//	@Success		200		{object}	ExecutaSincroniaResponse
+//	@Success		200		{object}	SincroniaResponse
 //	@Failure		403		{object}	ErrorResponse
 //	@Security		BearerAuth
 //	@Router			/usuarios [get]

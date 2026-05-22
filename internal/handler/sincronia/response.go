@@ -2,9 +2,9 @@ package sincronia
 
 import "time"
 
-// ExecutaSincroniaResponse representa os dados de uma resposta de execução de sincronização
+// SincroniaResponse representa os dados de uma resposta de execução de sincronização
 //
-//	@name	ExecutaSincroniaResponse
+//	@name	SincroniaResponse
 type SincroniaResponse struct {
 	ID                     string     `json:"id"             example:"cls1abc123"`
 	IniciadoEm             time.Time  `json:"iniciado_em"         example:"2026-03-18T00:00:00Z"`
