@@ -1,3 +1,23 @@
+-- ============================================================
+-- Remove job do pg_cron
+-- ============================================================
+
+DO $$
+DECLARE
+  v_jobid integer;
+BEGIN
+  SELECT jobid
+  INTO v_jobid
+  FROM cron.job
+  WHERE jobname = 'p_spl_daily_sync';
+
+  IF v_jobid IS NOT NULL THEN
+    PERFORM cron.unschedule(v_jobid);
+  END IF;
+END;
+$$;
+
+
 DROP PROCEDURE IF EXISTS public.p_spl_daily_sync;
 -- DROP FUNCTION IF EXISTS public.cuid2();
 -- DROP TABLE IF EXISTS public.sincronia;
