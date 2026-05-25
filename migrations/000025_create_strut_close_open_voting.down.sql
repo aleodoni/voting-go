@@ -3,11 +3,17 @@
 -- ============================================================
 
 DO $$
+DECLARE
+  v_jobid integer;
 BEGIN
-  PERFORM cron.unschedule('fechar_votacoes_2am_horario_brasilia');
-EXCEPTION
-  WHEN others THEN
-    NULL;
+  SELECT jobid
+  INTO v_jobid
+  FROM cron.job
+  WHERE jobname = 'fechar_votacoes_2am_horario_brasilia';
+
+  IF v_jobid IS NOT NULL THEN
+    PERFORM cron.unschedule(v_jobid);
+  END IF;
 END;
 $$;
 
@@ -22,4 +28,4 @@ DROP FUNCTION IF EXISTS f_fechar_votacoes_abertas();
 -- Só faça isso se tiver certeza que nenhuma outra migration usa
 -- ============================================================
 
-DROP EXTENSION IF EXISTS pg_cron;
+-- DROP EXTENSION IF EXISTS pg_cron;
