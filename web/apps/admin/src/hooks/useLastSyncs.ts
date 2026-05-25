@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { getApi } from '@voting/shared';
 
+export const LAST_SYNCHRONIZATIONS_QUERY_KEY = 'ultimas-sincronias';
+
 export type SynchronizationDTO = {
 	id: string;
 	iniciado_em: string;
@@ -23,7 +25,7 @@ async function fetchSynchronizations(): Promise<SynchronizationDTO[]> {
 
 export function useSynchronizations() {
 	return useQuery({
-		queryKey: ['ultimas-sincronias'],
+		queryKey: [LAST_SYNCHRONIZATIONS_QUERY_KEY],
 		queryFn: fetchSynchronizations,
 		refetchOnReconnect: true,
 		staleTime: 0,

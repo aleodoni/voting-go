@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getApi } from '@voting/shared';
+import { LAST_SYNCHRONIZATIONS_QUERY_KEY } from './useLastSyncs';
 
 type ExecuteSynchronizationResponse = {
 	message?: string;
@@ -21,7 +22,7 @@ export function useExecuteSynch() {
 		onSuccess: () => {
 			// Atualiza a lista de sincronias após executar
 			queryClient.invalidateQueries({
-				queryKey: ['ultimas-sincronias'],
+				queryKey: [LAST_SYNCHRONIZATIONS_QUERY_KEY],
 			});
 		},
 	});
