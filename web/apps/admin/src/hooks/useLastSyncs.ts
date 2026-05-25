@@ -17,16 +17,16 @@ type SynchronizationsResponse = {
 	sincronias: SynchronizationDTO[];
 };
 
-async function fetchSynchronizations(): Promise<SynchronizationDTO[]> {
+async function fetchLastSynchs(): Promise<SynchronizationDTO[]> {
 	const { data } = await getApi().get<SynchronizationsResponse>('/sincronia');
 
 	return data.sincronias;
 }
 
-export function useSynchronizations() {
+export function useLastSynchs() {
 	return useQuery({
 		queryKey: [LAST_SYNCHRONIZATIONS_QUERY_KEY],
-		queryFn: fetchSynchronizations,
+		queryFn: fetchLastSynchs,
 		refetchOnReconnect: true,
 		staleTime: 0,
 	});
