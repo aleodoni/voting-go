@@ -1,6 +1,7 @@
 package sincronia
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,10 +11,11 @@ import (
 
 type ExecutaSincroniaHandler struct {
 	executaSincroniaUseCase *ucSincronia.ExecutaSincroniaUseCase
+	appEnv                  string
 }
 
-func NewExecutaSincroniaHandler(executaSincroniaUseCase *ucSincronia.ExecutaSincroniaUseCase) *ExecutaSincroniaHandler {
-	return &ExecutaSincroniaHandler{executaSincroniaUseCase: executaSincroniaUseCase}
+func NewExecutaSincroniaHandler(executaSincroniaUseCase *ucSincronia.ExecutaSincroniaUseCase, appEnv string) *ExecutaSincroniaHandler {
+	return &ExecutaSincroniaHandler{executaSincroniaUseCase: executaSincroniaUseCase, appEnv: appEnv}
 }
 
 // Handle godoc
@@ -27,6 +29,12 @@ func NewExecutaSincroniaHandler(executaSincroniaUseCase *ucSincronia.ExecutaSinc
 //	@Security		BearerAuth
 //	@Router			/usuarios [get]
 func (h *ExecutaSincroniaHandler) Handle(c *gin.Context) {
+	if h.appEnv != "production" {
+		log.Printf("Sincronia executada em ambiente %s, retornando 204 No Content", h.appEnv)
+		c.Status(http.StatusNoContent)
+		return
+	}
+
 	loggedUserKeycloakID := c.GetString("loggedUserKeycloakID")
 
 	input := ucSincronia.ExecutaSincroniaInput{
