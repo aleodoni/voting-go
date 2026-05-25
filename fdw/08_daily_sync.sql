@@ -247,3 +247,56 @@ BEGIN
 
 END;
 $$;
+
+-- ============================================================
+-- AGENDAMENTO VIA PG_CRON
+--
+-- Nome:
+--   p_spl_daily_sync
+--
+-- Horário:
+--   06:00 UTC = 03:00 horário de Brasília (UTC-3)
+--
+-- AWS RDS:
+--   Executa explicitamente no banco voting_db.
+-- ============================================================
+
+-- Remove job antigo, se existir
+DO $$
+DECLARE
+  v_jobid integer;
+BEGIN
+  SELECT jobid
+  INTO v_jobid
+  FROM cron.job
+  WHERE jobname = 'p_spl_daily_sync';
+
+  IF v_jobid IS NOT NULL THEN
+    PERFORM cron.unschedule(v_jobid);
+  END IF;
+END;
+$$;
+
+-- Cria o agendamento
+SELECT cron.schedule(
+  'p_spl_daily_sync',
+  '0 6 * * *',
+  $$CALL public.p_spl_daily_sync();$$
+);
+
+-- Garante execução no banco correto (AWS RDS)
+UPDATE cron.job
+SET database = 'voting_db'
+WHERE jobname = 'p_spl_daily_sync';
+
+-- ============================================================
+-- CONSULTA ÚTIL
+--
+-- SELECT
+--   jobid,
+--   jobname,
+--   database,
+--   schedule,
+--   active
+-- FROM cron.job;
+-- ============================================================
