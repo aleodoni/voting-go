@@ -1,26 +1,27 @@
-package sincronia
+package jobs
 
 import (
 	"log"
 	"net/http"
 
+	sincronia "github.com/aleodoni/voting-go/internal/handler/sincronia"
 	"github.com/gin-gonic/gin"
 
 	ucSincronia "github.com/aleodoni/voting-go/internal/application/sincronia"
 )
 
-type ExecutaSincroniaHandler struct {
+type ExecutaSincroniaJobHandler struct {
 	executaSincroniaUseCase *ucSincronia.ExecutaSincroniaUseCase
 	appEnv                  string
 }
 
-func NewExecutaSincroniaHandler(executaSincroniaUseCase *ucSincronia.ExecutaSincroniaUseCase, appEnv string) *ExecutaSincroniaHandler {
-	return &ExecutaSincroniaHandler{executaSincroniaUseCase: executaSincroniaUseCase, appEnv: appEnv}
+func NewExecutaSincroniaJobHandler(executaSincroniaUseCase *ucSincronia.ExecutaSincroniaUseCase, appEnv string) *ExecutaSincroniaJobHandler {
+	return &ExecutaSincroniaJobHandler{executaSincroniaUseCase: executaSincroniaUseCase, appEnv: appEnv}
 }
 
 // Handle godoc
 //
-//	@Summary		Executa sincronização
+//	@Summary		Executa job sincronia
 //	@Description	Executa a sincronização de dados (requer admin)
 //	@Tags			sincronia
 //	@Produce		json
@@ -28,7 +29,7 @@ func NewExecutaSincroniaHandler(executaSincroniaUseCase *ucSincronia.ExecutaSinc
 //	@Failure		403		{object}	ErrorResponse
 //	@Security		BearerAuth
 //	@Router			/usuarios [get]
-func (h *ExecutaSincroniaHandler) Handle(c *gin.Context) {
+func (h *ExecutaSincroniaJobHandler) Handle(c *gin.Context) {
 	if h.appEnv != "production" {
 		log.Printf("Sincronia executada em ambiente %s, retornando 204 No Content", h.appEnv)
 		c.Status(http.StatusNoContent)
@@ -43,9 +44,9 @@ func (h *ExecutaSincroniaHandler) Handle(c *gin.Context) {
 
 	output, err := h.executaSincroniaUseCase.Execute(c.Request.Context(), input)
 	if err != nil {
-		c.JSON(http.StatusForbidden, ErrorResponse{Error: err.Error()})
+		c.JSON(http.StatusForbidden, sincronia.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, ToSincroniaResponse(output))
+	c.JSON(http.StatusOK, sincronia.ToSincroniaResponse(output))
 }

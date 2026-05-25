@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"github.com/aleodoni/voting-go/internal/config"
+	jobsHandler "github.com/aleodoni/voting-go/internal/handler/jobs"
 	relatorioHandler "github.com/aleodoni/voting-go/internal/handler/relatorio"
 	reuniaoHandler "github.com/aleodoni/voting-go/internal/handler/reuniao"
 	sincroniaHandler "github.com/aleodoni/voting-go/internal/handler/sincronia"
@@ -35,5 +36,7 @@ func buildHandlers(cfg *config.Config, uc *useCases, repos *repositories, bus *e
 		ConnectedUsers:              usuarioHandler.NewConnectedUsersHandler(bus),
 		ExecutaSincronia:            sincroniaHandler.NewExecutaSincroniaHandler(uc.executaSincronia, cfg.AppEnv),
 		RetornaUltimasSincronias:    sincroniaHandler.NewRetornaUltimasSincroniasHandler(uc.retornaUltimasSincronias),
+		ExecutaSincroniaJob:         jobsHandler.NewExecutaSincroniaJobHandler(uc.executaSincronia, cfg.AppEnv),
+		FechaVotacoesAbertasJob:     jobsHandler.NewFechaVotacoesAbertasJobHandler(uc.executaFechaVotacoesAbertas),
 	}
 }

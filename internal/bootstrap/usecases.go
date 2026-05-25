@@ -5,6 +5,7 @@ import (
 	ucUsuario "github.com/aleodoni/voting-go/internal/application/usuario"
 	ucVotacao "github.com/aleodoni/voting-go/internal/application/votacao"
 
+	ucJobs "github.com/aleodoni/voting-go/internal/application/jobs"
 	ucSincronia "github.com/aleodoni/voting-go/internal/application/sincronia"
 
 	infraRelatorio "github.com/aleodoni/voting-go/internal/infrastructure/report"
@@ -33,5 +34,6 @@ func buildUseCases(r *repositories, bus *event.Bus) *useCases {
 		retornaStatsVotacao:          ucVotacao.NewRetornaVotingStatsUseCase(r.usuario, r.votacao),
 		retornaUltimasSincronias:     ucSincronia.NewRetornaSincroniasUseCase(r.sincronia, r.usuario),
 		executaSincronia:             ucSincronia.NewExecutaSincroniaUseCase(r.sincronia, r.usuario),
+		executaFechaVotacoesAbertas:  ucJobs.NewFechaVotacoesAbertasJobUseCase(r.job),
 	}
 }

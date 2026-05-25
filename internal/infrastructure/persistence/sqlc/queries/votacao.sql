@@ -54,3 +54,6 @@ SELECT public.f_get_project_open_voting();
 
 -- name: GetVotingStats :one
 SELECT public.f_get_voting_stats($1);
+
+-- name: FecharVotacoesAbertas :exec
+SELECT f_fechar_votacoes_abertas();

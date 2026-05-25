@@ -42,32 +42,32 @@ $$ LANGUAGE plpgsql;
 -- ============================================================
 
 -- Remove o job antigo, se existir
-DO $$
-DECLARE
-  v_jobid integer;
-BEGIN
-  SELECT jobid
-  INTO v_jobid
-  FROM cron.job
-  WHERE jobname = 'fechar_votacoes_2am_horario_brasilia';
+-- DO $$
+-- DECLARE
+--   v_jobid integer;
+-- BEGIN
+--   SELECT jobid
+--   INTO v_jobid
+--   FROM cron.job
+--   WHERE jobname = 'fechar_votacoes_2am_horario_brasilia';
 
-  IF v_jobid IS NOT NULL THEN
-    PERFORM cron.unschedule(v_jobid);
-  END IF;
-END;
-$$;
+--   IF v_jobid IS NOT NULL THEN
+--     PERFORM cron.unschedule(v_jobid);
+--   END IF;
+-- END;
+-- $$;
 
 -- Cria o agendamento
-SELECT cron.schedule(
-  'fechar_votacoes_2am_horario_brasilia',
-  '0 5 * * *',
-  $$SELECT f_fechar_votacoes_abertas();$$
-);
+-- SELECT cron.schedule(
+--   'fechar_votacoes_2am_horario_brasilia',
+--   '0 5 * * *',
+--   $$SELECT f_fechar_votacoes_abertas();$$
+-- );
 
 -- Garante execução no banco correto (AWS RDS)
-UPDATE cron.job
-SET database = 'voting_db'
-WHERE jobname = 'fechar_votacoes_2am_horario_brasilia';
+-- UPDATE cron.job
+-- SET database = 'voting_db'
+-- WHERE jobname = 'fechar_votacoes_2am_horario_brasilia';
 
 -- ============================================================
 -- Consulta útil para validação:

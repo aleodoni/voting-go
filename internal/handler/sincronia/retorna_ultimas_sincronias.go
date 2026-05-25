@@ -39,5 +39,5 @@ func (h *RetornaUltimasSincroniasHandler) Handle(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, toListUltimasSincroniasResponse(output))
+	c.JSON(http.StatusOK, ToListUltimasSincroniasResponse(output))
 }
