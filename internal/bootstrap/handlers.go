@@ -1,6 +1,7 @@
 package bootstrap
 
 import (
+	"github.com/aleodoni/voting-go/internal/config"
 	relatorioHandler "github.com/aleodoni/voting-go/internal/handler/relatorio"
 	reuniaoHandler "github.com/aleodoni/voting-go/internal/handler/reuniao"
 	sincroniaHandler "github.com/aleodoni/voting-go/internal/handler/sincronia"
@@ -12,7 +13,7 @@ import (
 	"github.com/aleodoni/voting-go/internal/router"
 )
 
-func buildHandlers(uc *useCases, repos *repositories, bus *event.Bus, jwtMiddleware *middleware.JWTMiddleware) *router.Handlers {
+func buildHandlers(cfg *config.Config, uc *useCases, repos *repositories, bus *event.Bus, jwtMiddleware *middleware.JWTMiddleware) *router.Handlers {
 	return &router.Handlers{
 		Me:                          usuarioHandler.NewMeHandler(uc.ensureUsuario),
 		UpdateCredenciais:           usuarioHandler.NewUpdateCredencialHandler(uc.updateCredencial),
@@ -32,7 +33,7 @@ func buildHandlers(uc *useCases, repos *repositories, bus *event.Bus, jwtMiddlew
 		RetornaProjetoVotacaoAberta: votacaoHandler.NewRetornaProjetoVotacaoAbertaHandler(uc.retornaProjetoVotacaoAberta),
 		RetornaStatsVotacao:         votacaoHandler.NewRetornaVotingStatsHandler(uc.retornaStatsVotacao),
 		ConnectedUsers:              usuarioHandler.NewConnectedUsersHandler(bus),
-		ExecutaSincronia:            sincroniaHandler.NewExecutaSincroniaHandler(uc.executaSincronia),
+		ExecutaSincronia:            sincroniaHandler.NewExecutaSincroniaHandler(uc.executaSincronia, cfg.AppEnv),
 		RetornaUltimasSincronias:    sincroniaHandler.NewRetornaUltimasSincroniasHandler(uc.retornaUltimasSincronias),
 	}
 }
