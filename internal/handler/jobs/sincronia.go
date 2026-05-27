@@ -25,8 +25,8 @@ func NewExecutaSincroniaJobHandler(executaSincroniaUseCase *ucSincronia.ExecutaS
 //	@Description	Executa a sincronização de dados (requer admin)
 //	@Tags			sincronia
 //	@Produce		json
-//	@Success		200		{object}	SincroniaResponse
-//	@Failure		403		{object}	ErrorResponse
+//	@Success		200
+//	@Failure		403
 //	@Security		BearerAuth
 //	@Router			/usuarios [get]
 func (h *ExecutaSincroniaJobHandler) Handle(c *gin.Context) {

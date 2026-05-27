@@ -22,8 +22,8 @@ func NewRetornaUltimasSincroniasHandler(retornaUltimasSincroniasUseCase *ucSincr
 //	@Description	Retorna as últimas 3 sincronias executadas (requer admin)
 //	@Tags			sincronia
 //	@Produce		json
-//	@Success		200		{object}	ListUltimasSincroniasResponse
-//	@Failure		403		{object}	ErrorResponse
+//	@Success		200	{object}	ListUltimasSincroniasResponse
+//	@Failure		403	{object}	ErrorResponse
 //	@Security		BearerAuth
 //	@Router			/usuarios [get]
 func (h *RetornaUltimasSincroniasHandler) Handle(c *gin.Context) {
