@@ -1,6 +1,6 @@
 services:
   db:
-    image: ${DB_IMAGE}
+    image: postgres:16
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DBUSER}
