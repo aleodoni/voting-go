@@ -31,19 +31,19 @@ func NewExecutaSincroniaHandler(executaSincroniaUseCase *ucSincronia.ExecutaSinc
 //	@Security		BearerAuth
 //	@Router			/sincronia [post]
 func (h *ExecutaSincroniaHandler) Handle(c *gin.Context) {
-	// if h.appEnv != "production" {
-	// 	log.Printf(
-	// 		"Sincronia ignorada em ambiente %s",
-	// 		h.appEnv,
-	// 	)
+	if h.appEnv == "staging" {
+		log.Printf(
+			"Sincronia ignorada em ambiente %s",
+			h.appEnv,
+		)
 
-	// 	c.JSON(http.StatusAccepted, gin.H{
-	// 		"message":  "Sincronia ignorada fora de produção",
-	// 		"executed": false,
-	// 	})
+		c.JSON(http.StatusAccepted, gin.H{
+			"message":  "Sincronia ignorada fora de produção/development",
+			"executed": false,
+		})
 
-	// 	return
-	// }
+		return
+	}
 
 	loggedUserKeycloakID := c.GetString("loggedUserKeycloakID")
 
@@ -92,12 +92,4 @@ func (h *ExecutaSincroniaHandler) Handle(c *gin.Context) {
 		"message":  "Sincronia iniciada",
 		"executed": true,
 	})
-
-	// output, err := h.executaSincroniaUseCase.Execute(c.Request.Context(), input)
-	// if err != nil {
-	// 	c.JSON(http.StatusForbidden, ErrorResponse{Error: err.Error()})
-	// 	return
-	// }
-
-	// c.JSON(http.StatusOK, ToSincroniaResponse(output))
 }

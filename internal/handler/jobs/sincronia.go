@@ -31,14 +31,14 @@ func NewExecutaSincroniaJobHandler(executaSincroniaUseCase *ucSincroniaJob.Execu
 //	@Security		BearerAuth
 //	@Router			/sincronia [post]
 func (h *ExecutaSincroniaJobHandler) Handle(c *gin.Context) {
-	if h.appEnv != "production" {
+	if h.appEnv == "staging" {
 		log.Printf(
 			"Sincronia ignorada em ambiente %s",
 			h.appEnv,
 		)
 
 		c.JSON(http.StatusAccepted, gin.H{
-			"message":  "Sincronia ignorada fora de produção",
+			"message":  "Sincronia ignorada fora de produção/development",
 			"executed": false,
 		})
 
@@ -86,12 +86,4 @@ func (h *ExecutaSincroniaJobHandler) Handle(c *gin.Context) {
 		"message":  "sincronia iniciada",
 		"executed": true,
 	})
-
-	// output, err := h.executaSincroniaUseCase.Execute(c.Request.Context(), input)
-	// if err != nil {
-	// 	c.JSON(http.StatusForbidden, sincronia.ErrorResponse{Error: err.Error()})
-	// 	return
-	// }
-
-	// c.JSON(http.StatusOK, sincronia.ToSincroniaResponse(output))
 }
