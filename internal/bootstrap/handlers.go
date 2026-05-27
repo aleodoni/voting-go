@@ -36,7 +36,7 @@ func buildHandlers(cfg *config.Config, uc *useCases, repos *repositories, bus *e
 		ConnectedUsers:              usuarioHandler.NewConnectedUsersHandler(bus),
 		ExecutaSincronia:            sincroniaHandler.NewExecutaSincroniaHandler(uc.executaSincronia, cfg.AppEnv),
 		RetornaUltimasSincronias:    sincroniaHandler.NewRetornaUltimasSincroniasHandler(uc.retornaUltimasSincronias),
-		ExecutaSincroniaJob:         jobsHandler.NewExecutaSincroniaJobHandler(uc.executaSincronia, cfg.AppEnv),
+		ExecutaSincroniaJob:         jobsHandler.NewExecutaSincroniaJobHandler(uc.executaSincroniaJob, cfg.AppEnv),
 		FechaVotacoesAbertasJob:     jobsHandler.NewFechaVotacoesAbertasJobHandler(uc.executaFechaVotacoesAbertas),
 	}
 }

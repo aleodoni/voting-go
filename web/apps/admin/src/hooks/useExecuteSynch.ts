@@ -5,6 +5,7 @@ import { LAST_SYNCHRONIZATIONS_QUERY_KEY } from './useLastSyncs';
 
 type ExecuteSynchronizationResponse = {
 	message?: string;
+	executed?: boolean;
 };
 
 async function executeSynch(): Promise<ExecuteSynchronizationResponse> {
@@ -21,8 +22,13 @@ export function useExecuteSynch() {
 		mutationFn: executeSynch,
 
 		onSuccess: (data) => {
-			toast.success(data.message || 'Sincronia executada com sucesso!');
-			// Atualiza a lista de sincronias após executar
+			if (data.executed === false) {
+				toast('Sincronia desabilitada neste ambiente');
+				return;
+			}
+
+			toast.success(data.message || 'Sincronia iniciada!');
+
 			queryClient.invalidateQueries({
 				queryKey: [LAST_SYNCHRONIZATIONS_QUERY_KEY],
 			});

@@ -1,21 +1,22 @@
 package jobs
 
 import (
+	"context"
 	"log"
 	"net/http"
+	"time"
 
-	sincronia "github.com/aleodoni/voting-go/internal/handler/sincronia"
 	"github.com/gin-gonic/gin"
 
-	ucSincronia "github.com/aleodoni/voting-go/internal/application/sincronia"
+	ucSincroniaJob "github.com/aleodoni/voting-go/internal/application/jobs"
 )
 
 type ExecutaSincroniaJobHandler struct {
-	executaSincroniaUseCase *ucSincronia.ExecutaSincroniaUseCase
+	executaSincroniaUseCase *ucSincroniaJob.ExecutaSincroniaJobUseCase
 	appEnv                  string
 }
 
-func NewExecutaSincroniaJobHandler(executaSincroniaUseCase *ucSincronia.ExecutaSincroniaUseCase, appEnv string) *ExecutaSincroniaJobHandler {
+func NewExecutaSincroniaJobHandler(executaSincroniaUseCase *ucSincroniaJob.ExecutaSincroniaJobUseCase, appEnv string) *ExecutaSincroniaJobHandler {
 	return &ExecutaSincroniaJobHandler{executaSincroniaUseCase: executaSincroniaUseCase, appEnv: appEnv}
 }
 
@@ -25,28 +26,72 @@ func NewExecutaSincroniaJobHandler(executaSincroniaUseCase *ucSincronia.ExecutaS
 //	@Description	Executa a sincronização de dados (requer admin)
 //	@Tags			sincronia
 //	@Produce		json
-//	@Success		200
+//	@Success		202
 //	@Failure		403
 //	@Security		BearerAuth
-//	@Router			/usuarios [get]
+//	@Router			/sincronia [post]
 func (h *ExecutaSincroniaJobHandler) Handle(c *gin.Context) {
 	if h.appEnv != "production" {
-		log.Printf("Sincronia executada em ambiente %s, retornando 204 No Content", h.appEnv)
-		c.Status(http.StatusNoContent)
+		log.Printf(
+			"Sincronia ignorada em ambiente %s",
+			h.appEnv,
+		)
+
+		c.JSON(http.StatusAccepted, gin.H{
+			"message":  "Sincronia ignorada fora de produção",
+			"executed": false,
+		})
+
 		return
 	}
 
-	loggedUserKeycloakID := c.GetString("loggedUserKeycloakID")
+	// EXECUTA ASYNC
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Printf(
+					"[SINCRONIA] panic recovered: %v",
+					r,
+				)
+			}
+		}()
 
-	input := ucSincronia.ExecutaSincroniaInput{
-		LoggedInUserKeycloakID: loggedUserKeycloakID,
-	}
+		start := time.Now()
 
-	output, err := h.executaSincroniaUseCase.Execute(c.Request.Context(), input)
-	if err != nil {
-		c.JSON(http.StatusForbidden, sincronia.ErrorResponse{Error: err.Error()})
-		return
-	}
+		// contexto independente da request HTTP
+		ctx, cancel := context.WithTimeout(
+			context.Background(),
+			30*time.Minute,
+		)
+		defer cancel()
 
-	c.JSON(http.StatusOK, sincronia.ToSincroniaResponse(output))
+		_, err := h.executaSincroniaUseCase.Execute(ctx)
+		if err != nil {
+			log.Printf(
+				"[SINCRONIA] erro ao executar: %v",
+				err,
+			)
+
+			return
+		}
+
+		log.Printf(
+			"[SINCRONIA] finalizada em %s",
+			time.Since(start),
+		)
+	}()
+
+	// RESPONDE IMEDIATAMENTE
+	c.JSON(http.StatusAccepted, gin.H{
+		"message":  "sincronia iniciada",
+		"executed": true,
+	})
+
+	// output, err := h.executaSincroniaUseCase.Execute(c.Request.Context(), input)
+	// if err != nil {
+	// 	c.JSON(http.StatusForbidden, sincronia.ErrorResponse{Error: err.Error()})
+	// 	return
+	// }
+
+	// c.JSON(http.StatusOK, sincronia.ToSincroniaResponse(output))
 }

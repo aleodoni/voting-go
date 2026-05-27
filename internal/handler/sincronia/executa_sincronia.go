@@ -1,8 +1,10 @@
 package sincronia
 
 import (
+	"context"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -27,13 +29,21 @@ func NewExecutaSincroniaHandler(executaSincroniaUseCase *ucSincronia.ExecutaSinc
 //	@Success		200	{object}	SincroniaResponse
 //	@Failure		403	{object}	ErrorResponse
 //	@Security		BearerAuth
-//	@Router			/usuarios [get]
+//	@Router			/sincronia [post]
 func (h *ExecutaSincroniaHandler) Handle(c *gin.Context) {
-	if h.appEnv != "production" {
-		log.Printf("Sincronia executada em ambiente %s, retornando 204 No Content", h.appEnv)
-		c.Status(http.StatusNoContent)
-		return
-	}
+	// if h.appEnv != "production" {
+	// 	log.Printf(
+	// 		"Sincronia ignorada em ambiente %s",
+	// 		h.appEnv,
+	// 	)
+
+	// 	c.JSON(http.StatusAccepted, gin.H{
+	// 		"message":  "Sincronia ignorada fora de produção",
+	// 		"executed": false,
+	// 	})
+
+	// 	return
+	// }
 
 	loggedUserKeycloakID := c.GetString("loggedUserKeycloakID")
 
@@ -41,11 +51,53 @@ func (h *ExecutaSincroniaHandler) Handle(c *gin.Context) {
 		LoggedInUserKeycloakID: loggedUserKeycloakID,
 	}
 
-	output, err := h.executaSincroniaUseCase.Execute(c.Request.Context(), input)
-	if err != nil {
-		c.JSON(http.StatusForbidden, ErrorResponse{Error: err.Error()})
-		return
-	}
+	// EXECUTA ASYNC
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Printf(
+					"[SINCRONIA] panic recovered: %v",
+					r,
+				)
+			}
+		}()
 
-	c.JSON(http.StatusOK, ToSincroniaResponse(output))
+		start := time.Now()
+
+		// contexto independente da request HTTP
+		ctx, cancel := context.WithTimeout(
+			context.Background(),
+			30*time.Minute,
+		)
+		defer cancel()
+
+		_, err := h.executaSincroniaUseCase.Execute(ctx, input)
+		if err != nil {
+			log.Printf(
+				"[SINCRONIA] erro ao executar: %v",
+				err,
+			)
+
+			return
+		}
+
+		log.Printf(
+			"[SINCRONIA] finalizada em %s",
+			time.Since(start),
+		)
+	}()
+
+	// RESPONDE IMEDIATAMENTE
+	c.JSON(http.StatusAccepted, gin.H{
+		"message":  "Sincronia iniciada",
+		"executed": true,
+	})
+
+	// output, err := h.executaSincroniaUseCase.Execute(c.Request.Context(), input)
+	// if err != nil {
+	// 	c.JSON(http.StatusForbidden, ErrorResponse{Error: err.Error()})
+	// 	return
+	// }
+
+	// c.JSON(http.StatusOK, ToSincroniaResponse(output))
 }
