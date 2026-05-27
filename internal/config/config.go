@@ -30,6 +30,8 @@ type Config struct {
 	JWKSURL        string
 	KeycloakIssuer string
 	AllowOrigins   []string
+
+	JobsToken string
 }
 
 // LoadConfig carrega as configurações da aplicação a partir de variáveis de ambiente.
@@ -69,6 +71,8 @@ func LoadConfig() *Config {
 		JWKSURL:        getEnv("JWKSURL", "http://localhost:8081/realms/voting-realm/protocol/openid-connect/certs"),
 		KeycloakIssuer: getEnv("KEYCLOAK_ISSUER", "http://localhost:8081/realms/voting-realm"),
 		AllowOrigins:   allowOrigins,
+
+		JobsToken: getEnv("JOBS_TOKEN", ""),
 	}
 }
 
