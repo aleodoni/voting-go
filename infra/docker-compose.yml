@@ -1,7 +1,7 @@
 services:
 
   postgres:
-    build: ./docker/postgres
+    image: postgres:16
     container_name: voting-postgres
     restart: unless-stopped
 

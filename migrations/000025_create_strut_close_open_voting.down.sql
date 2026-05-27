@@ -2,20 +2,20 @@
 -- Remove o agendamento do pg_cron
 -- ============================================================
 
-DO $$
-DECLARE
-  v_jobid integer;
-BEGIN
-  SELECT jobid
-  INTO v_jobid
-  FROM cron.job
-  WHERE jobname = 'fechar_votacoes_2am_horario_brasilia';
+-- DO $$
+-- DECLARE
+--   v_jobid integer;
+-- BEGIN
+--   SELECT jobid
+--   INTO v_jobid
+--   FROM cron.job
+--   WHERE jobname = 'fechar_votacoes_2am_horario_brasilia';
 
-  IF v_jobid IS NOT NULL THEN
-    PERFORM cron.unschedule(v_jobid);
-  END IF;
-END;
-$$;
+--   IF v_jobid IS NOT NULL THEN
+--     PERFORM cron.unschedule(v_jobid);
+--   END IF;
+-- END;
+-- $$;
 
 -- ============================================================
 -- Remove a função

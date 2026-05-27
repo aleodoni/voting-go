@@ -33,7 +33,7 @@ endif
 API_IMAGE := $(DOCKER_USER)/voting-api:$(TAG)
 ADMIN_IMAGE := $(DOCKER_USER)/voting-admin:$(TAG)
 VEREADOR_IMAGE := $(DOCKER_USER)/voting-vereador:$(TAG)
-DB_IMAGE := $(DOCKER_USER)/voting-postgres:$(TAG)
+# DB_IMAGE := $(DOCKER_USER)/voting-postgres:$(TAG)
 
 HOST     := $(shell grep -E '^SSH_HOST=' $(ENV_FILE) | cut -d= -f2)
 SSH_USER := $(shell grep -E '^SSH_USER=' $(ENV_FILE) | cut -d= -f2)
@@ -95,12 +95,12 @@ build:
 		-f ../infra/docker/vereador/Dockerfile \
 		. --push
 
-	@echo "→ Build Postgres"
-	docker buildx build \
-		--platform $(PLATFORM) \
-		-t $(DB_IMAGE) \
-		-f docker/postgres/Dockerfile \
-		. --push
+# 	@echo "→ Build Postgres"
+# 	docker buildx build \
+# 		--platform $(PLATFORM) \
+# 		-t $(DB_IMAGE) \
+# 		-f docker/postgres/Dockerfile \
+# 		. --push
 
 # ────────────────────────────────────────────────────────────
 # PREPARE ENV
