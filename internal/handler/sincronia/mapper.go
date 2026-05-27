@@ -2,7 +2,7 @@ package sincronia
 
 import domainSincronia "github.com/aleodoni/voting-go/internal/domain/sincronia"
 
-func toSincroniaResponse(s *domainSincronia.Sincronia) *SincroniaResponse {
+func ToSincroniaResponse(s *domainSincronia.Sincronia) *SincroniaResponse {
 	resp := &SincroniaResponse{
 		ID:                     s.ID,
 		IniciadoEm:             s.IniciadoEm,
@@ -16,11 +16,11 @@ func toSincroniaResponse(s *domainSincronia.Sincronia) *SincroniaResponse {
 	return resp
 }
 
-func toListUltimasSincroniasResponse(output *domainSincronia.ListSincronia) ListUltimasSincroniasResponse {
+func ToListUltimasSincroniasResponse(output *domainSincronia.ListSincronia) ListUltimasSincroniasResponse {
 	sincronias := make([]*SincroniaResponse, len(output.Sincronias))
 
 	for i, s := range output.Sincronias {
-		sincronias[i] = toSincroniaResponse(s)
+		sincronias[i] = ToSincroniaResponse(s)
 	}
 
 	return ListUltimasSincroniasResponse{

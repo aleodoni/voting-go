@@ -62,12 +62,13 @@ func NewApp() *App {
 
 	bus := event.NewBus()
 	jwtMiddleware := middleware.NewJWTMiddleware(cfg)
+	jobsMiddleware := middleware.NewInternalJobMiddleware(cfg)
 
 	repos := buildRepositories(pgxPool)
 	useCases := buildUseCases(repos, bus)
 	handlers := buildHandlers(cfg, useCases, repos, bus, jwtMiddleware)
 
-	r := router.SetupRouter(cfg, jwtMiddleware, handlers)
+	r := router.SetupRouter(cfg, jwtMiddleware, jobsMiddleware, handlers)
 
 	return &App{
 		Config: cfg,

@@ -21,6 +21,15 @@ func (q *Queries) DeleteVotacao(ctx context.Context, id string) error {
 	return err
 }
 
+const fecharVotacoesAbertas = `-- name: FecharVotacoesAbertas :exec
+SELECT f_fechar_votacoes_abertas()
+`
+
+func (q *Queries) FecharVotacoesAbertas(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, fecharVotacoesAbertas)
+	return err
+}
+
 const findVotacaoAberta = `-- name: FindVotacaoAberta :one
 SELECT 
     id, 

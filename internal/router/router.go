@@ -3,6 +3,7 @@ package router
 
 import (
 	"github.com/aleodoni/voting-go/internal/config"
+	jobsHandler "github.com/aleodoni/voting-go/internal/handler/jobs"
 	relatorioHandler "github.com/aleodoni/voting-go/internal/handler/relatorio"
 	reuniaoHandler "github.com/aleodoni/voting-go/internal/handler/reuniao"
 	sincroniaHandler "github.com/aleodoni/voting-go/internal/handler/sincronia"
@@ -43,9 +44,12 @@ type Handlers struct {
 
 	ExecutaSincronia         *sincroniaHandler.ExecutaSincroniaHandler
 	RetornaUltimasSincronias *sincroniaHandler.RetornaUltimasSincroniasHandler
+
+	ExecutaSincroniaJob     *jobsHandler.ExecutaSincroniaJobHandler
+	FechaVotacoesAbertasJob *jobsHandler.FechaVotacoesAbertasJobHandler
 }
 
-func SetupRouter(cfg *config.Config, jwtMiddleware *middleware.JWTMiddleware, h *Handlers) *gin.Engine {
+func SetupRouter(cfg *config.Config, jwtMiddleware *middleware.JWTMiddleware, jobsMiddleware *middleware.InternalJobMiddleware, h *Handlers) *gin.Engine {
 	r := gin.New()
 
 	r.Use(gin.Logger())
@@ -65,6 +69,9 @@ func SetupRouter(cfg *config.Config, jwtMiddleware *middleware.JWTMiddleware, h 
 
 	// SSE recebe token via query string
 	api.GET("/eventos", h.SSE.Handle)
+
+	internal := r.Group("/internal")
+	registerJobsRoutes(internal, jobsMiddleware, h)
 
 	return r
 }
