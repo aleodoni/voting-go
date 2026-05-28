@@ -27,9 +27,10 @@ type Config struct {
 	DBSPLUser     string
 	DBSPLPassword string
 
-	JWKSURL        string
-	KeycloakIssuer string
-	AllowOrigins   []string
+	JWKSURL          string
+	KeycloakIssuer   string
+	KeycloakClientID string
+	AllowOrigins     []string
 
 	JobsToken string
 }
@@ -68,9 +69,10 @@ func LoadConfig() *Config {
 		DBSPLUser:     getEnv("DB_SPL_USER", ""),
 		DBSPLPassword: getEnv("DB_SPL_PASSWORD", ""),
 
-		JWKSURL:        getEnv("JWKSURL", "http://localhost:8081/realms/voting-realm/protocol/openid-connect/certs"),
-		KeycloakIssuer: getEnv("KEYCLOAK_ISSUER", "http://localhost:8081/realms/voting-realm"),
-		AllowOrigins:   allowOrigins,
+		JWKSURL:          getEnv("JWKSURL", "http://localhost:8081/realms/voting-realm/protocol/openid-connect/certs"),
+		KeycloakIssuer:   getEnv("KEYCLOAK_ISSUER", "http://localhost:8081/realms/voting-realm"),
+		KeycloakClientID: getEnv("KEYCLOAK_CLIENT_ID", "voting-api"),
+		AllowOrigins:     allowOrigins,
 
 		JobsToken: getEnv("JOBS_TOKEN", ""),
 	}
