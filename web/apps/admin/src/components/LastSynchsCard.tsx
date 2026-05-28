@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import {
 	Button,
 	Card,
@@ -10,11 +11,12 @@ import {
 import { RefreshCw } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
-
 import { useExecuteSynch } from '@/hooks/useExecuteSynch';
 import { useLastSynchs } from '@/hooks/useLastSyncs';
 
 export function LastSyncsCard() {
+	const queryClient = useQueryClient();
+
 	// controla polling
 	const [pollingEnabled, setPollingEnabled] = useState(false);
 
@@ -40,6 +42,11 @@ export function LastSyncsCard() {
 			// para polling
 			setPollingEnabled(false);
 
+			// invalida query
+			queryClient.invalidateQueries({
+				queryKey: ['today-meetings'],
+			});
+
 			if (latestSync.sucesso) {
 				toast.success('Sincronia finalizada com sucesso!');
 			} else {
@@ -48,7 +55,11 @@ export function LastSyncsCard() {
 		}
 
 		previousRunningRef.current = isRunning;
-	}, [isRunning, latestSync]);
+	}, [
+		isRunning,
+		latestSync, // invalida query
+		queryClient.invalidateQueries,
+	]);
 
 	return (
 		<Card className="w-full h-fit">
