@@ -5,18 +5,26 @@ async function abrirVotacao(projetoId: string): Promise<void> {
 	await getApi().post(`/projetos/${projetoId}/votacao/abrir`);
 }
 
-export function useOpenVoting(reuniaoId?: string) {
+export function useOpenVoting(_reuniaoId?: string) {
 	const queryClient = useQueryClient();
 
 	return useMutation<void, Error, string>({
 		mutationFn: abrirVotacao,
 		onSuccess: () => {
+			// queryClient.invalidateQueries({
+			// 	queryKey: ['projects-meeting', reuniaoId],
+			// });
+
 			queryClient.invalidateQueries({
-				queryKey: ['projects-meeting', reuniaoId],
+				queryKey: ['projects-meeting'],
 			});
 
 			queryClient.invalidateQueries({
 				queryKey: ['open-voting'],
+			});
+
+			queryClient.invalidateQueries({
+				queryKey: ['project'],
 			});
 		},
 	});

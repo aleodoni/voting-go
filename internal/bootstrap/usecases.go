@@ -35,5 +35,6 @@ func buildUseCases(r *repositories, bus *event.Bus) *useCases {
 		retornaUltimasSincronias:     ucSincronia.NewRetornaSincroniasUseCase(r.sincronia, r.usuario),
 		executaSincronia:             ucSincronia.NewExecutaSincroniaUseCase(r.sincronia, r.usuario),
 		executaFechaVotacoesAbertas:  ucJobs.NewFechaVotacoesAbertasJobUseCase(r.job),
+		executaSincroniaJob:          ucJobs.NewExecutaSincroniaJobUseCase(r.sincronia),
 	}
 }
