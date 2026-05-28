@@ -19,14 +19,14 @@ func NewRetornaProjetoVotacaoAbertaHandler(retornaProjetoVotacaoAbertaUseCase *u
 
 // Handle godoc
 //
-//	@Summary		Retorna projeto com votação aberta
-//	@Description	Retorna a lista completa de um projeto que tenha a votação aberta (requer usuario logado)
-//	@Tags			votação
+//	@Summary		Retorna projeto de uma votação aberta
+//	@Description	Retorna o projeto de uma votação aberta
+//	@Tags			votações
 //	@Produce		json
 //	@Success		200	{object}	reuniao.ProjetoResponse
-//	@Failure		403	{object}	ErrorResponse
+//	@Failure		403	{object}	reuniao.ErrorResponse
 //	@Security		BearerAuth
-//	@Router			/votacao/aberta [get]
+//	@Router			/votacoes [get]
 func (h *RetornaProjetoVotacaoAbertaHandler) Handle(c *gin.Context) {
 	loggedUserKeycloakID := c.GetString("loggedUserKeycloakID")
 
