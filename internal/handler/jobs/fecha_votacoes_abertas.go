@@ -23,6 +23,7 @@ func NewFechaVotacoesAbertasJobHandler(fechaVotacoesAbertasUseCase *ucJobs.Fecha
 //	@Description	Executa o fechamento de votações abertas
 //	@Tags			jobs
 //	@Produce		json
+//	@Security		BearerAuth
 //	@Success		200
 //	@Failure		403
 //	@Security		BearerAuth

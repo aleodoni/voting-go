@@ -23,9 +23,10 @@ func NewExecutaSincroniaJobHandler(executaSincroniaUseCase *ucSincroniaJob.Execu
 // Handle godoc
 //
 //	@Summary		Executa job sincronia
-//	@Description	Executa a sincronização de dados (requer admin)
+//	@Description	Executa a sincronização de dados
 //	@Tags			jobs
 //	@Produce		json
+//	@Security		BearerAuth
 //	@Success		202
 //	@Failure		401
 //	@Security		BearerAuth
