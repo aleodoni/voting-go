@@ -1,8 +1,9 @@
 import { check } from 'k6';
 import http from 'k6/http';
 
-const BASE_URL = 'http://localhost:8080';
+// const BASE_URL = 'http://localhost:8080';
 // const BASE_URL = 'http://192.168.1.61:8080';
+const BASE_URL = 'https://votacao-api.cmc.pr.gov.br';
 
 export const options = {
 	scenarios: {
