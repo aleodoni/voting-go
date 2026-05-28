@@ -21,11 +21,12 @@ func NewFechaVotacoesAbertasJobHandler(fechaVotacoesAbertasUseCase *ucJobs.Fecha
 //
 //	@Summary		Executa job fechar votações abertas
 //	@Description	Executa o fechamento de votações abertas
-//	@Tags			fecha_votacoes_abertas
+//	@Tags			jobs
 //	@Produce		json
 //	@Success		200
 //	@Failure		403
 //	@Security		BearerAuth
+//	@Router			/internal/jobs/fecha_votacoes_abertas [post]
 func (h *FechaVotacoesAbertasJobHandler) Handle(c *gin.Context) {
 
 	err := h.fechaVotacoesAbertasUseCase.Execute(c.Request.Context())

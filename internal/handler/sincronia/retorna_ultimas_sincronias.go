@@ -25,7 +25,7 @@ func NewRetornaUltimasSincroniasHandler(retornaUltimasSincroniasUseCase *ucSincr
 //	@Success		200	{object}	ListUltimasSincroniasResponse
 //	@Failure		403	{object}	ErrorResponse
 //	@Security		BearerAuth
-//	@Router			/usuarios [get]
+//	@Router			/sincronia [get]
 func (h *RetornaUltimasSincroniasHandler) Handle(c *gin.Context) {
 	loggedUserKeycloakID := c.GetString("loggedUserKeycloakID")
 

@@ -24,12 +24,12 @@ func NewExecutaSincroniaJobHandler(executaSincroniaUseCase *ucSincroniaJob.Execu
 //
 //	@Summary		Executa job sincronia
 //	@Description	Executa a sincronização de dados (requer admin)
-//	@Tags			sincronia
+//	@Tags			jobs
 //	@Produce		json
 //	@Success		202
-//	@Failure		403
+//	@Failure		401
 //	@Security		BearerAuth
-//	@Router			/sincronia [post]
+//	@Router			/internal/jobs/sincronia [post]
 func (h *ExecutaSincroniaJobHandler) Handle(c *gin.Context) {
 	if h.appEnv == "staging" {
 		log.Printf(
