@@ -23,9 +23,9 @@ func NewGeraRelatorioReuniaoHandler(geraRelatorioReuniaoUseCase *ucRelatorio.Ger
 //	@Description	Gera o relatório PDF com os projetos e votações de uma reunião
 //	@Tags			reuniões
 //	@Produce		application/pdf
-//	@Param			reuniaoId	path	string	true	"ID da reunião"
-//	@Success		200
-//	@Failure		500	{object}	ErrorResponse
+//	@Param			reuniaoId	path		string	true	"ID da reunião"
+//	@Success		200			{file}		pdf
+//	@Failure		500			{object}	ErrorResponse
 //	@Security		BearerAuth
 //	@Router			/reunioes/{reuniaoId}/relatorio [get]
 func (h *GeraRelatorioReuniaoHandler) Handle(c *gin.Context) {

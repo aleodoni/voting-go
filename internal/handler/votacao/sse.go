@@ -27,6 +27,18 @@ func NewSSEHandler(bus *event.Bus, jwtMiddleware *middleware.JWTMiddleware, usua
 	}
 }
 
+// Handle godoc
+//
+//	@Summary		Abre uma conexão SSE para receber notificação de votações
+//	@Description	Abre uma conexão SSE para receber notificação de votações
+//	@Tags			votações
+//	@Produce		event-stream
+//	@Param			token	query		string	true	"Token JWT"
+//	@Success		200		{object}	ErrorResponse
+//	@Failure		401		{object}	ErrorResponse
+//	@Failure		500		{object}	ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/votacoes/sse [get]
 func (h *SSEHandler) Handle(c *gin.Context) {
 	// Headers CORS explícitos para SSE
 	origin := c.Request.Header.Get("Origin")
