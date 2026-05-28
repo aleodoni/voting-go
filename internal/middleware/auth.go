@@ -67,7 +67,7 @@ func extractToken(c *gin.Context) string {
 func (m *JWTMiddleware) ValidateToken(tokenString string) (jwt.MapClaims, error) {
 	token, err := jwt.Parse(tokenString, m.jwks.Keyfunc,
 		jwt.WithIssuer(m.cfg.KeycloakIssuer),
-		jwt.WithAudience("voting-api"),
+		jwt.WithAudience(m.cfg.KeycloakClientID),
 	)
 	if err != nil || !token.Valid {
 		return nil, err
