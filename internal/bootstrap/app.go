@@ -48,7 +48,13 @@ func NewApp() *App {
 		log.Fatal(err)
 	}
 
-	if cfg.AppEnv == "development" || cfg.AppEnv == "staging" {
+	// if cfg.AppEnv == "development" || cfg.AppEnv == "staging" {
+	// 	if err := database.RunSeed(pgxPool); err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// }
+
+	if cfg.AppEnv == "staging" {
 		if err := database.RunSeed(pgxPool); err != nil {
 			log.Fatal(err)
 		}

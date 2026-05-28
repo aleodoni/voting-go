@@ -43,4 +43,5 @@ type useCases struct {
 	retornaUltimasSincronias     *ucSincronia.RetornaSincroniasUseCase
 	executaSincronia             *ucSincronia.ExecutaSincroniaUseCase
 	executaFechaVotacoesAbertas  *ucJobs.FechaVotacoesAbertasJobUseCase
+	executaSincroniaJob          *ucJobs.ExecutaSincroniaJobUseCase
 }

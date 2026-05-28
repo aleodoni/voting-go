@@ -5,18 +5,26 @@ async function cancelarVotacao(projetoId: string): Promise<void> {
 	await getApi().delete(`/projetos/${projetoId}/votacao`);
 }
 
-export function useCancelVoting(reuniaoId?: string) {
+export function useCancelVoting(_reuniaoId?: string) {
 	const queryClient = useQueryClient();
 
 	return useMutation<void, Error, string>({
 		mutationFn: cancelarVotacao,
 		onSuccess: () => {
+			// queryClient.invalidateQueries({
+			// 	queryKey: ['projects-meeting', reuniaoId],
+			// });
+
 			queryClient.invalidateQueries({
-				queryKey: ['projects-meeting', reuniaoId],
+				queryKey: ['projects-meeting'],
 			});
 
 			queryClient.invalidateQueries({
 				queryKey: ['open-voting'],
+			});
+
+			queryClient.invalidateQueries({
+				queryKey: ['project'],
 			});
 		},
 	});

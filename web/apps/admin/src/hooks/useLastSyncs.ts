@@ -6,8 +6,8 @@ export const LAST_SYNCHRONIZATIONS_QUERY_KEY = 'ultimas-sincronias';
 export type SynchronizationDTO = {
 	id: string;
 	iniciado_em: string;
-	finalizado_em: string;
-	sucesso: boolean;
+	finalizado_em: string | null;
+	sucesso: boolean | null;
 	reunioes_sincronizadas: number;
 	projetos_sincronizados: number;
 	pareceres_sincronizados: number;
@@ -23,11 +23,12 @@ async function fetchLastSynchs(): Promise<SynchronizationDTO[]> {
 	return data.sincronias;
 }
 
-export function useLastSynchs() {
+export function useLastSynchs(refetchInterval: number | false = false) {
 	return useQuery({
 		queryKey: [LAST_SYNCHRONIZATIONS_QUERY_KEY],
 		queryFn: fetchLastSynchs,
 		refetchOnReconnect: true,
 		staleTime: 0,
+		refetchInterval,
 	});
 }

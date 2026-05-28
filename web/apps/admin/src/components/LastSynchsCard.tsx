@@ -8,14 +8,47 @@ import {
 	CardTitle,
 } from '@voting/shared';
 import { RefreshCw } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import toast from 'react-hot-toast';
 
 import { useExecuteSynch } from '@/hooks/useExecuteSynch';
 import { useLastSynchs } from '@/hooks/useLastSyncs';
 
 export function LastSyncsCard() {
-	const { data: synchronizations = [], isLoading } = useLastSynchs();
+	// controla polling
+	const [pollingEnabled, setPollingEnabled] = useState(false);
+
+	const { data: synchronizations = [], isLoading } = useLastSynchs(
+		pollingEnabled ? 5000 : false,
+	);
 
 	const { mutate: executeSynchronization, isPending } = useExecuteSynch();
+
+	const latestSync = synchronizations[0];
+
+	const isRunning = !!latestSync?.iniciado_em && !latestSync?.finalizado_em;
+
+	// guarda estado anterior
+	const previousRunningRef = useRef(isRunning);
+
+	// detecta finalização
+	useEffect(() => {
+		if (!latestSync) return;
+
+		// terminou agora
+		if (previousRunningRef.current && !isRunning) {
+			// para polling
+			setPollingEnabled(false);
+
+			if (latestSync.sucesso) {
+				toast.success('Sincronia finalizada com sucesso!');
+			} else {
+				toast.error('Sincronia finalizada com erro');
+			}
+		}
+
+		previousRunningRef.current = isRunning;
+	}, [isRunning, latestSync]);
 
 	return (
 		<Card className="w-full h-fit">
@@ -38,41 +71,59 @@ export function LastSyncsCard() {
 						Nenhuma sincronização encontrada
 					</p>
 				) : (
-					synchronizations.slice(0, 3).map((sync) => (
-						<div key={sync.id} className="flex items-center justify-between">
-							<div className="flex flex-col">
-								<p className="text-sm font-medium">
-									{new Date(sync.iniciado_em).toLocaleString('pt-BR')}
-								</p>
+					synchronizations.map((sync) => {
+						const isExecuting = !!sync.iniciado_em && !sync.finalizado_em;
 
-								<p className="text-xs text-muted-foreground">
-									{sync.projetos_sincronizados} projetos ·{' '}
-									{sync.reunioes_sincronizadas} reuniões ·{' '}
-									{sync.pareceres_sincronizados} pareceres
-								</p>
-							</div>
+						return (
+							<div key={sync.id} className="flex items-center justify-between">
+								<div className="flex flex-col">
+									<p className="text-sm font-medium">
+										{new Date(sync.iniciado_em).toLocaleString('pt-BR')}
+									</p>
 
-							<div
-								className={`px-2 py-1 rounded-full text-xs font-medium border ${
-									sync.sucesso
-										? 'border-green-500/30 bg-green-500/10 text-green-400'
-										: 'border-red-500/30 bg-red-500/10 text-red-400'
-								}`}
-							>
-								{sync.sucesso ? 'Sucesso' : 'Erro'}
+									<p className="text-xs text-muted-foreground">
+										{sync.projetos_sincronizados} projetos ·{' '}
+										{sync.reunioes_sincronizadas} reuniões ·{' '}
+										{sync.pareceres_sincronizados} pareceres
+									</p>
+								</div>
+
+								<div
+									className={`px-2 py-1 rounded-full text-xs font-medium border ${
+										isExecuting
+											? 'border-yellow-500/30 bg-yellow-500/10 text-yellow-400'
+											: sync.sucesso
+												? 'border-green-500/30 bg-green-500/10 text-green-400'
+												: 'border-red-500/30 bg-red-500/10 text-red-400'
+									}`}
+								>
+									{isExecuting
+										? 'Executando'
+										: sync.sucesso
+											? 'Sucesso'
+											: 'Erro'}
+								</div>
 							</div>
-						</div>
-					))
+						);
+					})
 				)}
 			</CardContent>
 
 			<CardFooter className="flex justify-end">
 				<Button
 					variant="outline"
-					onClick={() => executeSynchronization()}
-					disabled={isPending}
+					onClick={() => {
+						// inicia polling
+						setPollingEnabled(true);
+
+						// marca como executando
+						previousRunningRef.current = true;
+
+						executeSynchronization();
+					}}
+					disabled={isPending || isRunning}
 				>
-					{isPending ? 'Sincronizando...' : 'Executar sincronia'}
+					{isPending || isRunning ? 'Sincronizando...' : 'Executar sincronia'}
 				</Button>
 			</CardFooter>
 		</Card>

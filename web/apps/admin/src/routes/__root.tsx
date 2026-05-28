@@ -27,14 +27,23 @@ function RootComponent() {
 					});
 					queryClient.invalidateQueries({ queryKey: ['projects-meeting'] });
 					queryClient.invalidateQueries({ queryKey: ['open-voting'] });
+					queryClient.invalidateQueries({ queryKey: ['project'] });
 					break;
 				case 'votacao_fechada':
+					queryClient.invalidateQueries({
+						queryKey: ['voting-stats'],
+					});
+					queryClient.invalidateQueries({ queryKey: ['projects-meeting'] });
+					queryClient.invalidateQueries({ queryKey: ['open-voting'] });
+					queryClient.invalidateQueries({ queryKey: ['project'] });
+					break;
 				case 'votacao_cancelada':
 					queryClient.invalidateQueries({
 						queryKey: ['voting-stats'],
 					});
 					queryClient.invalidateQueries({ queryKey: ['projects-meeting'] });
 					queryClient.invalidateQueries({ queryKey: ['open-voting'] });
+					queryClient.invalidateQueries({ queryKey: ['project'] });
 					break;
 				case 'voto_registrado':
 					queryClient.invalidateQueries({ queryKey: ['project'] });
