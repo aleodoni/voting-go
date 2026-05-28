@@ -1,8 +1,13 @@
 #!/bin/bash
 
-KEYCLOAK_URL="http://localhost:8081"
-REALM="voting-realm"
-CLIENT_ID="voting-web"
+# KEYCLOAK_URL="http://localhost:8081"
+# REALM="voting-realm"
+# CLIENT_ID="voting-web"
+
+KEYCLOAK_URL="https://auth.cmc.pr.gov.br"
+REALM="cmc"
+CLIENT_ID="prod-votacao-web"
+
 
 USERNAME="$1"
 PASSWORD="$2"
