@@ -16,7 +16,7 @@ import (
 
 func buildHandlers(cfg *config.Config, uc *useCases, repos *repositories, bus *event.Bus, jwtMiddleware *middleware.JWTMiddleware) *router.Handlers {
 	return &router.Handlers{
-		Me:                          usuarioHandler.NewMeHandler(uc.ensureUsuario),
+		Me:                          usuarioHandler.NewMeHandler(uc.ensureUsuario, cfg.AdminGroup),
 		UpdateCredenciais:           usuarioHandler.NewUpdateCredencialHandler(uc.updateCredencial),
 		UpdateFantasiaCredenciais:   usuarioHandler.NewAtualizaFantasiaCredenciaisHandler(uc.updateDisplayNamePermissions),
 		UpdateFantasia:              usuarioHandler.NewAtualizaFantasiaHandler(uc.updateDisplayName),
