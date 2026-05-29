@@ -13,10 +13,38 @@ import (
 
 type MeHandler struct {
 	ensureUseCase *ucUsuario.EnsureUsuarioUseCase
+	adminGroup    string
 }
 
-func NewMeHandler(ensureUseCase *ucUsuario.EnsureUsuarioUseCase) *MeHandler {
-	return &MeHandler{ensureUseCase: ensureUseCase}
+func NewMeHandler(ensureUseCase *ucUsuario.EnsureUsuarioUseCase, adminGroup string) *MeHandler {
+	return &MeHandler{ensureUseCase: ensureUseCase, adminGroup: adminGroup}
+}
+
+func extractGroups(claims jwt.MapClaims) []string {
+	rawGroups, ok := claims["groups"].([]interface{})
+	if !ok {
+		return []string{}
+	}
+
+	groups := make([]string, 0, len(rawGroups))
+
+	for _, g := range rawGroups {
+		if str, ok := g.(string); ok {
+			groups = append(groups, str)
+		}
+	}
+
+	return groups
+}
+
+func isAdmin(groups []string, adminGroup string) bool {
+	for _, g := range groups {
+		if g == adminGroup {
+			return true
+		}
+	}
+
+	return false
 }
 
 // Handle godoc
@@ -37,11 +65,16 @@ func (h *MeHandler) Handle(c *gin.Context) {
 		return
 	}
 
+	groups := extractGroups(claims)
+
+	admin := isAdmin(groups, h.adminGroup)
+
 	input := ucUsuario.EnsureUsuarioInput{
 		KeycloakID: jwtutil.ClaimString(claims, "sub"),
 		Username:   jwtutil.ClaimString(claims, "preferred_username"),
 		Email:      jwtutil.ClaimString(claims, "email"),
 		Nome:       jwtutil.ClaimString(claims, "name"),
+		IsAdmin:    admin,
 	}
 
 	usuario, err := h.ensureUseCase.Execute(c.Request.Context(), input)

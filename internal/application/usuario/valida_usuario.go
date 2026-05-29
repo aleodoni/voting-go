@@ -19,6 +19,7 @@ type EnsureUsuarioInput struct {
 	Username   string
 	Email      string
 	Nome       string
+	IsAdmin    bool
 }
 
 // EnsureUsuarioUseCase garante que um usuário autenticado pelo Keycloak existe no sistema.
@@ -75,7 +76,7 @@ func (uc *EnsureUsuarioUseCase) Execute(ctx context.Context, input EnsureUsuario
 		UsuarioID:       u.ID,
 		Ativo:           true,
 		PodeVotar:       false,
-		PodeAdministrar: false,
+		PodeAdministrar: input.IsAdmin,
 		CreatedAt:       now,
 		UpdatedAt:       now,
 	}

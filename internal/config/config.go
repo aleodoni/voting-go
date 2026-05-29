@@ -33,6 +33,8 @@ type Config struct {
 	AllowOrigins     []string
 
 	JobsToken string
+
+	AdminGroup string
 }
 
 // LoadConfig carrega as configurações da aplicação a partir de variáveis de ambiente.
@@ -75,6 +77,8 @@ func LoadConfig() *Config {
 		AllowOrigins:     allowOrigins,
 
 		JobsToken: getEnv("JOBS_TOKEN", ""),
+
+		AdminGroup: getEnv("ADMIN_GROUP", "/admin"),
 	}
 }
 
