@@ -19,15 +19,15 @@ func NewRetornaProjetoCompletoHandler(retornaProjetoCompletoUseCase *ucReuniao.R
 
 // Handle godoc
 //
-//	@Summary		Retorna projeto de uma reunião
-//	@Description	Retorna a lista completa de projetos de uma reunião (requer admin)
+//	@Summary		Retorna um projeto completo
+//	@Description	Retorna os dados completos de um projeto pelo seu ID (requer admin)
 //	@Tags			reuniões
 //	@Produce		json
 //	@Param			projetoId	path		string	true	"ID do projeto"
 //	@Success		200			{object}	ProjetoResponse
 //	@Failure		403			{object}	ErrorResponse
 //	@Security		BearerAuth
-//	@Router			/projetos/:projetoId [get]
+//	@Router			/projetos/{projetoId} [get]
 func (h *RetornaProjetoCompletoHandler) Handle(c *gin.Context) {
 	loggedUserKeycloakID := c.GetString("loggedUserKeycloakID")
 	projetoID := c.Param("projetoId")

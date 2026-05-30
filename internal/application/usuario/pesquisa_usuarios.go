@@ -55,7 +55,7 @@ func (uc *ListUsuariosUseCase) Execute(
 		limit = 20
 	}
 
-	usuarios, total, err := uc.repoUsuario.ListUsers(ctx, input.Nome, input.Email, input.ListarInativos, input.Page, input.Limit)
+	usuarios, total, err := uc.repoUsuario.ListUsers(ctx, input.Nome, input.Email, input.ListarInativos, page, limit)
 	if err != nil {
 		return nil, err
 	}

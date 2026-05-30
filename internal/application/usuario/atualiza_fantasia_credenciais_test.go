@@ -2,6 +2,7 @@ package usuario_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/aleodoni/go-ddd/domain"
@@ -60,7 +61,7 @@ func TestUpdateDisplayNamePermissions_AdminAtualiza(t *testing.T) {
 		CanVote:                true,
 	})
 
-	if err != nil {
+	if !errors.Is(err, nil) {
 		t.Fatalf("esperava nil, got %v", err)
 	}
 }
@@ -99,7 +100,7 @@ func TestUpdateDisplayNamePermissions_UsuarioLogadoSemCredencial(t *testing.T) {
 		UserID:                 "user-alvo",
 	})
 
-	if err != domainUsuario.ErrUserNotActive {
+	if !errors.Is(err, domainUsuario.ErrUserNotActive) {
 		t.Fatalf("esperava ErrUserNotActive, got %v", err)
 	}
 }
@@ -127,7 +128,7 @@ func TestUpdateDisplayNamePermissions_UsuarioLogadoNaoEAdmin(t *testing.T) {
 		UserID:                 "user-alvo",
 	})
 
-	if err != domainUsuario.ErrUserNotAdmin {
+	if !errors.Is(err, domainUsuario.ErrUserNotAdmin) {
 		t.Fatalf("esperava ErrNotAdmin, got %v", err)
 	}
 }
@@ -155,7 +156,7 @@ func TestUpdateDisplayNamePermissions_UsuarioLogadoInativo(t *testing.T) {
 		UserID:                 "user-alvo",
 	})
 
-	if err != domainUsuario.ErrUserNotActive {
+	if !errors.Is(err, domainUsuario.ErrUserNotActive) {
 		t.Fatalf("esperava ErrUserNotActive, got %v", err)
 	}
 }

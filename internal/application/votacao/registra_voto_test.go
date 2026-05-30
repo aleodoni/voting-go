@@ -243,3 +243,60 @@ func TestRegistraVoto_UsuarioJaVotou(t *testing.T) {
 		t.Fatalf("esperava ErrUsuarioJaVotou, got %v", err)
 	}
 }
+
+func TestRegistraVoto_UsuarioSemPermissaoVoto(t *testing.T) {
+	usuarioRepo := fakes.NewFakeUsuarioRepository()
+	votacaoRepo := fakes.NewFakeVotacaoRepository()
+
+	// Usuário ativo mas sem PodeVotar
+	usuarioRepo.Seed(&domainUsuario.Usuario{
+		AggregateRoot: domain.NewAggregateRoot("user-sem-voto"),
+		KeycloakID:    "keycloak-sem-voto",
+		Credencial: &domainUsuario.Credencial{
+			Ativo:     true,
+			PodeVotar: false,
+		},
+	})
+	setupVotacaoAberta(t, votacaoRepo)
+
+	uc := ucVotacao.NewRegistraVotoUseCase(usuarioRepo, votacaoRepo, event.NewBus())
+
+	err := uc.Execute(context.Background(), ucVotacao.RegistraVotoInput{
+		LoggedInUserKeycloakID: "keycloak-sem-voto",
+		VotacaoID:              "votacao-1",
+		Voto:                   votacao.OpcaoVotoF,
+	})
+
+	if !errors.Is(err, domainUsuario.ErrUserNotVoter) {
+		t.Fatalf("esperava ErrUserNotVoter, obteve: %v", err)
+	}
+}
+
+func TestRegistraVoto_PublicaEvento(t *testing.T) {
+	usuarioRepo := fakes.NewFakeUsuarioRepository()
+	votacaoRepo := fakes.NewFakeVotacaoRepository()
+	setupUsuarioVereador(usuarioRepo)
+	setupVotacaoAberta(t, votacaoRepo)
+
+	bus := event.NewBus()
+	ch := bus.Subscribe("test-user", "test", false)
+	defer bus.Unsubscribe(ch)
+
+	uc := ucVotacao.NewRegistraVotoUseCase(usuarioRepo, votacaoRepo, bus)
+	if err := uc.Execute(context.Background(), ucVotacao.RegistraVotoInput{
+		LoggedInUserKeycloakID: "keycloak-vereador",
+		VotacaoID:              "votacao-1",
+		Voto:                   votacao.OpcaoVotoF,
+	}); err != nil {
+		t.Fatalf("esperava nil, obteve: %v", err)
+	}
+
+	select {
+	case e := <-ch:
+		if e.Type != event.VotoRegistrado {
+			t.Errorf("esperava VotoRegistrado, obteve %s", e.Type)
+		}
+	default:
+		t.Fatal("esperava evento publicado, nenhum recebido")
+	}
+}

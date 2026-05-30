@@ -23,14 +23,14 @@ type ConnectedUserResponse struct {
 
 // Handle godoc
 //
-//	@Summary		Retorna usuários conectados
-//	@Description	Retorna uma lista de usuários conectados
+//	@Summary		Retorna usuários conectados via SSE
+//	@Description	Retorna a lista de usuários com conexão SSE ativa no momento
 //	@Tags			usuários
 //	@Produce		json
-//	@Success		200	{object}	[]ConnectedUserResponse
-//	@Failure		403
+//	@Success		200	{array}		ConnectedUserResponse
+//	@Failure		401	{object}	map[string]interface{}
 //	@Security		BearerAuth
-//	@Router			/usuarios/connected [get]
+//	@Router			/usuarios-conectados [get]
 func (h *ConnectedUsersHandler) Handle(c *gin.Context) {
 	subscribers := h.bus.ConnectedUsers()
 
