@@ -20,11 +20,11 @@ func NewGeraRelatorioReuniaoHandler(geraRelatorioReuniaoUseCase *ucRelatorio.Ger
 // Handle godoc
 //
 //	@Summary		Gera relatório de uma reunião
-//	@Description	Gera o relatório PDF com os projetos e votações de uma reunião
+//	@Description	Gera e retorna o relatório em PDF com os projetos e votações de uma reunião
 //	@Tags			reuniões
 //	@Produce		application/pdf
 //	@Param			reuniaoId	path		string	true	"ID da reunião"
-//	@Success		200			{file}		pdf
+//	@Success		200			{file}		binary
 //	@Failure		500			{object}	ErrorResponse
 //	@Security		BearerAuth
 //	@Router			/reunioes/{reuniaoId}/relatorio [get]

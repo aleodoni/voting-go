@@ -2,6 +2,7 @@ package usuario_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/aleodoni/go-ddd/domain"
@@ -39,7 +40,7 @@ func TestUpdateCredencial_Sucesso(t *testing.T) {
 		PodeAdministrar: false,
 	})
 
-	if err != nil {
+	if !errors.Is(err, nil) {
 		t.Fatalf("esperava nil, got %v", err)
 	}
 	if !cred.Ativo {
@@ -71,7 +72,7 @@ func TestUpdateCredencial_AdminInativo_Inativo(t *testing.T) {
 		UsuarioID:       "user-1",
 	})
 
-	if err != domainUsuario.ErrUserNotActive {
+	if !errors.Is(err, domainUsuario.ErrUserNotActive) {
 		t.Errorf("esperava ErrUserNotActive, got %v", err)
 	}
 }
@@ -94,7 +95,7 @@ func TestUpdateCredencial_AdminSemPermissao_Forbidden(t *testing.T) {
 		UsuarioID:       "user-1",
 	})
 
-	if err != domainUsuario.ErrUserNotAdmin {
+	if !errors.Is(err, domainUsuario.ErrUserNotAdmin) {
 		t.Errorf("esperava ErrUserNotAdmin, got %v", err)
 	}
 }
@@ -107,7 +108,7 @@ func TestUpdateCredencial_AdminNaoEncontrado(t *testing.T) {
 		UsuarioID:       "user-1",
 	})
 
-	if err != domainUsuario.ErrUserNotFound {
+	if !errors.Is(err, domainUsuario.ErrUserNotFound) {
 		t.Errorf("esperava ErrUserNotFound, got %v", err)
 	}
 }
@@ -123,7 +124,7 @@ func TestUpdateCredencial_UsuarioAlvoNaoEncontrado(t *testing.T) {
 		UsuarioID:       "user-inexistente",
 	})
 
-	if err != domainUsuario.ErrUserNotFound {
+	if !errors.Is(err, domainUsuario.ErrUserNotFound) {
 		t.Errorf("esperava ErrUserNotFound, got %v", err)
 	}
 }
