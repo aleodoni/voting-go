@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { getApi } from '@voting/shared';
 import { ProjectDTO } from '@/types/meeting';
 
-async function fetchOpenVoting(): Promise<ProjectDTO[]> {
-	const { data } = await getApi().get<ProjectDTO[]>('/votacao/aberta');
+async function fetchOpenVoting(): Promise<ProjectDTO> {
+	const { data } = await getApi().get<ProjectDTO>('/votacao/aberta');
 	return data;
 }
 export function useIsProjectVoting() {
