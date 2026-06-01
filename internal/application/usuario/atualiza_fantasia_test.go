@@ -2,6 +2,7 @@ package usuario_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/aleodoni/go-ddd/domain"
@@ -44,7 +45,7 @@ func TestUpdateDisplayNameUseCase_Execute(t *testing.T) {
 			DisplayName:            strPtr("Vereador Teste"),
 		})
 
-		if err != nil {
+		if !errors.Is(err, nil) {
 			t.Fatalf("esperava nil, got %v", err)
 		}
 
@@ -73,7 +74,7 @@ func TestUpdateDisplayNameUseCase_Execute(t *testing.T) {
 			DisplayName:            strPtr("Qualquer Nome"),
 		})
 
-		if err != domainUsuario.ErrUserNotFound {
+		if !errors.Is(err, domainUsuario.ErrUserNotFound) {
 			t.Errorf("esperava ErrUserNotFound, got %v", err)
 		}
 
@@ -94,7 +95,7 @@ func TestUpdateDisplayNameUseCase_Execute(t *testing.T) {
 			DisplayName:            strPtr("Tentativa Inválida"),
 		})
 
-		if err != domainUsuario.ErrUserNotFound {
+		if !errors.Is(err, domainUsuario.ErrUserNotFound) {
 			t.Errorf("esperava ErrUserNotFound, got %v", err)
 		}
 

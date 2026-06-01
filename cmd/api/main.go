@@ -9,19 +9,19 @@
 // JWT Keycloak
 // ======================================================
 
-// @securityDefinitions.apikey BearerAuth
-// @in header
-// @name Authorization
-// @description JWT emitido pelo Keycloak. Formato: Bearer <token>
+//	@securityDefinitions.apikey	BearerAuth
+//	@in							header
+//	@name						Authorization
+//	@description				JWT emitido pelo Keycloak. Formato: Bearer <token>
 
 // ======================================================
 // Token interno de jobs
 // ======================================================
 
-// @securityDefinitions.apikey InternalJobAuth
-// @in header
-// @name Authorization
-// @description Token interno para execução de jobs. Formato: Bearer <token>
+//	@securityDefinitions.apikey	InternalJobAuth
+//	@in							header
+//	@name						Authorization
+//	@description				Token interno para execução de jobs. Formato: Bearer <token>
 
 package main
 

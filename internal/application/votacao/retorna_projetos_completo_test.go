@@ -2,6 +2,7 @@ package votacao_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/aleodoni/go-ddd/domain"
@@ -35,7 +36,7 @@ func TestRetornaProjetosCompletos_AdminRetornaProjetos(t *testing.T) {
 		ReuniaoID:              "reuniao-1",
 	})
 
-	if err != nil {
+	if !errors.Is(err, nil) {
 		t.Fatalf("esperava nil, got %v", err)
 	}
 	if len(result) != 2 {
@@ -58,7 +59,7 @@ func TestRetornaProjetosCompletos_AdminSemProjetos(t *testing.T) {
 		ReuniaoID:              "reuniao-1",
 	})
 
-	if err != nil {
+	if !errors.Is(err, nil) {
 		t.Fatalf("esperava nil, got %v", err)
 	}
 	if len(result) != 0 {
@@ -79,7 +80,7 @@ func TestRetornaProjetosCompletos_ReuniaoNaoEncontrada(t *testing.T) {
 		ReuniaoID:              "reuniao-inexistente",
 	})
 
-	if err != domainVotacao.ErrReuniaoNotFound {
+	if !errors.Is(err, domainVotacao.ErrReuniaoNotFound) {
 		t.Fatalf("esperava ErrReuniaoNotFound, got %v", err)
 	}
 }
@@ -120,7 +121,7 @@ func TestRetornaProjetosCompletos_UsuarioNaoEAdmin(t *testing.T) {
 		ReuniaoID:              "reuniao-1",
 	})
 
-	if err != domainUsuario.ErrUserNotAdmin {
+	if !errors.Is(err, domainUsuario.ErrUserNotAdmin) {
 		t.Fatalf("esperava ErrUserNotAdmin, got %v", err)
 	}
 }
@@ -145,7 +146,7 @@ func TestRetornaProjetosCompletos_UsuarioInativo(t *testing.T) {
 		ReuniaoID:              "reuniao-1",
 	})
 
-	if err != domainUsuario.ErrUserNotActive {
+	if !errors.Is(err, domainUsuario.ErrUserNotActive) {
 		t.Fatalf("esperava ErrUserNotActive, got %v", err)
 	}
 }
