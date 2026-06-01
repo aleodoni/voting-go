@@ -2,6 +2,7 @@ package votacao_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/aleodoni/go-ddd/domain"
@@ -48,7 +49,7 @@ func TestRetornaReunioesDia_AdminRetornaReunioesDodia(t *testing.T) {
 		LoggedInUserKeycloakID: "keycloak-admin",
 	})
 
-	if err != nil {
+	if !errors.Is(err, nil) {
 		t.Fatalf("esperava nil, got %v", err)
 	}
 
@@ -70,7 +71,7 @@ func TestRetornaReunioesDia_AdminSemReunioesNoDia(t *testing.T) {
 		LoggedInUserKeycloakID: "keycloak-admin",
 	})
 
-	if err != nil {
+	if !errors.Is(err, nil) {
 		t.Fatalf("esperava nil, got %v", err)
 	}
 
@@ -110,7 +111,7 @@ func TestRetornaReunioesDia_UsuarioSemCredencial(t *testing.T) {
 		LoggedInUserKeycloakID: "keycloak-sem-cred",
 	})
 
-	if err != domainUsuario.ErrUserNotActive {
+	if !errors.Is(err, domainUsuario.ErrUserNotActive) {
 		t.Fatalf("esperava ErrUserNotActive, got %v", err)
 	}
 }
@@ -134,7 +135,7 @@ func TestRetornaReunioesDia_UsuarioNaoEAdmin(t *testing.T) {
 		LoggedInUserKeycloakID: "keycloak-comum",
 	})
 
-	if err != domainUsuario.ErrUserNotAdmin {
+	if !errors.Is(err, domainUsuario.ErrUserNotAdmin) {
 		t.Fatalf("esperava ErrUserNotAdmin, got %v", err)
 	}
 }
@@ -158,7 +159,7 @@ func TestRetornaReunioesDia_UsuarioInativo(t *testing.T) {
 		LoggedInUserKeycloakID: "keycloak-inativo",
 	})
 
-	if err != domainUsuario.ErrUserNotActive {
+	if !errors.Is(err, domainUsuario.ErrUserNotActive) {
 		t.Fatalf("esperava ErrUserNotActive, got %v", err)
 	}
 }

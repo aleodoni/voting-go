@@ -23,10 +23,10 @@ func NewExecutaSincroniaHandler(executaSincroniaUseCase *ucSincronia.ExecutaSinc
 // Handle godoc
 //
 //	@Summary		Executa sincronização
-//	@Description	Executa a sincronização de dados (requer admin)
+//	@Description	Inicia a sincronização de dados de forma assíncrona (requer admin). Em ambiente staging a execução é ignorada.
 //	@Tags			sincronia
 //	@Produce		json
-//	@Success		202	{object}	map[string]interface{}
+//	@Success		202	{object}	map[string]interface{}	"Sincronia iniciada"
 //	@Failure		403	{object}	ErrorResponse
 //	@Security		BearerAuth
 //	@Router			/sincronia [post]

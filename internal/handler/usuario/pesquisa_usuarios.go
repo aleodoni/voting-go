@@ -24,11 +24,11 @@ func NewPesquisaUsuariosHandler(listUsuariosUseCase *ucUsuario.ListUsuariosUseCa
 //	@Description	Retorna uma lista paginada de usuários (requer admin)
 //	@Tags			usuários
 //	@Produce		json
-//	@Param			Nome			query		string	false	"Nome do usuario"			default()
-//	@Param			Email			query		string	false	"Email do usuario"			default()
-//	@Param			page			query		int		false	"Página"					default(1)
-//	@Param			limit			query		int		false	"Limite"					default(20)
-//	@Param			listarInativos	query		bool	false	"Listar usuários inativos"	default(false)
+//	@Param			Nome			query		string	false	"Nome do usuario"	default()
+//	@Param			Email			query		string	false	"Email do usuario"	default()
+//	@Param			listarInativos	query		bool	false	"Incluir inativos"	default(false)
+//	@Param			page			query		int		false	"Página"			default(1)
+//	@Param			limit			query		int		false	"Limite"			default(20)
 //	@Success		200				{object}	ListUsuariosResponse
 //	@Failure		403				{object}	ErrorResponse
 //	@Security		BearerAuth

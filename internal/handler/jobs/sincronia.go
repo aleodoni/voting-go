@@ -22,13 +22,12 @@ func NewExecutaSincroniaJobHandler(executaSincroniaUseCase *ucSincroniaJob.Execu
 
 // Handle godoc
 //
-//	@Summary		Executa job sincronia
-//	@Description	Executa a sincronização de dados
+//	@Summary		Executa job de sincronização
+//	@Description	Inicia a sincronização de dados de forma assíncrona via job interno. Em ambiente staging a execução é ignorada. Autenticado por token estático (JOBS_TOKEN).
 //	@Tags			jobs
 //	@Produce		json
-//	@Security		BearerAuth
-//	@Success		202
-//	@Failure		401
+//	@Success		202	{object}	map[string]interface{}	"Sincronia iniciada"
+//	@Failure		401	{object}	map[string]interface{}	"Token inválido ou ausente"
 //	@Security		BearerAuth
 //	@Router			/internal/jobs/sincronia [post]
 func (h *ExecutaSincroniaJobHandler) Handle(c *gin.Context) {

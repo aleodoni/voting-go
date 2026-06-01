@@ -2,6 +2,7 @@ package votacao_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/aleodoni/go-ddd/domain"
@@ -30,7 +31,7 @@ func TestAbreVotacao_Sucesso(t *testing.T) {
 		ProjetoID:              "projeto-1",
 	})
 
-	if err != nil {
+	if !errors.Is(err, nil) {
 		t.Fatalf("esperava nil, got %v", err)
 	}
 
@@ -87,7 +88,7 @@ func TestAbreVotacao_UsuarioNaoAdmin(t *testing.T) {
 		ProjetoID:              "projeto-1",
 	})
 
-	if err != domainUsuario.ErrUserNotAdmin {
+	if !errors.Is(err, domainUsuario.ErrUserNotAdmin) {
 		t.Fatalf("esperava ErrUserNotAdmin, got %v", err)
 	}
 }
@@ -113,7 +114,7 @@ func TestAbreVotacao_UsuarioInativo(t *testing.T) {
 		ProjetoID:              "projeto-1",
 	})
 
-	if err != domainUsuario.ErrUserNotActive {
+	if !errors.Is(err, domainUsuario.ErrUserNotActive) {
 		t.Fatalf("esperava ErrUserNotActive, got %v", err)
 	}
 }
@@ -132,7 +133,7 @@ func TestAbreVotacao_ProjetoNaoEncontrado(t *testing.T) {
 		ProjetoID:              "projeto-inexistente",
 	})
 
-	if err != votacao.ErrProjetoNotFound {
+	if !errors.Is(err, votacao.ErrProjetoNotFound) {
 		t.Fatalf("esperava ErrProjetoNotFound, got %v", err)
 	}
 }
@@ -156,7 +157,7 @@ func TestAbreVotacao_ErroSalvaVotacao(t *testing.T) {
 		ProjetoID:              "projeto-1",
 	})
 
-	if err != votacao.ErrVotacaoAlreadyExists {
+	if !errors.Is(err, votacao.ErrVotacaoAlreadyExists) {
 		t.Fatalf("esperava ErrVotacaoAlreadyExists, got %v", err)
 	}
 }
@@ -180,7 +181,7 @@ func TestAbreVotacao_VotacaoJaAberta(t *testing.T) {
 		ProjetoID:              "projeto-1",
 	})
 
-	if err != votacao.ErrVotacaoAberta {
+	if !errors.Is(err, votacao.ErrVotacaoAberta) {
 		t.Fatalf("esperava ErrVotacaoAberta, got %v", err)
 	}
 
@@ -214,7 +215,7 @@ func TestAbreVotacao_ProjetoJaVotado(t *testing.T) {
 		ProjetoID:              "projeto-1",
 	})
 
-	if err != votacao.ErrProjetoVoted {
+	if !errors.Is(err, votacao.ErrProjetoVoted) {
 		t.Fatalf("esperava ErrProjetoVoted, got %v", err)
 	}
 
@@ -244,7 +245,7 @@ func TestAbreVotacao_PublicaEventoAoAbrir(t *testing.T) {
 		ProjetoID:              "projeto-1",
 	})
 
-	if err != nil {
+	if !errors.Is(err, nil) {
 		t.Fatalf("esperava nil, got %v", err)
 	}
 

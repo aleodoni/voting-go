@@ -19,15 +19,15 @@ func NewFechaVotacoesAbertasJobHandler(fechaVotacoesAbertasUseCase *ucJobs.Fecha
 
 // Handle godoc
 //
-//	@Summary		Executa job fechar votações abertas
-//	@Description	Executa o fechamento de votações abertas
+//	@Summary		Executa job de fechamento de votações abertas
+//	@Description	Fecha todas as votações que estejam abertas. Autenticado por token estático (JOBS_TOKEN).
 //	@Tags			jobs
 //	@Produce		json
+//	@Success		200	{object}	map[string]interface{}	"Job executado com sucesso"
+//	@Failure		401	{object}	map[string]interface{}	"Token inválido ou ausente"
+//	@Failure		403	{object}	map[string]interface{}	"Erro ao executar job"
 //	@Security		BearerAuth
-//	@Success		200
-//	@Failure		403
-//	@Security		BearerAuth
-//	@Router			/internal/jobs/fecha_votacoes_abertas [post]
+//	@Router			/internal/jobs/fecha_abertas [post]
 func (h *FechaVotacoesAbertasJobHandler) Handle(c *gin.Context) {
 
 	err := h.fechaVotacoesAbertasUseCase.Execute(c.Request.Context())

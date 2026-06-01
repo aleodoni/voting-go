@@ -2,6 +2,7 @@ package votacao_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/aleodoni/go-ddd/domain"
@@ -39,7 +40,7 @@ func TestCancelaVotacao_Sucesso(t *testing.T) {
 		ProjetoID:              "projeto-1",
 	})
 
-	if err != nil {
+	if !errors.Is(err, nil) {
 		t.Fatalf("esperava nil, got %v", err)
 	}
 
@@ -89,7 +90,7 @@ func TestCancelaVotacao_UsuarioNaoAdmin(t *testing.T) {
 		ProjetoID:              "projeto-1",
 	})
 
-	if err != domainUsuario.ErrUserNotAdmin {
+	if !errors.Is(err, domainUsuario.ErrUserNotAdmin) {
 		t.Fatalf("esperava ErrUserNotAdmin, got %v", err)
 	}
 }
@@ -115,7 +116,7 @@ func TestCancelaVotacao_UsuarioInativo(t *testing.T) {
 		ProjetoID:              "projeto-1",
 	})
 
-	if err != domainUsuario.ErrUserNotActive {
+	if !errors.Is(err, domainUsuario.ErrUserNotActive) {
 		t.Fatalf("esperava ErrUserNotActive, got %v", err)
 	}
 }
@@ -134,7 +135,7 @@ func TestCancelaVotacao_ProjetoNaoEncontrado(t *testing.T) {
 		ProjetoID:              "projeto-inexistente",
 	})
 
-	if err != votacao.ErrProjetoNotFound {
+	if !errors.Is(err, votacao.ErrProjetoNotFound) {
 		t.Fatalf("esperava ErrProjetoNotFound, got %v", err)
 	}
 }
@@ -156,7 +157,7 @@ func TestCancelaVotacao_VotacaoNaoEncontrada(t *testing.T) {
 		ProjetoID:              "projeto-1",
 	})
 
-	if err != votacao.ErrVotacaoNaoEncontrada {
+	if !errors.Is(err, votacao.ErrVotacaoNaoEncontrada) {
 		t.Fatalf("esperava ErrVotacaoNaoEncontrada, got %v", err)
 	}
 }
@@ -186,7 +187,7 @@ func TestCancelaVotacao_VotacaoNaoFechada(t *testing.T) {
 		ProjetoID:              "projeto-1",
 	})
 
-	if err != votacao.ErrVotacaoNaoFechada {
+	if !errors.Is(err, votacao.ErrVotacaoNaoFechada) {
 		t.Fatalf("esperava ErrVotacaoNaoFechada, got %v", err)
 	}
 }
@@ -217,7 +218,48 @@ func TestCancelaVotacao_ErroDeletaVotacao(t *testing.T) {
 		ProjetoID:              "projeto-1",
 	})
 
-	if err != votacao.ErrVotacaoNaoEncontrada {
+	if !errors.Is(err, votacao.ErrVotacaoNaoEncontrada) {
 		t.Fatalf("esperava ErrVotacaoNaoEncontrada, got %v", err)
+	}
+}
+
+func TestCancelaVotacao_PublicaEvento(t *testing.T) {
+	usuarioRepo := fakes.NewFakeUsuarioRepository()
+	reuniaoRepo := fakes.NewFakeReuniaoRepository()
+	votacaoRepo := fakes.NewFakeVotacaoRepository()
+
+	usuarioRepo.Seed(adminUsuario("keycloak-admin", "user-admin"))
+
+	projetoID := "projeto-1"
+	projeto := &votacao.Projeto{
+		ID:               "projeto-1",
+		CodigoProposicao: "001",
+		Votacao: &votacao.Votacao{
+			AggregateRoot: domain.NewAggregateRoot("votacao-1"),
+			ProjetoID:     &projetoID,
+			Status:        votacao.StatusVotacaoV,
+		},
+	}
+	reuniaoRepo.SeedProjetos("reuniao-1", []*votacao.Projeto{projeto})
+
+	bus := event.NewBus()
+	ch := bus.Subscribe("test-user", "test", false)
+	defer bus.Unsubscribe(ch)
+
+	uc := ucVotacao.NewCancelaVotacaoUseCase(usuarioRepo, reuniaoRepo, votacaoRepo, bus)
+	if err := uc.Execute(context.Background(), ucVotacao.CancelaVotacaoInput{
+		LoggedInUserKeycloakID: "keycloak-admin",
+		ProjetoID:              "projeto-1",
+	}); err != nil {
+		t.Fatalf("esperava nil, obteve: %v", err)
+	}
+
+	select {
+	case e := <-ch:
+		if e.Type != event.VotacaoCancelada {
+			t.Errorf("esperava VotacaoCancelada, obteve %s", e.Type)
+		}
+	default:
+		t.Fatal("esperava evento publicado, nenhum recebido")
 	}
 }
