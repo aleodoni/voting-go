@@ -6,6 +6,7 @@ import { VoteModal } from '@/components/VoteModal';
 import { VoteSelectionView } from '@/components/VoteSelectionView';
 import { useRegistraVoto } from '@/hooks/useRegistraVoto';
 import { VoteType } from '@/types/vote-types';
+import type { RegistraVotoRequest } from '@/types/voto';
 
 export const Route = createFileRoute('/vote/$votingId')({
 	component: VoteSelection,
@@ -62,7 +63,7 @@ function VoteSelection() {
 				contraryReason,
 			} = voteData;
 
-			const voteBody: any = {
+			const voteBody: RegistraVotoRequest = {
 				voto: selectedVote.id,
 			};
 

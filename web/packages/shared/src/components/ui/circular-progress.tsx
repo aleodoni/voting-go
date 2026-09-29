@@ -1,4 +1,3 @@
-/** biome-ignore-all lint/a11y/noSvgWithoutTitle: <explanation> */
 import { cn } from '../../lib/utils';
 
 interface CircularProgressProps {
@@ -39,6 +38,7 @@ export const CircularProgress = ({
 	return (
 		<div className="relative">
 			<svg
+				aria-hidden="true"
 				width={size}
 				height={size}
 				viewBox={viewBox}

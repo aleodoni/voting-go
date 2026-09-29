@@ -25,7 +25,13 @@ const authConfig = {
 	authorize: (user: User) => user.credencial.pode_votar,
 };
 
-createRoot(document.getElementById('root')!).render(
+const rootElement = document.getElementById('root');
+
+if (!rootElement) {
+	throw new Error('Elemento #root não encontrado em index.html');
+}
+
+createRoot(rootElement).render(
 	<StrictMode>
 		<ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
 			<Toaster position="bottom-right" />
