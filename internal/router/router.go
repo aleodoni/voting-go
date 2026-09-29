@@ -13,7 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	// Swagger
-	_ "github.com/aleodoni/voting-go/docs"
+	_ "github.com/aleodoni/voting-go/swagger"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )

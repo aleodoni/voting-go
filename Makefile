@@ -83,6 +83,14 @@ build:
 dev-web:
 	cd web && pnpm dev
 
+.PHONY: build-web
+build-web:
+	cd web && pnpm build
+
+.PHONY: lint-web
+lint-web:
+	cd web && pnpm lint
+
 # ============================================================
 # DOCKER LOCAL
 # ============================================================
@@ -136,7 +144,7 @@ test-api: seed test-health
 .PHONY: swagger
 swagger:
 	swag fmt
-	swag init -g cmd/api/main.go --parseInternal
+	swag init -g cmd/api/main.go --parseInternal --output swagger
 
 # ============================================================
 # CLI

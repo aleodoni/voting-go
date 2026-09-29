@@ -1,6 +1,20 @@
+# Ambiente / segredos
 .env
+.env.*
+!.env.example
+!.env.*.example
+
+# Artefatos locais
 tmp/
 bin/
 .air.toml
-docs/
 *orange*
+/voting-api
+/voting-cli
+
+# Swagger gerado (make swagger) — não fica em docs/, que é documentação versionada
+/swagger/
+
+# Node
+node_modules/
+*.tsbuildinfo

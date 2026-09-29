@@ -1,204 +1,203 @@
-# Voting API
+# Voting
 
-API de gerenciamento de votações desenvolvida em **Go**.
-Permite criar reuniões, registrar projetos em votação e contabilizar votos dos participantes.
+Sistema de votação para sessões legislativas: **API em Go** + **frontend React/Vite** (dois apps).
+Permite acompanhar reuniões do dia, abrir/fechar votações de projetos, registrar votos em tempo real (SSE) e gerar relatório PDF por reunião.
 
-## Tecnologias
+## Visão geral
 
-* Go
-* Gin (HTTP framework)
-* PostgreSQL
-* Keycloak (autenticação)
-* Docker
-* k6 (testes de carga)
-* Swagger (documentação)
-* go-pdf/fpdf (geração de PDF)
+| Parte | Tecnologia | Onde |
+| ----- | ---------- | ---- |
+| API | Go, Gin, PostgreSQL, sqlc, Keycloak (JWT) | `cmd/`, `internal/` |
+| Painel administrativo | React, Vite, TanStack Router/Query, shadcn/ui | `web/apps/admin` |
+| Painel do vereador | React, Vite, TanStack Router/Query, shadcn/ui | `web/apps/vereador` |
+| Código compartilhado do front | pacote `@voting/shared` | `web/packages/shared` |
+| Banco / integração | migrations, FDW para o banco SPL | `migrations/`, `fdw/`, `spl/` |
+| Infra | Docker Compose, Keycloak realm, Dockerfiles | `infra/` |
+
+Documentação técnica e de processo em [`docs/`](docs/README.md). Contexto para sessões com o Claude em [`CLAUDE.md`](CLAUDE.md).
 
 ## Funcionalidades
 
-* Autenticação via Keycloak
-* Gerenciamento de usuários
-* Criação de reuniões
-* Cadastro de projetos em votação
-* Registro de votos
-* Apuração de resultados
-* Geração de relatório PDF por reunião
+- Autenticação via Keycloak (JWT) com credenciais próprias por usuário (ativo, pode votar, pode administrar)
+- Reuniões do dia, projetos e pareceres sincronizados do banco SPL
+- Abertura, fechamento e cancelamento de votações (admin)
+- Registro de votos com restrição e voto contrário
+- Eventos em tempo real via SSE (votação aberta/fechada/cancelada, voto registrado, usuários conectados)
+- Relatório PDF por reunião
+- Jobs internos (sincronização e fechamento de votações abertas)
+- CLI de operação (`voting-cli`): migrate, seed, fdw
 
 ---
 
-# Como rodar o projeto
+## Como rodar localmente
 
-## 1. Clonar o repositório
+### 1. Pré-requisitos
+
+Go, Docker, [`golang-migrate`](https://github.com/golang-migrate/migrate), [`sqlc`](https://sqlc.dev), [`swag`](https://github.com/swaggo/swag), `psql`, `envsubst`, `pnpm` (front) e opcionalmente `air`, `gotestsum` e `k6`.
+
+### 2. Variáveis de ambiente
+
 ```bash
-git clone https://github.com/seu-usuario/voting-go.git
-cd voting-go
+cp .env.example .env
 ```
 
-## 2. Configurar variáveis de ambiente
+| Variável | Descrição | Padrão (dev) |
+| -------- | --------- | ------------ |
+| `APPNAME` / `APPVERSION` | Nome e versão da API | `Voting API` / `1.0.0` |
+| `APPPORT` | Porta da API | `8080` |
+| `APPENV` | `development`, `staging` ou `production` | `development` |
+| `ALLOW_ORIGINS` | Origens permitidas no CORS (separadas por vírgula) | `http://localhost:5173,http://localhost:5174` |
+| `DBHOST` `DBPORT` `DBUSER` `DBPASSWORD` `DBNAME` `DBSSLMODE` | Banco PostgreSQL da aplicação | `localhost` / `15432` / `postgres` / `postgres` / `voting_db` / `disable` |
+| `DB_SPL_HOST` `DB_SPL_PORT` `DB_SPL_NAME` `DB_SPL_USER` `DB_SPL_PASSWORD` | Banco SPL (origem de reuniões, projetos e pareceres, via FDW) | — |
+| `KEYCLOAK_ISSUER` | URL do realm | `http://localhost:8081/realms/voting-realm` |
+| `KEYCLOAK_CLIENT_ID` | Audience esperada no JWT | `voting-api` |
+| `JWKSURL` | Endpoint de chaves públicas do Keycloak | `…/protocol/openid-connect/certs` |
+| `JOBS_TOKEN` | Token das rotas `/internal/jobs/*` | — |
+| `ADMIN_GROUP` | Grupo Keycloak considerado administrador | `/admin` |
 
-A aplicação utiliza variáveis de ambiente para configuração.
+### 3. Dependências (Postgres + Keycloak)
 
-Crie um arquivo `.env` na raiz do projeto:
-```env
-APPNAME=Voting API
-APPVERSION=1.0.0
-APPPORT=8080
-APPENV=development
-
-DBHOST=localhost
-DBPORT=15432
-DBUSER=postgres
-DBPASSWORD=postgres
-DBNAME=voting_db
-DBSSLMODE=disable
-
-KEYCLOAK_ISSUER=http://localhost:8081/realms/voting-realm
-JWKSURL=http://localhost:8081/realms/voting-realm/protocol/openid-connect/certs
-```
-
-### Descrição das variáveis
-
-| Variável          | Descrição                                               |
-| ----------------- | ------------------------------------------------------- |
-| `APPNAME`         | Nome da aplicação                                       |
-| `APPVERSION`      | Versão da API                                           |
-| `APPPORT`         | Porta em que a API será executada                       |
-| `APPENV`          | Ambiente da aplicação (`development`, `production`)     |
-| `DBHOST`          | Host do banco de dados                                  |
-| `DBPORT`          | Porta do banco                                          |
-| `DBUSER`          | Usuário do banco                                        |
-| `DBPASSWORD`      | Senha do banco                                          |
-| `DBNAME`          | Nome do banco                                           |
-| `DBSSLMODE`       | Configuração SSL do PostgreSQL                          |
-| `KEYCLOAK_ISSUER` | URL do realm do Keycloak usado para autenticação        |
-| `JWKSURL`         | Endpoint de chaves públicas usado para validação do JWT |
-
-## 3. Rodar dependências (Docker)
 ```bash
-docker-compose up -d
+make docker-compose-up
 ```
 
-## 4. Gerar documentação Swagger
+### 4. Banco de dados
+
+```bash
+make bootstrap   # migrate + seed + fdw
+```
+
+Comandos individuais: `make migrate`, `make migrate-down`, `make migrate-create name=<nome>`, `make seed`, `make fdw`.
+
+### 5. Swagger
+
 ```bash
 make swagger
 ```
 
-> A pasta `docs/` é gerada automaticamente e não é versionada. Execute este comando sempre que alterar as anotações dos handlers.
+O Swagger é gerado em `swagger/` (ignorado pelo git). Rode sempre que alterar as anotações dos handlers. A pasta `docs/` é documentação versionada e **não** recebe arquivos gerados.
 
-## 5. Rodar a aplicação
+### 6. API
+
 ```bash
-go run cmd/api/main.go
+make run    # go run ./cmd/api/main.go
+make dev    # com hot reload (air)
 ```
 
-ou
+- API: `http://localhost:8080`
+- Swagger UI: `http://localhost:8080/swagger/index.html`
+
+### 7. Frontend
+
 ```bash
-go build -o voting-api cmd/api/main.go
-./voting-api
+cd web && pnpm install
+make dev-web    # admin em :5173, vereador em :5174
 ```
 
-A API estará disponível em:
-```
-http://localhost:8080
-```
+Cada app tem um `.env.example` (`VITE_API_URL`, `VITE_KEYCLOAK_URL`, `VITE_KEYCLOAK_REALM`, `VITE_KEYCLOAK_CLIENT_ID`).
 
 ---
 
-# Documentação
+## Autenticação
 
-A documentação interativa da API está disponível via Swagger UI após subir a aplicação:
-```
-http://localhost:8080/swagger/index.html
-```
+A API valida **JWT emitido pelo Keycloak** (issuer, audience e assinatura via JWKS).
 
----
-
-# Autenticação
-
-A API utiliza **JWT emitido pelo Keycloak**.
-
-Exemplo de header:
 ```
 Authorization: Bearer <token>
 ```
 
-No Swagger UI, clique em **Authorize** e informe o token no formato `Bearer <token>`.
+- No Swagger UI, use **Authorize** e informe `Bearer <token>`.
+- O endpoint SSE (`/api/v1/eventos`) também aceita o token via query string `?token=`, pois `EventSource` não envia headers.
+- Rotas `/internal/jobs/*` usam um token interno (`JOBS_TOKEN`), não o JWT do usuário.
+
+Para obter um token em desenvolvimento: `scripts/get-token.sh`.
 
 ---
 
-# Endpoints
+## Endpoints
 
-| Método   | Rota                                         | Descrição                                        | Auth  |
-| -------- | -------------------------------------------- | ------------------------------------------------ | ----- |
-| `GET`    | `/api/v1/health`                             | Health check                                     | ❌    |
-| `GET`    | `/api/v1/me`                                 | Retorna o usuário autenticado                    | ✅    |
-| `GET`    | `/api/v1/usuarios`                           | Pesquisa usuários (admin)                        | ✅    |
-| `PUT`    | `/api/v1/usuarios/fantasia-credenciais`      | Atualiza nome fantasia e permissões              | ✅    |
-| `PATCH`  | `/api/v1/usuarios/{id}/credencial`           | Atualiza credencial de um usuário                | ✅    |
-| `GET`    | `/api/v1/reunioes-dia`                       | Retorna reuniões do dia                          | ✅    |
-| `GET`    | `/api/v1/reunioes/{reuniaoId}/projetos`      | Retorna projetos de uma reunião (admin)          | ✅    |
-| `GET`    | `/api/v1/reunioes/{reuniaoId}/relatorio`     | Gera relatório PDF da reunião                    | ✅    |
-| `POST`   | `/api/v1/projetos/{projetoId}/votacao/abrir` | Abre uma votação (admin)                         | ✅    |
-| `POST`   | `/api/v1/projetos/{projetoId}/votacao/fechar`| Fecha uma votação (admin)                        | ✅    |
-| `DELETE` | `/api/v1/projetos/{projetoId}/votacao`       | Cancela uma votação (admin)                      | ✅    |
-| `POST`   | `/api/v1/votacao/{votacaoId}/voto`           | Registra um voto                                 | ✅    |
-| `GET`    | `/api/v1/votacao/aberta`                     | Retorna o projeto com votação aberta             | ✅    |
-| `GET`    | `/api/v1/votacao/stats`                      | Retorna estatísticas de votação do dia (admin)   | ✅    |
+Prefixo `/api/v1`. Detalhes de request/response no Swagger UI.
 
-Para detalhes completos de request/response, consulte o Swagger UI.
+| Método | Rota | Descrição | Auth |
+| ------ | ---- | --------- | ---- |
+| `GET` | `/health` | Health check | ❌ |
+| `GET` | `/me` | Usuário autenticado | ✅ |
+| `GET` | `/usuarios` | Pesquisa usuários (admin) | ✅ |
+| `GET` | `/usuarios/{usuarioId}` | Retorna um usuário (admin) | ✅ |
+| `PUT` | `/usuarios/fantasia` | Atualiza nome fantasia | ✅ |
+| `PUT` | `/usuarios/fantasia-credenciais` | Atualiza nome fantasia e permissões | ✅ |
+| `PATCH` | `/usuarios/{id}/credencial` | Atualiza credencial de um usuário | ✅ |
+| `GET` | `/usuarios-conectados` | Usuários com conexão SSE ativa | ✅ |
+| `GET` | `/reunioes-dia` | Reuniões do dia | ✅ |
+| `GET` | `/reunioes/{reuniaoId}/projetos` | Projetos de uma reunião (admin) | ✅ |
+| `GET` | `/reunioes/{reuniaoId}/relatorio` | Relatório PDF da reunião | ✅ |
+| `GET` | `/projetos/{projetoId}` | Projeto completo (admin) | ✅ |
+| `POST` | `/projetos/{projetoId}/votacao/abrir` | Abre uma votação (admin) | ✅ |
+| `POST` | `/projetos/{projetoId}/votacao/fechar` | Fecha uma votação (admin) | ✅ |
+| `DELETE` | `/projetos/{projetoId}/votacao` | Cancela uma votação (admin) | ✅ |
+| `POST` | `/votacao/{votacaoId}/voto` | Registra um voto | ✅ |
+| `GET` | `/votacao/aberta` | Projeto com votação aberta | ✅ |
+| `GET` | `/votacao/stats` | Estatísticas de votação do dia (admin) | ✅ |
+| `GET` | `/sincronia` | Últimas 3 sincronizações (admin) | ✅ |
+| `POST` | `/sincronia` | Executa sincronização (admin) | ✅ |
+| `GET` | `/eventos` | Stream SSE | ✅ (query) |
+| `POST` | `/internal/jobs/sincronia` | Job de sincronização | 🔑 token interno |
+| `POST` | `/internal/jobs/fecha_abertas` | Job: fecha votações abertas | 🔑 token interno |
+
+> `/internal/*` fica fora do prefixo `/api/v1`.
 
 ---
 
-# Testes de carga
+## Testes
 
-Os testes de carga são feitos com **k6**.
-
-Executar:
 ```bash
-k6 run tests/load/reunioes.js
+make test          # testes Go (gotestsum)
+make test-api      # seed + testes k6 da API (requer API rodando)
+k6 run tests/api/<arquivo>.test.js
 ```
 
-Passando token:
-```bash
-TOKEN=<jwt> k6 run tests/load/reunioes.js
-```
+Os arquivos `tests/api/betha-*.test.js` chamam um serviço externo e exigem `CPF`, `PUBLIC_KEY` e `USER_ACCESS` no ambiente.
 
 ---
 
-# Estrutura do projeto
+## Estrutura do projeto
+
 ```
 cmd/
-  api/
-    main.go           # Entrypoint e anotações gerais do Swagger
+  api/                 # Entrypoint da API e anotações gerais do Swagger
+  cli/                 # voting-cli (migrate, seed, fdw) + TUI
 
 internal/
-  application/        # Casos de uso
-  domain/             # Entidades e interfaces de repositório
-  infrastructure/     # Implementações de persistência e mappers
-  handler/            # Handlers HTTP, DTOs e mappers de response
-  middleware/         # JWT e outros middlewares
-  router/             # Configuração de rotas
-  platform/           # Utilitários (JWT, ID, transações)
+  application/         # Casos de uso (votacao, usuario, sincronia, relatorio, jobs)
+  domain/              # Entidades, agregados, eventos e interfaces de repositório
+  infrastructure/      # Persistência (sqlc + repositórios), mappers, geração de PDF
+  handler/             # Handlers HTTP, requests/responses e mappers
+  middleware/          # JWT, CORS, token de jobs
+  router/              # Registro de rotas
+  platform/            # Event bus (SSE), JWT, IDs, transações
+  bootstrap/           # Composição de dependências
+  config/  database/   # Configuração, conexão, migrate, seed, FDW
+  test/fakes/          # Fakes de repositório para testes
 
-pkg/
-  logger/
-
-tests/
-  api/                # Testes de carga com k6
+migrations/            # Migrations SQL (golang-migrate)
+fdw/  spl/  seeds/     # Integração com o banco SPL e dados de seed
+infra/                 # Docker Compose, Dockerfiles, realm Keycloak
+tests/api/             # Testes k6
+web/                   # Monorepo pnpm (apps/admin, apps/vereador, packages/shared)
+docs/                  # Documentação, roadmap, ADRs, runbooks e prompts
+swagger/               # Gerado por `make swagger` (não versionado)
 ```
 
-Arquitetura baseada em **Clean Architecture**.
+Arquitetura baseada em **Clean Architecture / DDD** — ver [`docs/architecture.md`](docs/architecture.md).
 
 ---
 
-# Roadmap
+## Roadmap
 
-* [x] Apuração automática de votos
-* [x] Votação em tempo real via SSE
-* [ ] Dashboard de votação
-* [ ] Auditoria de votos
+Ver [`docs/roadmap.md`](docs/roadmap.md). Dívida técnica em [`BACKLOG.md`](BACKLOG.md).
 
 ---
 
-# Licença
+## Licença
 
 MIT

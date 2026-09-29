@@ -14,7 +14,7 @@ on:
       - 'go.mod'
       - 'go.sum'
       - 'infra/docker/api/Dockerfile'
-      - '.github/workflows/build-api.yml'
+      - '.github/workflows/build_api.yml'
   workflow_dispatch:
 
 env:

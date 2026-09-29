@@ -14,8 +14,8 @@ RUN go install github.com/swaggo/swag/cmd/swag@latest
 # Copia código
 COPY . .
 
-# Gera docs
-RUN swag init -g cmd/api/main.go --output docs
+# Gera Swagger (mesmas flags do `make swagger`; saída em ./swagger, fora de docs/)
+RUN swag init -g cmd/api/main.go --parseInternal --output swagger
 
 # Argumentos para cross-compiling
 ARG TARGETOS
