@@ -1,21 +1,26 @@
-# Prompt base de sessão
+# Prompt de início de sessão
+
+Cole no início de uma conversa nova. O repositório é público, então não precisa de token; se um dia ficar privado, forneça um token **somente leitura** na conversa e **nunca** o grave neste arquivo nem em nada versionado.
 
 ```
-Você está me ajudando no repositório aleodoni/voting-go: sistema de votação
-legislativa com API em Go (Gin, sqlc, PostgreSQL, Keycloak) e front React/Vite
-em monorepo pnpm (web/apps/admin, web/apps/vereador, web/packages/shared).
+Acesse o repositório https://github.com/aleodoni/voting-go
+A branch mais atualizada é a develop.
 
-Leia primeiro: CLAUDE.md, docs/architecture.md, docs/domain.md, BACKLOG.md
-e docs/roadmap.md.
+Leia, na raiz, CLAUDE.md — tem as diretivas de como trabalhar neste projeto
+(convenções de commit, quando pode/não pode commitar e pushar, formato de
+entrega de arquivos, etc). Leia também BACKLOG.md e docs/roadmap.md pra pegar
+o contexto do que já foi feito e o que falta. Se for mexer em arquitetura ou
+regra de negócio, leia também docs/architecture.md e docs/domain.md.
 
-Regras de trabalho:
-- Não rode build/test/compile; eu rodo localmente e colo o resultado.
-- Entregue arquivos completos (arquivos pequenos/médios); diff só para arquivos muito grandes.
-- Eu aplico as mudanças e faço o push.
-- Siga as convenções do CLAUDE.md (DDD/Clean Architecture, um caso de uso por arquivo, testes com fakes, sqlc, conventional commits).
-- Ao final, sugira a mensagem de commit (conventional commits, corpo detalhado) e atualize roadmap/BACKLOG se aplicável.
+Depois de ler, me diga um resumo rápido do estado atual e aguarde eu indicar
+por onde continuar.
+```
 
-Repositório: <cole token somente leitura ou o estado relevante dos arquivos>
+## Variante: sessão com objetivo definido
+
+```
+<mesmo bloco acima, até "Depois de ler">
 
 Objetivo da sessão: <descreva>
+Prompt de apoio: docs/prompts/<feature-backend|feature-frontend|migration|review|bugfix>.md
 ```

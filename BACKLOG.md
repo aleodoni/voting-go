@@ -3,6 +3,8 @@
 Features ficam em `docs/roadmap.md`. Aqui: correções, limpezas e riscos conhecidos.
 Prioridade: **P0** segurança/quebra · **P1** importante · **P2** melhoria.
 
+Itens resolvidos são **removidos** daqui — o commit que resolveu é o registro.
+
 ## Repositório e segurança
 
 - [ ] **P0** Remover do índice `infra/.env.aws`, `.env.deploy`, `.env.staging` (`git rm --cached`), manter apenas `*.example`; revisar histórico e rotacionar credenciais se algum valor real já foi commitado
@@ -47,5 +49,5 @@ Prioridade: **P0** segurança/quebra · **P1** importante · **P2** melhoria.
 
 ## Documentação
 
-- [x] README atualizado (front, CLI, jobs, SSE, infra, testes)
 - [ ] **P2** Publicar `docs/` no GitHub Pages junto com o Swagger (`docs.yml`)
+- [ ] **P2** Confirmar e preencher em `docs/domain.md` o significado dos status `F`/`V` e das opções de voto
