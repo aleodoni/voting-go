@@ -1,6 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { ContainerPage, H2, P, useAuth } from '@voting/shared';
-import { FormUserInfo } from '@/components/FormUserInfo';
+import { ContainerPage, FormUserInfo, H2, P, useAuth } from '@voting/shared';
 
 export const Route = createFileRoute('/user-info')({
 	component: UserInfo,

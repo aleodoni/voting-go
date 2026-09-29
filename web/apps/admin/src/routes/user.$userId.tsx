@@ -13,13 +13,13 @@ import {
 	H2,
 	Input,
 	Switch,
+	useUser,
 } from '@voting/shared';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { z } from 'zod';
 import { useUpdateUser } from '@/hooks/useUpdateUser';
-import { useUser } from '@/hooks/useUser';
 
 export const Route = createFileRoute('/user/$userId')({
 	component: UserDetail,

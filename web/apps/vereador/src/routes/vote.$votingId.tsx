@@ -1,10 +1,9 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router';
-import { EVoteType } from '@voting/shared';
+import { EVoteType, useIsProjectVoting } from '@voting/shared';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { VoteModal } from '@/components/VoteModal';
 import { VoteSelectionView } from '@/components/VoteSelectionView';
-import { useIsProjectVoting } from '@/hooks/useIsProjectVoting';
 import { useRegistraVoto } from '@/hooks/useRegistraVoto';
 import { VoteType } from '@/types/vote-types';
 

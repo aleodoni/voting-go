@@ -1,21 +1,21 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'react-hot-toast';
+import { z } from 'zod';
+import { useAuth } from '../AuthContext';
+import { getApi } from '../api-client';
+import type { User } from '../types';
+import { Button } from './ui/button';
 import {
-	Button,
 	Form,
 	FormControl,
 	FormField,
 	FormItem,
 	FormLabel,
 	FormMessage,
-	getApi,
-	Input,
-	User,
-	useAuth,
-} from '@voting/shared';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'react-hot-toast';
-import { z } from 'zod';
+} from './ui/form';
+import { Input } from './ui/input';
 
 type FormUserInfoProps = {
 	userInfo: User;

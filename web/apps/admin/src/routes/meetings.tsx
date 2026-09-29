@@ -1,9 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { ContainerPage, H2 } from '@voting/shared';
+import { ContainerPage, H2, useIsProjectVoting } from '@voting/shared';
 import { useEffect, useState } from 'react';
 import { MeetingSelect } from '@/components/MeetingSelect';
 import { ProjectsMeeting } from '@/components/MeetingSelect/ProjectsMeeting';
-import { useIsProjectVoting } from '@/hooks/useIsProjectVoting';
 import { useProjectsMeeting } from '@/hooks/useProjectsMeeting';
 import { MeetingDTO, useTodayMeetings } from '@/hooks/useTodayMeetings';
 

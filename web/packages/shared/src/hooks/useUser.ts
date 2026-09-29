@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { getApi, User } from '@voting/shared';
+import { getApi } from '../api-client';
+import type { User } from '../types';
 
 export function useUser(userId: string) {
 	return useQuery<User>({

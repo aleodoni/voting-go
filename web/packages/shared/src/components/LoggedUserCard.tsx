@@ -1,14 +1,14 @@
 import { Link } from '@tanstack/react-router';
+import { Info } from 'lucide-react';
+import type { User } from '../types';
+import { Button } from './ui/button';
 import {
-	Button,
 	Card,
 	CardDescription,
 	CardFooter,
 	CardHeader,
 	CardTitle,
-	User,
-} from '@voting/shared';
-import { Info } from 'lucide-react';
+} from './ui/card';
 
 type LoggedUserCardProps = {
 	userInfo: User;

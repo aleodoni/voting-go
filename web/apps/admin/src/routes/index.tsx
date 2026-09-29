@@ -1,8 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useAuth } from '@voting/shared';
+import { LoggedUserCard, useAuth } from '@voting/shared';
 import { ConnectedUsersCard } from '@/components/ConnectedUsersCard';
 import { LastSyncsCard } from '@/components/LastSynchsCard';
-import { LoggedUserCard } from '@/components/LoggedUserCard';
 import { ManageUserCard } from '@/components/ManageUserCard';
 import { MeetingsCard } from '@/components/MeetingsCard';
 import { VotingProgress } from '@/components/VotingProgress';

@@ -4,10 +4,10 @@ import {
 	CardContent,
 	CardHeader,
 	CardTitle,
+	FormUserInfo,
 	User,
 } from '@voting/shared';
 import { User as UserIcon } from 'lucide-react';
-import { FormUserInfo } from './FormUserInfo';
 
 type UserInfoPageProps = {
 	userInfo: User;
