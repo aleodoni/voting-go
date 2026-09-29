@@ -1,0 +1,6 @@
+# ADR 0006 — Biome como único linter e formatter do front
+
+- **Status**: Aceito
+- **Contexto**: o `lint` dos apps rodava `eslint .`, mas `eslint` não é dependência de nenhum pacote e não há configuração dele; o script não funcionava. Já a raiz de `web/` configurava o Biome, e o código existente segue as convenções dele (tabs, aspas simples).
+- **Decisão**: Biome (2.2.2) é o único linter e formatter do front, configurado em `web/biome.json` e executado só pela raiz do workspace: `pnpm lint` (verifica) e `pnpm lint:fix` (corrige). Os scripts `lint` dos apps foram removidos. Ficam fora da checagem `routeTree.gen.ts` (gerado pelo TanStack Router), `dist` e `node_modules`. JSON e CSS não são formatados, porque `pnpm` e o CLI do shadcn os escrevem com 2 espaços e reformatar só geraria ruído. Nos arquivos `.css` a regra `noUnknownAtRules` fica desligada, pois o Biome 2.2 não reconhece as diretivas do Tailwind (`@source`, `@custom-variant`, `@theme`).
+- **Consequências**: um só comando e uma só configuração para os dois apps e o `shared`. Ao subir o Biome para uma versão com `css.parser.tailwindDirectives`, trocar o override de CSS por essa opção. O lint ainda não roda no CI (ver `docs/roadmap.md`).

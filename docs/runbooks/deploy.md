@@ -33,6 +33,6 @@ Workflow `deploy_aws` (manual, escolhe `production`/`staging`, opção `force_de
 ## Checklist pós-deploy
 
 - [ ] `/api/v1/health` responde
-- [ ] Login no admin e no vereador (Keycloak)
+- [ ] Login no admin e no vereador (Keycloak). Em um staging novo, defina antes as senhas dos usuários (`docs/runbooks/keycloak.md`)
 - [ ] SSE conecta (`/api/v1/eventos`)
 - [ ] Última sincronia com sucesso (`GET /sincronia`)

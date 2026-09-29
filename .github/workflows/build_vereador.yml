@@ -12,7 +12,7 @@ on:
       - 'web/pnpm-lock.yaml'
       - 'web/pnpm-workspace.yaml'
       - 'infra/docker/vereador/Dockerfile'
-      - '.github/workflows/build-vereador.yml'
+      - '.github/workflows/build_vereador.yml'
   workflow_dispatch:
 
 env:

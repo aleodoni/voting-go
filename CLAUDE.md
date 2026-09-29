@@ -26,6 +26,8 @@ SSE.
 - Fluxo de branches: `develop` roda o `ci.yml` (Swagger + testes Go); `main` e `staging` disparam os builds de imagem (`build_api|admin|vereador`); `docs.yml` publica Swagger UI + casos de uso no GitHub Pages a partir da `main`.
 - O repositório foi reestruturado: o Swagger gerado agora fica em `swagger/` (ignorado pelo git) e `docs/` é documentação versionada (ADR 0004). O import em `internal/router/router.go` é `github.com/aleodoni/voting-go/swagger`.
 - `infra/.env.*` reais não são mais versionados; use os `.example`.
+- O realm de staging (`voting-realm.staging.json`) não traz senhas de usuário; o de dev tem senhas triviais só para uso local (`docs/runbooks/keycloak.md`).
+- O front tem um só linter, o Biome, rodado pela raiz de `web/` (`pnpm lint`, limpo hoje). Ele ainda não roda no CI: falta o job do front (`docs/roadmap.md`).
 - Existe ambiente de **staging** em Docker Compose (`infra/docker-compose.staging.yml`: db, keycloak, api, admin, vereador). Há mais de um caminho de deploy no repo (compose via SSH, AWS/ECR); qual é o oficial ainda não foi definido — ver `docs/runbooks/deploy.md` e `BACKLOG.md`.
 - O event bus do SSE é em memória (por instância); escalar a API para mais de uma réplica exige broker (ADR 0003, `docs/roadmap.md`).
 
@@ -37,7 +39,7 @@ SSE.
 - Handlers: um arquivo por endpoint, com anotações swaggo; request/response/mapper no pacote do handler.
 - SQL novo em `internal/infrastructure/persistence/sqlc/queries/*.sql` + `sqlc generate`. Nunca editar `sqlc/generated/`.
 - Migrations: sempre par `.up.sql`/`.down.sql`, numeração sequencial (`make migrate-create name=...`). Nunca editar migration já aplicada.
-- Front: Biome (tabs, aspas simples). Código usado pelos dois apps vai para `@voting/shared`.
+- Front: Biome (tabs, aspas simples) é o único linter/formatter (ADR 0006): `make lint-web` verifica e `cd web && pnpm lint:fix` corrige. JSON e CSS não são formatados. Código usado pelos dois apps vai para `@voting/shared`.
 - Não versionar segredos.
 
 ## Comandos úteis
@@ -115,8 +117,7 @@ make build-web | lint-web
 
 ## Dívida técnica conhecida
 
-Ver `BACKLOG.md`. Destaques de maior prioridade: credenciais de `infra/.env.*`
-que estiveram versionadas (verificar histórico e rotacionar se necessário),
-`panic` por asserção de tipo em `middleware/auth.go`, token JWT na query
-string do SSE, `ci.yml` que só roda em `develop`, e duplicação de
-componentes/hooks entre `admin` e `vereador`.
+Ver `BACKLOG.md`. Destaques de maior prioridade: senhas dos usuários do
+Keycloak de staging em execução (trocar no console), `panic` por asserção de
+tipo em `middleware/auth.go`, token JWT na query string do SSE e `ci.yml` que
+só roda em `develop`.

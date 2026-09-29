@@ -7,10 +7,7 @@ Itens resolvidos são **removidos** daqui — o commit que resolveu é o registr
 
 ## Repositório e segurança
 
-- [ ] **P0** Remover do índice `infra/.env.aws`, `.env.deploy`, `.env.staging` (`git rm --cached`), manter apenas `*.example`; revisar histórico e rotacionar credenciais se algum valor real já foi commitado
-- [ ] **P1** Remover `node_modules/.pnpm-workspace-state-v1.json` e `web/apps/admin/tsconfig.tsbuildinfo` do índice
-- [ ] **P1** Corrigir `paths` do `build_api.yml` (`build-api.yml` → `build_api.yml`); revisar `build_admin.yml` e `build_vereador.yml` pelo mesmo problema
-- [ ] **P2** Verificar se `infra/keycloak/realm-import/*.json` contêm segredos de client ou senhas de usuário e, se houver, tirar do versionamento
+- [ ] **P0** Trocar no console as senhas dos usuários do Keycloak de staging **em execução**: o realm importado trazia uma senha comum, só de dígitos, para os 6 usuários (inclusive `usuario.admin`), e o JSON estava no repositório. O JSON novo não traz mais senhas, mas o import não altera um realm já criado (`docs/runbooks/keycloak.md`)
 
 ## Backend
 
@@ -33,12 +30,11 @@ Itens resolvidos são **removidos** daqui — o commit que resolveu é o registr
 
 ## Frontend
 
-- [ ] **P1** Mover para `@voting/shared` o que está duplicado entre admin e vereador: `useIsProjectVoting`, `useUser`, `FormUserInfo`, `LoggedUserCard`
-- [ ] **P1** Remover `react-router-dom` dos apps se só o TanStack Router é usado
-- [ ] **P1** Escolher um linter: `lint` dos apps roda `eslint`, mas a raiz `web/` configura Biome
 - [ ] **P2** Unificar `MeetingSelect/ProjectCard`, `StatusBadge`, `ProjectVotingPanel` com os equivalentes de `VotingPanel/` no admin
 - [ ] **P2** Remover `web/packages/shared/pnpm-lock.yaml` (lockfile único na raiz do workspace) e o campo `workspaces` de `web/package.json` (redundante com `pnpm-workspace.yaml`)
 - [ ] **P2** Padronizar tipagem de `useIsProjectVoting.ts` (SSE + TanStack Query)
+- [ ] **P2** `ProjectDTO` em `web/apps/admin/src/types/meeting.ts` é idêntico a `ProjetoDTO` de `@voting/shared`; usar o do shared e remover a cópia
+- [ ] **P2** Ao subir o Biome para uma versão com `css.parser.tailwindDirectives`, trocar o override de `noUnknownAtRules` em `web/biome.json` por essa opção (ADR 0006)
 
 ## CI/CD
 

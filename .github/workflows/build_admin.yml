@@ -12,7 +12,7 @@ on:
       - 'web/pnpm-lock.yaml'
       - 'web/pnpm-workspace.yaml'
       - 'infra/docker/admin/Dockerfile'
-      - '.github/workflows/build-admin.yml'
+      - '.github/workflows/build_admin.yml'
   workflow_dispatch:
 
 env:
