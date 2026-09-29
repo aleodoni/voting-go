@@ -74,7 +74,10 @@ make build-web | lint-web
 - **Mensagens de commit em inglês**, indicativo, conventional commits
   (`fix(votacao): ...`, `feat(web): ...`, `chore: ...`), com corpo
   explicando o "porquê", não só o "o quê". São sugestão pronta pra ele
-  copiar. Uma mudança que cruza back e front vai num único commit.
+  copiar. **Entregar sempre a mensagem inteira num único bloco de código**
+  (assunto, linha em branco e corpo), pronta para colar no editor do
+  `git commit` — não quebrada em vários `-m`. Uma mudança que cruza back e
+  front vai num único commit.
 - **Não tente compilar/testar bootstrapando outro toolchain** quando a
   versão do `go.mod` (hoje 1.25) não estiver disponível no sandbox. Ele
   prefere rodar `go build`/`go test` localmente para economizar recursos.
