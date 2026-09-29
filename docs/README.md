@@ -10,11 +10,12 @@
 
 ## Prompts
 
-Prompts reutilizáveis para sessões com o Claude neste repositório. Copie o conteúdo, preencha os campos `<...>` e cole no início da conversa.
+[`prompt.md`](prompt.md) é o prompt de **início de toda sessão**: cole-o numa conversa nova e o Claude acessa o repositório, lê `CLAUDE.md`, `roadmap.md` e `BACKLOG.md`, resume o estado e parte do "Próximo passo". Ao fim da iteração ele mostra o checklist de documentação antes do commit.
+
+Prompts de apoio para tarefas específicas (copie, preencha os campos `<...>` e use junto com o `prompt.md`):
 
 | Arquivo | Quando usar |
 | ------- | ----------- |
-| [prompts/00-contexto.md](prompts/00-contexto.md) | Início de qualquer sessão (lê CLAUDE.md, BACKLOG e roadmap e resume o estado) |
 | [prompts/feature-backend.md](prompts/feature-backend.md) | Novo caso de uso / endpoint na API |
 | [prompts/feature-frontend.md](prompts/feature-frontend.md) | Nova tela, componente ou hook |
 | [prompts/migration.md](prompts/migration.md) | Nova migration ou mudança de schema |

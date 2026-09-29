@@ -2,7 +2,8 @@
 
 Leia isto antes de começar a mexer no projeto. Para arquitetura e domínio,
 veja `docs/architecture.md` e `docs/domain.md`. Para o que falta fazer, veja
-`docs/roadmap.md` (features) e `BACKLOG.md` (dívida técnica).
+`docs/roadmap.md` (features, com a seção "Próximo passo") e `BACKLOG.md`
+(dívida técnica). O prompt de início de sessão está em `docs/prompt.md`.
 
 ## O que é
 
@@ -67,6 +68,17 @@ make build-web | lint-web
   **removidos** do `BACKLOG.md`/`roadmap.md` — o commit que resolveu é o
   registro. Entregar os docs atualizados junto com a mudança, não só
   quando perguntado.
+- **No fim de cada iteração, ANTES da mensagem de commit, mostrar o
+  checklist de documentação**: para cada arquivo (`roadmap.md`,
+  `BACKLOG.md`, `CLAUDE.md` "Estado atual", `architecture.md`,
+  `domain.md`, ADRs, runbooks, README) dizer "atualizar" ou "sem mudança"
+  e o motivo, com base nos passos executados. Entregar os docs
+  atualizados junto com a mudança. Isso inclui reescrever a seção
+  "Próximo passo" do `docs/roadmap.md`, que é de onde a próxima sessão
+  começa. Só depois vem a mensagem de commit.
+- **No início da sessão** (prompt de `docs/prompt.md`): ler `CLAUDE.md`,
+  `docs/roadmap.md` e `BACKLOG.md`, resumir o estado, dizer qual é o
+  próximo passo e começar por ele, salvo indicação contrária.
 - **Prefira o arquivo completo a diff/patch** quando o arquivo for pequeno
   ou já tiver sido editado manualmente. Se uma edição pontual não aplicar,
   não insista adivinhando: peça o conteúdo atual (`cat arquivo`) e gere em

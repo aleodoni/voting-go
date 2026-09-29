@@ -1,5 +1,13 @@
 # Roadmap
 
+## Próximo passo
+
+> Mantida pelo Claude ao final de cada iteração: é daqui que a próxima sessão parte.
+
+1. Fechar a reestruturação: confirmar que o CI do `develop` passa e, se os `infra/.env.*` versionados tinham valores reais, rotacionar as credenciais (`BACKLOG.md`, P0).
+2. Frontend (fase 3): mover para `@voting/shared` o que está duplicado entre `admin` e `vereador` (`useIsProjectVoting`, `useUser`, `FormUserInfo`, `LoggedUserCard`) e remover dependências não usadas (`react-router-dom`).
+3. CI/CD (fase 4): `ci.yml` também em `main`/PRs, job de lint + build do front, e definir o caminho de deploy oficial.
+
 ## Concluído
 
 - [x] Autenticação Keycloak (JWT) e credenciais por usuário

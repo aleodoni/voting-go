@@ -16,5 +16,5 @@ Implemente de dentro para fora, entregando cada arquivo completo:
 7. Front, se necessário: hook + componente (use o prompt feature-frontend.md).
 
 No fim: resumo dos arquivos alterados, comandos que devo rodar (make migrate, sqlc generate,
-make swagger, make test), docs/ a atualizar e mensagem de commit em inglês.
+make swagger, make test), checklist de docs a atualizar (antes do commit) e mensagem de commit em inglês num único bloco.
 ```
