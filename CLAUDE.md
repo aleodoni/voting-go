@@ -117,5 +117,4 @@ make build-web | lint-web
 
 ## Dívida técnica conhecida
 
-Ver `BACKLOG.md`. Destaques de maior prioridade: token JWT na query string do SSE e
-`NewJWTMiddleware` que entra em `panic` se o JWKS estiver fora do ar na subida.
+Ver `BACKLOG.md`. Destaque de maior prioridade: token JWT na query string do SSE.

@@ -67,7 +67,11 @@ func NewApp() *App {
 	}
 
 	bus := event.NewBus()
-	jwtMiddleware := middleware.NewJWTMiddleware(cfg)
+	jwtMiddleware, err := middleware.NewJWTMiddleware(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	jobsMiddleware := middleware.NewInternalJobMiddleware(cfg)
 
 	repos := buildRepositories(pgxPool)

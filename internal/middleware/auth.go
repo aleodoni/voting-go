@@ -23,21 +23,24 @@ type JWTMiddleware struct {
 	cfg  *config.Config
 }
 
-func NewJWTMiddleware(cfg *config.Config) *JWTMiddleware {
-	jwks, err := keyfunc.Get(cfg.JWKSURL, keyfunc.Options{
+// NewJWTMiddleware carrega o JWKS do Keycloak, com novas tentativas se ele
+// estiver indisponível, e devolve erro se não conseguir.
+func NewJWTMiddleware(cfg *config.Config) (*JWTMiddleware, error) {
+	options := keyfunc.Options{
 		RefreshInterval:   5 * time.Minute, // Atualiza periodicamente
 		RefreshTimeout:    10 * time.Second,
 		RefreshUnknownKID: true, // Chave nova dispara refresh imediato
-	})
+	}
 
+	jwks, err := carregaJWKS(keyfunc.Get, cfg.JWKSURL, options, jwksTentativas, jwksEsperaInicial, jwksEsperaMaxima)
 	if err != nil {
-		panic("failed to get JWKS: " + err.Error())
+		return nil, err
 	}
 
 	return &JWTMiddleware{
 		jwks: jwks,
 		cfg:  cfg,
-	}
+	}, nil
 }
 
 func (m *JWTMiddleware) Handler() gin.HandlerFunc {

@@ -6,7 +6,7 @@
 
 1. Definir o caminho de deploy oficial (compose/SSH × AWS/ECR) e desativar o que não for usado (`docs/runbooks/deploy.md`). Depende de decisão do Alexandre.
 2. Backend P1: token JWT na query string do SSE aparece em logs; avaliar ticket curto de uso único (`BACKLOG.md`).
-3. Backend P1: `NewJWTMiddleware` faz `panic` se o JWKS estiver indisponível na subida; avaliar retry ou erro controlado (`BACKLOG.md`).
+3. Backend P2, do `BACKLOG.md`: a inconsistência de `Votacao.Abrir` (`VotacaoAbertaEvent` sem `domainEvent`, `OccurredAt` zerado) e os nomes de arquivo com typo.
 
 ## Concluído
 
