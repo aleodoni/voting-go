@@ -37,9 +37,8 @@ Itens resolvidos são **removidos** daqui — o commit que resolveu é o registr
 
 ## CI/CD
 
-- [ ] **P1** `ci.yml` roda só em `develop`; incluir PRs e pushes em `main`
-- [ ] **P1** Adicionar job de lint + build do front no CI
 - [ ] **P1** Documentar qual caminho de deploy é o oficial (compose/SSH × AWS/ECR) e desativar o que não for usado
+- [ ] **P2** A versão do pnpm (10.33.0) está fixada em três lugares (`ci.yml` e os Dockerfiles de `admin` e `vereador`), e os Dockerfiles instalam com `--no-frozen-lockfile` enquanto o CI usa `--frozen-lockfile`. Fixar `packageManager` em `web/package.json` e alinhar os Dockerfiles
 - [ ] **P2** `infra/Makefile` referencia `docker-compose.production.yml` e `docker-compose.orange.yml`, que não estão no repo; alinhar ou documentar
 
 ## Documentação

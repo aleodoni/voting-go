@@ -23,11 +23,11 @@ SSE.
 
 ## Estado atual
 
-- Fluxo de branches: `develop` roda o `ci.yml` (Swagger + testes Go); `main` e `staging` disparam os builds de imagem (`build_api|admin|vereador`); `docs.yml` publica Swagger UI + casos de uso no GitHub Pages a partir da `main`.
+- Fluxo de branches: `develop` e `main` (push e PR) rodam o `ci.yml`, com o job `test` (Swagger + testes Go) e o job `web` (Biome + build do front); `main` e `staging` disparam os builds de imagem (`build_api|admin|vereador`); `docs.yml` publica Swagger UI + casos de uso no GitHub Pages a partir da `main`.
 - O repositório foi reestruturado: o Swagger gerado agora fica em `swagger/` (ignorado pelo git) e `docs/` é documentação versionada (ADR 0004). O import em `internal/router/router.go` é `github.com/aleodoni/voting-go/swagger`.
 - `infra/.env.*` reais não são mais versionados; use os `.example`.
 - O realm de staging (`voting-realm.staging.json`) não traz senhas de usuário; o de dev tem senhas triviais só para uso local. O Keycloak de staging **em execução** mantém as senhas de teste antigas, por decisão do Alexandre com a infra: não é pendência, não reabrir (`docs/runbooks/keycloak.md`).
-- O front tem um só linter, o Biome, rodado pela raiz de `web/` (`pnpm lint`, limpo hoje). Ele ainda não roda no CI: falta o job do front (`docs/roadmap.md`).
+- O front tem um só linter, o Biome, rodado pela raiz de `web/` (`pnpm lint`, limpo hoje) e também pelo job `web` do CI.
 - Existe ambiente de **staging** em Docker Compose (`infra/docker-compose.staging.yml`: db, keycloak, api, admin, vereador). Há mais de um caminho de deploy no repo (compose via SSH, AWS/ECR); qual é o oficial ainda não foi definido — ver `docs/runbooks/deploy.md` e `BACKLOG.md`.
 - O event bus do SSE é em memória (por instância); escalar a API para mais de uma réplica exige broker (ADR 0003, `docs/roadmap.md`).
 
@@ -118,5 +118,4 @@ make build-web | lint-web
 ## Dívida técnica conhecida
 
 Ver `BACKLOG.md`. Destaques de maior prioridade: `panic` por asserção de tipo em
-`middleware/auth.go`, token JWT na query string do SSE e `ci.yml` que só roda
-em `develop`.
+`middleware/auth.go` e token JWT na query string do SSE.

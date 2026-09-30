@@ -4,8 +4,9 @@
 
 > Mantida pelo Claude ao final de cada iteração: é daqui que a próxima sessão parte.
 
-1. CI/CD (fase 4): `ci.yml` também em `main`/PRs e um job do front (`pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`). O lint (Biome, ADR 0006) já passa limpo e os três pacotes compilam.
-2. Definir o caminho de deploy oficial (compose/SSH × AWS/ECR) e desativar o que não for usado (`docs/runbooks/deploy.md`).
+1. Definir o caminho de deploy oficial (compose/SSH × AWS/ECR) e desativar o que não for usado (`docs/runbooks/deploy.md`). Depende de decisão do Alexandre.
+2. Backend P1: `middleware/auth.go` faz asserções de tipo sem verificação nas claims do JWT, o que pode causar `panic` com token malformado (`BACKLOG.md`).
+3. Backend P1: token JWT na query string do SSE aparece em logs; avaliar ticket curto de uso único (`BACKLOG.md`).
 
 ## Concluído
 
@@ -20,6 +21,7 @@
 - [x] Jobs internos (sincronia, fechamento de votações abertas)
 - [x] CLI de operação (`voting-cli`)
 - [x] Ambiente de staging com Docker Compose
+- [x] CI completo (Go + front) em `develop` e `main`: `ci.yml` com os jobs `test` e `web`
 - [x] Reestruturação do repositório (higiene, `docs/`, Swagger fora de `docs/`, código duplicado do front em `@voting/shared`, Biome como único linter)
 
 ## Em andamento
@@ -31,7 +33,7 @@
 - [ ] Dashboard de votação
 - [ ] Auditoria de votos (quem votou o quê, quando, alterações)
 - [ ] Suporte a múltiplas réplicas da API (broker para eventos SSE em vez do bus em memória)
-- [ ] CI completo (Go + front) e deploy padronizado
+- [ ] Deploy padronizado (um caminho oficial documentado)
 - [ ] Testes E2E do fluxo abrir → votar → fechar
 
 ## Ideias
