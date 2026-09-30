@@ -156,8 +156,6 @@ make test-api      # seed + testes k6 da API (requer API rodando)
 k6 run tests/api/<arquivo>.test.js
 ```
 
-Os arquivos `tests/api/betha-*.test.js` chamam um serviço externo e exigem `CPF`, `PUBLIC_KEY` e `USER_ACCESS` no ambiente.
-
 ---
 
 ## Estrutura do projeto

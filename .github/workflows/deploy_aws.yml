@@ -124,8 +124,6 @@ jobs:
           secrets: |
             DBUSER=${{ env.SECRET_BASE }}/db:DBUSER::
             DBPASSWORD=${{ env.SECRET_BASE }}/db:DBPASSWORD::
-            PUBLIC_KEY=${{ env.SECRET_BASE }}/app:PUBLIC_KEY::
-            USER_ACCESS=${{ env.SECRET_BASE }}/app:USER_ACCESS::
 
       # Garante que o App Runner não escale além de 1 instância.
       # Necessário porque a API usa SSE com Hub em memória —
@@ -222,8 +220,6 @@ jobs:
             export DBPASSWORD=${{ secrets.DB_PASSWORD }}
             export KEYCLOAK_ISSUER=${{ secrets.KEYCLOAK_ISSUER }}
             export JWKSURL=${{ secrets.JWKS_URL }}
-            export PUBLIC_KEY=${{ secrets.PUBLIC_KEY }}
-            export USER_ACCESS=${{ secrets.USER_ACCESS }}
 
             # Atualiza só o container da API, sem restartar o banco
             cd ~/voting-go/infra
