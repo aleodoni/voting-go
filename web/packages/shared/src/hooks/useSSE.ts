@@ -67,7 +67,7 @@ export function useSSE({ onConnect, onEvent, onError }: UseSSEOptions) {
 				return;
 			}
 
-			const url = `${import.meta.env.VITE_API_URL}/eventos?token=${token}`;
+			const url = `${import.meta.env.VITE_API_URL}/eventos`;
 			const controller = new AbortController();
 			abortRef.current = controller;
 			isConnectingRef.current = false; // ← libera após criar o controller
@@ -75,7 +75,10 @@ export function useSSE({ onConnect, onEvent, onError }: UseSSEOptions) {
 			try {
 				const response = await fetch(url, {
 					signal: controller.signal,
-					headers: { Accept: 'text/event-stream' },
+					headers: {
+						Accept: 'text/event-stream',
+						Authorization: `Bearer ${token}`,
+					},
 				});
 
 				if (!response.ok || !response.body) {

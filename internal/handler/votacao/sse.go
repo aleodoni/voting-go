@@ -8,35 +8,31 @@ import (
 
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
 
-	"github.com/aleodoni/voting-go/internal/middleware"
 	"github.com/aleodoni/voting-go/internal/platform/event"
-	jwtutil "github.com/aleodoni/voting-go/internal/platform/jwt"
 	"github.com/gin-gonic/gin"
 )
 
 type SSEHandler struct {
-	bus           *event.Bus
-	jwtMiddleware *middleware.JWTMiddleware
-	usuarioRepo   domainUsuario.UsuarioRepository
+	bus         *event.Bus
+	usuarioRepo domainUsuario.UsuarioRepository
 }
 
-func NewSSEHandler(bus *event.Bus, jwtMiddleware *middleware.JWTMiddleware, usuarioRepo domainUsuario.UsuarioRepository) *SSEHandler {
+func NewSSEHandler(bus *event.Bus, usuarioRepo domainUsuario.UsuarioRepository) *SSEHandler {
 	return &SSEHandler{
-		bus:           bus,
-		jwtMiddleware: jwtMiddleware,
-		usuarioRepo:   usuarioRepo,
+		bus:         bus,
+		usuarioRepo: usuarioRepo,
 	}
 }
 
 // Handle godoc
 //
 //	@Summary		Stream de eventos SSE
-//	@Description	Abre uma conexão Server-Sent Events para receber eventos de votação em tempo real. O token JWT deve ser enviado via query string (não via header Authorization).
+//	@Description	Abre uma conexão Server-Sent Events para receber eventos de votação em tempo real. Requer autenticação: o token JWT vai no header Authorization (Bearer), como nas demais rotas; não é aceito via query string.
 //	@Tags			votação
 //	@Produce		text/event-stream
-//	@Param			token	query		string	true	"Token JWT"
 //	@Success		200		{string}	string	"Stream de eventos"
 //	@Failure		401		{object}	map[string]interface{}
+//	@Security		BearerAuth
 //	@Router			/eventos [get]
 func (h *SSEHandler) Handle(c *gin.Context) {
 	// Headers CORS explícitos para SSE
@@ -46,23 +42,9 @@ func (h *SSEHandler) Handle(c *gin.Context) {
 		c.Header("Access-Control-Allow-Credentials", "true")
 	}
 
-	token := c.Query("token")
-	if token == "" {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "missing token"})
-		return
-	}
-
-	claims, err := h.jwtMiddleware.ValidateToken(token)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
-		return
-	}
-
-	keycloakID, username, ok := jwtutil.Identity(claims)
-	if !ok {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
-		return
-	}
+	// A autenticação já foi feita pelo JWTMiddleware do grupo protegido.
+	keycloakID := c.GetString("loggedUserKeycloakID")
+	username := c.GetString("loggedUserName")
 
 	u, err := h.usuarioRepo.FindByKeycloakID(c.Request.Context(), keycloakID)
 	if err != nil {

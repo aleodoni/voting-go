@@ -76,7 +76,7 @@ func NewApp() *App {
 
 	repos := buildRepositories(pgxPool)
 	useCases := buildUseCases(repos, bus)
-	handlers := buildHandlers(cfg, useCases, repos, bus, jwtMiddleware)
+	handlers := buildHandlers(cfg, useCases, repos, bus)
 
 	r := router.SetupRouter(cfg, jwtMiddleware, jobsMiddleware, handlers)
 

@@ -5,7 +5,7 @@
 > Mantida pelo Claude ao final de cada iteração: é daqui que a próxima sessão parte.
 
 1. Definir o caminho de deploy oficial (compose/SSH × AWS/ECR) e desativar o que não for usado (`docs/runbooks/deploy.md`). Depende de decisão do Alexandre.
-2. Backend P1: token JWT na query string do SSE aparece em logs; avaliar ticket curto de uso único (`BACKLOG.md`).
+2. Testes P1 (`BACKLOG.md`): separar `tests/api/betha-*.test.js` (serviço externo, exige segredos) em `tests/integrations/` e cobrir os demais `tests/api/*.test.js` no `make test-api`, ou documentar por que não.
 3. Backend P2, do `BACKLOG.md`: a inconsistência de `Votacao.Abrir` (`VotacaoAbertaEvent` sem `domainEvent`, `OccurredAt` zerado) e os nomes de arquivo com typo.
 
 ## Concluído

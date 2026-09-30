@@ -70,13 +70,10 @@ func (m *JWTMiddleware) Handler() gin.HandlerFunc {
 	}
 }
 
+// extractToken lê o JWT do header Authorization. O token não é aceito por query
+// string: URLs aparecem em logs de proxy e de servidor.
 func extractToken(c *gin.Context) string {
-	authHeader := c.GetHeader("Authorization")
-	if authHeader == "" {
-		// também tenta query string para SSE
-		return c.Query("token")
-	}
-	return strings.TrimPrefix(authHeader, "Bearer ")
+	return strings.TrimPrefix(c.GetHeader("Authorization"), "Bearer ")
 }
 
 func (m *JWTMiddleware) ValidateToken(tokenString string) (jwt.MapClaims, error) {

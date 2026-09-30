@@ -67,9 +67,6 @@ func SetupRouter(cfg *config.Config, jwtMiddleware *middleware.JWTMiddleware, jo
 	registerHealthRoutes(api)
 	registerProtectedRoutes(api, jwtMiddleware, h)
 
-	// SSE recebe token via query string
-	api.GET("/eventos", h.SSE.Handle)
-
 	internal := r.Group("/internal")
 	registerJobsRoutes(internal, jobsMiddleware, h)
 

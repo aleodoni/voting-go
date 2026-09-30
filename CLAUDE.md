@@ -117,4 +117,4 @@ make build-web | lint-web
 
 ## Dívida técnica conhecida
 
-Ver `BACKLOG.md`. Destaque de maior prioridade: token JWT na query string do SSE.
+Ver `BACKLOG.md`. Não há P0 nem P1 de segurança em aberto; os P1 restantes são de testes (`tests/api`) e de deploy.

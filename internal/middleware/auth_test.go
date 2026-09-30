@@ -58,10 +58,18 @@ func tokenAssinado(t *testing.T, secret string, claims jwt.MapClaims) string {
 	return assinado
 }
 
-// requisitar executa a requisição contra uma rota protegida pelo middleware.
+// requisitar executa a requisição contra uma rota protegida pelo middleware,
+// enviando o valor informado no header Authorization.
+func requisitar(t *testing.T, m *JWTMiddleware, authorization string) *httptest.ResponseRecorder {
+	t.Helper()
+
+	return requisitarURL(t, m, "/protegido", authorization)
+}
+
+// requisitarURL é como requisitar, mas permite informar a URL (com query string).
 // O router não usa gin.Recovery: um panic no middleware falha o teste em vez
 // de virar um 500 silencioso.
-func requisitar(t *testing.T, m *JWTMiddleware, authorization string) *httptest.ResponseRecorder {
+func requisitarURL(t *testing.T, m *JWTMiddleware, url, authorization string) *httptest.ResponseRecorder {
 	t.Helper()
 
 	defer func() {
@@ -80,7 +88,7 @@ func requisitar(t *testing.T, m *JWTMiddleware, authorization string) *httptest.
 		})
 	})
 
-	req := httptest.NewRequest(http.MethodGet, "/protegido", nil)
+	req := httptest.NewRequest(http.MethodGet, url, nil)
 	if authorization != "" {
 		req.Header.Set("Authorization", authorization)
 	}
@@ -104,6 +112,17 @@ func TestHandler_TokenValidoLiberaAcessoEPopulaContexto(t *testing.T) {
 	esperado := `{"id":"keycloak-123","nome":"maria"}`
 	if rec.Body.String() != esperado {
 		t.Fatalf("esperava corpo %s, obteve %s", esperado, rec.Body.String())
+	}
+}
+
+func TestHandler_TokenNaQueryStringNaoEAceito(t *testing.T) {
+	m := novoJWTMiddlewareDeTeste()
+	token := tokenAssinado(t, testSecret, claimsValidas())
+
+	rec := requisitarURL(t, m, "/protegido?token="+token, "")
+
+	if rec.Code != http.StatusUnauthorized {
+		t.Fatalf("esperava status %d, obteve %d: %s", http.StatusUnauthorized, rec.Code, rec.Body.String())
 	}
 }
 

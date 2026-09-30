@@ -107,7 +107,7 @@ Authorization: Bearer <token>
 ```
 
 - No Swagger UI, use **Authorize** e informe `Bearer <token>`.
-- O endpoint SSE (`/api/v1/eventos`) também aceita o token via query string `?token=`, pois `EventSource` não envia headers.
+- O endpoint SSE (`/api/v1/eventos`) usa o mesmo header `Authorization`; o token **não** é aceito por query string. Use um cliente que envie headers (como `fetch`), não o `EventSource` nativo.
 - Rotas `/internal/jobs/*` usam um token interno (`JOBS_TOKEN`), não o JWT do usuário.
 
 Para obter um token em desenvolvimento: `scripts/get-token.sh`.
@@ -140,7 +140,7 @@ Prefixo `/api/v1`. Detalhes de request/response no Swagger UI.
 | `GET` | `/votacao/stats` | Estatísticas de votação do dia (admin) | ✅ |
 | `GET` | `/sincronia` | Últimas 3 sincronizações (admin) | ✅ |
 | `POST` | `/sincronia` | Executa sincronização (admin) | ✅ |
-| `GET` | `/eventos` | Stream SSE | ✅ (query) |
+| `GET` | `/eventos` | Stream SSE | ✅ |
 | `POST` | `/internal/jobs/sincronia` | Job de sincronização | 🔑 token interno |
 | `POST` | `/internal/jobs/fecha_abertas` | Job: fecha votações abertas | 🔑 token interno |
 

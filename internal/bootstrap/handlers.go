@@ -8,13 +8,12 @@ import (
 	sincroniaHandler "github.com/aleodoni/voting-go/internal/handler/sincronia"
 	usuarioHandler "github.com/aleodoni/voting-go/internal/handler/usuario"
 	votacaoHandler "github.com/aleodoni/voting-go/internal/handler/votacao"
-	"github.com/aleodoni/voting-go/internal/middleware"
 
 	"github.com/aleodoni/voting-go/internal/platform/event"
 	"github.com/aleodoni/voting-go/internal/router"
 )
 
-func buildHandlers(cfg *config.Config, uc *useCases, repos *repositories, bus *event.Bus, jwtMiddleware *middleware.JWTMiddleware) *router.Handlers {
+func buildHandlers(cfg *config.Config, uc *useCases, repos *repositories, bus *event.Bus) *router.Handlers {
 	return &router.Handlers{
 		Me:                          usuarioHandler.NewMeHandler(uc.ensureUsuario, cfg.AdminGroup),
 		UpdateCredenciais:           usuarioHandler.NewUpdateCredencialHandler(uc.updateCredencial),
@@ -29,7 +28,7 @@ func buildHandlers(cfg *config.Config, uc *useCases, repos *repositories, bus *e
 		RegistraVoto:                votacaoHandler.NewRegistraVotoHandler(uc.registraVoto),
 		PesquisaUsuarios:            usuarioHandler.NewPesquisaUsuariosHandler(uc.listUsuarios),
 		RetornaUsuario:              usuarioHandler.NewRetornaUsuarioHandler(uc.retornaUsuario),
-		SSE:                         votacaoHandler.NewSSEHandler(bus, jwtMiddleware, repos.usuario),
+		SSE:                         votacaoHandler.NewSSEHandler(bus, repos.usuario),
 		GeraRelatorioReuniao:        relatorioHandler.NewGeraRelatorioReuniaoHandler(uc.geraRelatorio),
 		RetornaProjetoVotacaoAberta: votacaoHandler.NewRetornaProjetoVotacaoAbertaHandler(uc.retornaProjetoVotacaoAberta),
 		RetornaStatsVotacao:         votacaoHandler.NewRetornaVotingStatsHandler(uc.retornaStatsVotacao),

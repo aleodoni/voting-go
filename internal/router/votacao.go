@@ -10,4 +10,5 @@ func registerVotacaoRoutes(rg *gin.RouterGroup, h *Handlers) {
 	rg.POST("/votacao/:votacaoId/voto", h.RegistraVoto.Handle)
 	rg.GET("/votacao/aberta", h.RetornaProjetoVotacaoAberta.Handle)
 	rg.GET("/votacao/stats", h.RetornaStatsVotacao.Handle)
+	rg.GET("/eventos", h.SSE.Handle)
 }

@@ -24,7 +24,7 @@ Regra de dependência: `domain` não importa nenhuma outra camada; `application`
 
 - `/api/v1/*` protegido por `JWTMiddleware` (issuer, audience e assinatura via JWKS do Keycloak). Exceção: `/health`.
 - Na subida, a API carrega o JWKS com até 6 tentativas (espera crescente, cerca de 25s no total); se o Keycloak não responder, ela encerra com erro.
-- `/api/v1/eventos` (SSE) valida o token recebido por query string.
+- `/api/v1/eventos` (SSE) é protegido como as demais rotas: `Authorization: Bearer`, sem token na query string (ADR 0007).
 - `/internal/jobs/*` usa `InternalJobMiddleware` (token estático `JOBS_TOKEN`, comparação em tempo constante) — feito para chamadas de agendadores, não de usuários.
 - Autorização de negócio (admin, pode votar) vem da **credencial** do usuário no banco, verificada nos casos de uso — não apenas do token.
 
