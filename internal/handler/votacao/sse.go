@@ -10,6 +10,7 @@ import (
 
 	"github.com/aleodoni/voting-go/internal/middleware"
 	"github.com/aleodoni/voting-go/internal/platform/event"
+	jwtutil "github.com/aleodoni/voting-go/internal/platform/jwt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -57,8 +58,11 @@ func (h *SSEHandler) Handle(c *gin.Context) {
 		return
 	}
 
-	keycloakID := claims["sub"].(string)
-	username := claims["preferred_username"].(string)
+	keycloakID, username, ok := jwtutil.Identity(claims)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
+		return
+	}
 
 	u, err := h.usuarioRepo.FindByKeycloakID(c.Request.Context(), keycloakID)
 	if err != nil {

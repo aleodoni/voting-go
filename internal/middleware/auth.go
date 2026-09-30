@@ -2,6 +2,7 @@
 package middleware
 
 import (
+	"errors"
 	"strings"
 	"time"
 
@@ -10,7 +11,12 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 
 	"github.com/aleodoni/voting-go/internal/config"
+	jwtutil "github.com/aleodoni/voting-go/internal/platform/jwt"
 )
+
+// ErrInvalidToken indica um token que não pôde ser validado ou que não traz a
+// identidade exigida pela API.
+var ErrInvalidToken = errors.New("invalid token")
 
 type JWTMiddleware struct {
 	jwks *keyfunc.JWKS
@@ -48,9 +54,15 @@ func (m *JWTMiddleware) Handler() gin.HandlerFunc {
 			return
 		}
 
+		keycloakID, username, ok := jwtutil.Identity(claims)
+		if !ok {
+			c.AbortWithStatusJSON(401, gin.H{"error": "Invalid token"})
+			return
+		}
+
 		c.Set("claims", claims)
-		c.Set("loggedUserKeycloakID", claims["sub"].(string))
-		c.Set("loggedUserName", claims["preferred_username"].(string))
+		c.Set("loggedUserKeycloakID", keycloakID)
+		c.Set("loggedUserName", username)
 		c.Next()
 	}
 }
@@ -69,8 +81,18 @@ func (m *JWTMiddleware) ValidateToken(tokenString string) (jwt.MapClaims, error)
 		jwt.WithIssuer(m.cfg.KeycloakIssuer),
 		jwt.WithAudience(m.cfg.KeycloakClientID),
 	)
-	if err != nil || !token.Valid {
+	if err != nil {
 		return nil, err
 	}
-	return token.Claims.(jwt.MapClaims), nil
+
+	if token == nil || !token.Valid {
+		return nil, ErrInvalidToken
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return nil, ErrInvalidToken
+	}
+
+	return claims, nil
 }

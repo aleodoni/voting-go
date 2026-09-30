@@ -5,8 +5,8 @@
 > Mantida pelo Claude ao final de cada iteração: é daqui que a próxima sessão parte.
 
 1. Definir o caminho de deploy oficial (compose/SSH × AWS/ECR) e desativar o que não for usado (`docs/runbooks/deploy.md`). Depende de decisão do Alexandre.
-2. Backend P1: `middleware/auth.go` faz asserções de tipo sem verificação nas claims do JWT, o que pode causar `panic` com token malformado (`BACKLOG.md`).
-3. Backend P1: token JWT na query string do SSE aparece em logs; avaliar ticket curto de uso único (`BACKLOG.md`).
+2. Backend P1: token JWT na query string do SSE aparece em logs; avaliar ticket curto de uso único (`BACKLOG.md`).
+3. Backend P1: `NewJWTMiddleware` faz `panic` se o JWKS estiver indisponível na subida; avaliar retry ou erro controlado (`BACKLOG.md`).
 
 ## Concluído
 

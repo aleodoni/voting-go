@@ -10,7 +10,6 @@ Itens resolvidos são **removidos** daqui — o commit que resolveu é o registr
 
 ## Backend
 
-- [ ] **P1** `middleware/auth.go`: asserções de tipo sem verificação (`claims["sub"].(string)`, `claims["preferred_username"].(string)`) podem causar panic com token malformado
 - [ ] **P1** Token JWT na query string do SSE aparece em logs de proxy/servidor; avaliar ticket curto de uso único para o SSE
 - [ ] **P1** `NewJWTMiddleware` faz `panic` se o JWKS estiver indisponível na subida; avaliar retry/erro controlado
 - [ ] **P2** `Votacao.Abrir` levanta `VotacaoAbertaEvent` sem `domainEvent` (OccurredAt zerado), diferente de Fechar/Cancelar — verificar e padronizar
