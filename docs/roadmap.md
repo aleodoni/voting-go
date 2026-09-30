@@ -4,9 +4,8 @@
 
 > Mantida pelo Claude ao final de cada iteração: é daqui que a próxima sessão parte.
 
-1. **Trocar as senhas dos usuários no Keycloak de staging em execução** (`BACKLOG.md`, P0). É ação do Alexandre no console; o realm versionado já não traz senhas.
-2. CI/CD (fase 4): `ci.yml` também em `main`/PRs e um job do front (`pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`). O lint (Biome, ADR 0006) já passa limpo e os três pacotes compilam.
-3. Definir o caminho de deploy oficial (compose/SSH × AWS/ECR) e desativar o que não for usado (`docs/runbooks/deploy.md`).
+1. CI/CD (fase 4): `ci.yml` também em `main`/PRs e um job do front (`pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`). O lint (Biome, ADR 0006) já passa limpo e os três pacotes compilam.
+2. Definir o caminho de deploy oficial (compose/SSH × AWS/ECR) e desativar o que não for usado (`docs/runbooks/deploy.md`).
 
 ## Concluído
 

@@ -7,7 +7,6 @@ Itens resolvidos são **removidos** daqui — o commit que resolveu é o registr
 
 ## Repositório e segurança
 
-- [ ] **P0** Trocar no console as senhas dos usuários do Keycloak de staging **em execução**: o realm importado trazia uma senha comum, só de dígitos, para os 6 usuários (inclusive `usuario.admin`), e o JSON estava no repositório. O JSON novo não traz mais senhas, mas o import não altera um realm já criado (`docs/runbooks/keycloak.md`)
 
 ## Backend
 

@@ -22,4 +22,4 @@
 
 - **Dev** (`voting-realm.json`): os usuários de teste têm senhas triviais de propósito, para uso **somente local**. Não exponha esse Keycloak fora da máquina de desenvolvimento.
 - **Staging** (`voting-realm.staging.json`): o realm **não traz senhas**, e tem proteção contra força bruta e política de senha (`length(12)`). Depois do primeiro import, defina a senha de cada usuário no console (*Users → Credentials*).
-- O `--import-realm` só cria o realm se ele ainda **não existir**. Alterar o JSON não muda um Keycloak de staging já em execução: as senhas de lá são trocadas no console.
+- O `--import-realm` só cria o realm se ele ainda **não existir**. Alterar o JSON não muda um Keycloak já em execução: o de staging atual mantém as senhas de teste antigas, por decisão registrada com a infra.
