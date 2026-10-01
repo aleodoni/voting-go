@@ -1,8 +1,9 @@
 import { check } from 'k6';
 import http from 'k6/http';
 
-// const BASE_URL = 'http://localhost:8080';
-const BASE_URL = 'http://192.168.1.61:8080';
+const BASE_URL = __ENV.BASE_URL || 'http://localhost:8080';
+// Usuário dono do token (o mesmo TEST_USER usado por `make token`).
+const EXPECTED_USER = __ENV.TEST_USER || 'usuario.admin';
 
 export const options = {
 	scenarios: {
@@ -12,11 +13,12 @@ export const options = {
 			iterations: 1,
 		},
 	},
+	// Sem threshold o k6 sai com sucesso mesmo quando um check falha.
+	thresholds: { checks: ['rate==1'] },
 };
 
 export default function () {
 	const token = __ENV.TOKEN;
-	console.log(`Using token: ${token}`);
 
 	const res = http.get(`${BASE_URL}/api/v1/me`, {
 		headers: {
@@ -24,16 +26,10 @@ export default function () {
 		},
 	});
 
-	console.log(res.body);
-
 	const bodyParsed = JSON.parse(res.body);
 
 	check(res, {
 		'status is 200': (r) => r.status === 200,
-		'has username': (_r) => {
-			const username = bodyParsed.username;
-
-			return username === 'usuario.vereador' || username === 'usuario.admin';
-		},
+		'has expected username': (_r) => bodyParsed.username === EXPECTED_USER,
 	});
 }

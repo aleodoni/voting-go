@@ -1,6 +1,7 @@
+import { check } from 'k6';
 import http from 'k6/http';
 
-const BASE_URL = 'http://localhost:8080';
+const BASE_URL = __ENV.BASE_URL || 'http://localhost:8080';
 
 export const options = {
 	scenarios: {
@@ -10,12 +11,12 @@ export const options = {
 			iterations: 1,
 		},
 	},
+	// Sem threshold o k6 sai com sucesso mesmo quando um check falha.
+	thresholds: { checks: ['rate==1'] },
 };
 
 export default function () {
 	const token = __ENV.TOKEN;
-
-	console.log(`Using token: ${token}`);
 
 	const res = http.get(`${BASE_URL}/api/v1/sincronia`, {
 		headers: {
@@ -23,6 +24,7 @@ export default function () {
 		},
 	});
 
-	console.log(res.status);
-	console.log(res.body);
+	check(res, {
+		'status is 200': (r) => r.status === 200,
+	});
 }

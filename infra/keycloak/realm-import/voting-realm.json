@@ -3,37 +3,38 @@
   "enabled": true,
   "accessTokenLifespan": 28800,
 
+  "groups": [
+    {
+      "name": "admin"
+    }
+  ],
+
   "clients": [
     {
-      "clientId":"voting-web",
-      "enabled":true,
-      "groups": [
+      "clientId": "voting-web",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "redirectUris": [
+        "http://localhost:5173/*",
+        "http://localhost:5174/*"
+      ],
+      "webOrigins": [
+        "http://localhost:5173",
+        "http://localhost:5174"
+      ],
+      "protocolMappers": [
         {
-          "name": "admin"
-        }
-      ],
-      "protocol":"openid-connect",
-      "publicClient":true,
-      "standardFlowEnabled":true,
-      "directAccessGrantsEnabled":true,
-      "redirectUris":[
-          "http://localhost:5173/*",
-          "http://localhost:5174/*"
-      ],
-      "webOrigins":[
-          "http://localhost:5173",
-          "http://localhost:5174"
-      ],
-      "protocolMappers":[
-        {
-          "name":"audience-api",
-          "protocol":"openid-connect",
-          "protocolMapper":"oidc-audience-mapper",
-          "consentRequired":false,
-          "config":{
-              "included.client.audience":"voting-api",
-              "access.token.claim":"true",
-              "id.token.claim":"false"
+          "name": "audience-api",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "voting-api",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
           }
         },
         {
@@ -51,7 +52,7 @@
         }
       ]
     },
-    { 
+    {
       "clientId": "voting-api",
       "enabled": true,
       "protocol": "openid-connect",
@@ -59,6 +60,7 @@
       "directAccessGrantsEnabled": true
     }
   ],
+
   "users": [
     {
       "id": "11111111-1111-1111-1111-111111111111",
@@ -81,7 +83,8 @@
           "temporary": false
         }
       ],
-      "groupMembership": [
+
+      "groups": [
         "/admin"
       ]
     },

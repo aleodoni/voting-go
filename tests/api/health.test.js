@@ -1,7 +1,12 @@
 import http from "k6/http";
 import { check } from "k6";
 
-const BASE_URL = "http://localhost:8080";
+const BASE_URL = __ENV.BASE_URL || "http://localhost:8080";
+
+// Sem threshold o k6 sai com sucesso mesmo quando um check falha.
+export const options = {
+  thresholds: { checks: ["rate==1"] },
+};
 
 export default function () {
 

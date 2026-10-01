@@ -54,6 +54,7 @@ cp .env.example .env
 | `JWKSURL` | Endpoint de chaves públicas do Keycloak | `…/protocol/openid-connect/certs` |
 | `JOBS_TOKEN` | Token das rotas `/internal/jobs/*` | — |
 | `ADMIN_GROUP` | Grupo Keycloak considerado administrador | `/admin` |
+| `TEST_USER` / `TEST_PASSWORD` | Usuário do realm de dev usado por `make token` e `make test-api` (só testes) | `usuario.admin` / — |
 
 ### 3. Dependências (Postgres + Keycloak)
 
@@ -152,9 +153,12 @@ Prefixo `/api/v1`. Detalhes de request/response no Swagger UI.
 
 ```bash
 make test          # testes Go (gotestsum)
-make test-api      # seed + testes k6 da API (requer API rodando)
-k6 run tests/api/<arquivo>.test.js
+make token         # imprime um JWT do realm de dev (usa TEST_USER e TEST_PASSWORD do .env)
+make test-api      # seed + testes k6 de leitura da API (requer API e Keycloak rodando)
+k6 run -e TOKEN=$(make -s token) tests/api/<arquivo>.test.js
 ```
+
+O `make test-api` roda só os testes de leitura (`health`, `me` e `retorna-sincronias`). Os que alteram estado (`sincronia`, `atualiza-fantasia-credenciais` e `reunioes-dia`) são manuais por enquanto. A senha do usuário de teste está no realm de dev (`infra/keycloak/realm-import/voting-realm.json`).
 
 ---
 

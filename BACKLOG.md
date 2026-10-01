@@ -20,8 +20,8 @@ Itens resolvidos são **removidos** daqui — o commit que resolveu é o registr
 
 ## Testes
 
-- [ ] **P1** `test-api` no Makefile só roda `health`; cobrir os demais `tests/api/*.test.js` ou documentar por que não
-- [ ] **P2** Testes de handler/router (hoje só casos de uso têm testes)
+- [ ] **P2** Ligar no `make test-api` os testes k6 que alteram estado (`sincronia`, `atualiza-fantasia-credenciais`, `reunioes-dia`), com a base de dev recarregada antes de cada rodada
+- [ ] **P2** Testes de handler/router (hoje só casos de uso e o middleware JWT têm testes)
 
 ## Frontend
 

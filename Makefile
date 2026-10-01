@@ -134,8 +134,34 @@ test:
 test-health:
 	k6 run tests/api/health.test.js
 
+.PHONY: token
+# Imprime um JWT do realm de dev, por login direto no client voting-web.
+# Usa TEST_USER (padrão usuario.admin) e TEST_PASSWORD, definidos no .env.
+token:
+	@$(load_env) && \
+	if [ -z "$$TEST_PASSWORD" ]; then \
+		echo "Defina TEST_PASSWORD no .env (senha do usuário de teste do realm de dev)." >&2; exit 1; \
+	fi && \
+	resp=$$(curl -sf -X POST "$$KEYCLOAK_ISSUER/protocol/openid-connect/token" \
+		-d grant_type=password \
+		-d client_id=voting-web \
+		--data-urlencode "username=$${TEST_USER:-usuario.admin}" \
+		--data-urlencode "password=$$TEST_PASSWORD") || { \
+		echo "Falha ao obter o token: confira KEYCLOAK_ISSUER, TEST_USER e TEST_PASSWORD, e se o Keycloak está no ar." >&2; exit 1; \
+	} && \
+	echo "$$resp" | sed -n 's/.*"access_token":"\([^"]*\)".*/\1/p'
+
+# Só os testes de leitura. sincronia, atualiza-fantasia-credenciais e
+# reunioes-dia alteram estado e são manuais por enquanto.
 .PHONY: test-api
-test-api: seed test-health
+test-api: seed
+	@TOKEN="$$($(MAKE) --no-print-directory -s token)" || exit 1; \
+	[ -n "$$TOKEN" ] || { echo "Token vazio." >&2; exit 1; }; \
+	set -a && . ./$(ENV_FILE) && set +a; \
+	for t in health me retorna-sincronias; do \
+		echo "→ k6 $$t"; \
+		k6 run -e TOKEN="$$TOKEN" -e TEST_USER="$${TEST_USER:-usuario.admin}" tests/api/$$t.test.js || exit 1; \
+	done
 
 # ============================================================
 # SWAGGER

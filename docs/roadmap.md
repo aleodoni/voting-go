@@ -5,8 +5,7 @@
 > Mantida pelo Claude ao final de cada iteração: é daqui que a próxima sessão parte.
 
 1. Definir o caminho de deploy oficial (compose/SSH × AWS/ECR) e desativar o que não for usado (`docs/runbooks/deploy.md`). Depende de decisão do Alexandre.
-2. Testes P1 (`BACKLOG.md`): cobrir os `tests/api/*.test.js` no `make test-api` (hoje só roda o `health`), ou documentar por que não. O `me.test.js` também tem `BASE_URL` fixa num IP de rede local.
-3. Backend P2, do `BACKLOG.md`: a inconsistência de `Votacao.Abrir` (`VotacaoAbertaEvent` sem `domainEvent`, `OccurredAt` zerado) e os nomes de arquivo com typo.
+2. Backend P2, do `BACKLOG.md`: a inconsistência de `Votacao.Abrir` (`VotacaoAbertaEvent` sem `domainEvent`, `OccurredAt` zerado) e os nomes de arquivo com typo.
 
 ## Concluído
 
