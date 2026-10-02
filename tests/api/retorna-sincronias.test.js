@@ -24,7 +24,12 @@ export default function () {
 		},
 	});
 
-	check(res, {
+	const ok = check(res, {
 		'status is 200': (r) => r.status === 200,
 	});
+
+	// Esta rota exige admin: com um TEST_USER que não seja admin a resposta é 403.
+	if (!ok) {
+		console.error(`GET /sincronia retornou ${res.status}: ${res.body}`);
+	}
 }

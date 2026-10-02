@@ -54,7 +54,7 @@ cp .env.example .env
 | `JWKSURL` | Endpoint de chaves públicas do Keycloak | `…/protocol/openid-connect/certs` |
 | `JOBS_TOKEN` | Token das rotas `/internal/jobs/*` | — |
 | `ADMIN_GROUP` | Grupo Keycloak considerado administrador | `/admin` |
-| `TEST_USER` / `TEST_PASSWORD` | Usuário do realm de dev usado por `make token` e `make test-api` (só testes) | `usuario.admin` / — |
+| `TEST_USER` / `TEST_PASSWORD` | Usuário do realm de dev usado por `make token` e `make test-api` (só testes). Precisa ser admin: `retorna-sincronias` exige | `usuario.admin` / — |
 
 ### 3. Dependências (Postgres + Keycloak)
 
