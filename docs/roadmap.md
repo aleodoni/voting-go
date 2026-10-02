@@ -5,7 +5,7 @@
 > Mantida pelo Claude ao final de cada iteração: é daqui que a próxima sessão parte.
 
 1. Definir o caminho de deploy oficial (compose/SSH × AWS/ECR) e desativar o que não for usado (`docs/runbooks/deploy.md`). Depende de decisão do Alexandre.
-2. Backend P2, do `BACKLOG.md`: a inconsistência de `Votacao.Abrir` (`VotacaoAbertaEvent` sem `domainEvent`, `OccurredAt` zerado) e os nomes de arquivo com typo.
+2. Backend P2, do `BACKLOG.md`: os handlers `usuario/*` misturam a regra de "quem pode" (admin) entre handler e caso de uso; padronizar no caso de uso. Depois, `cmd/cli/main/` com nível extra.
 
 ## Concluído
 

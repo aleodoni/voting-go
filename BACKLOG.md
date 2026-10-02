@@ -10,9 +10,6 @@ Itens resolvidos são **removidos** daqui — o commit que resolveu é o registr
 
 ## Backend
 
-- [ ] **P2** `Votacao.Abrir` levanta `VotacaoAbertaEvent` sem `domainEvent` (OccurredAt zerado), diferente de Fechar/Cancelar — verificar e padronizar
-- [ ] **P2** `domain/votacao/status_votacao.go` contém `VotingStats`, não o status; renomear/mover
-- [ ] **P2** Typos em nomes de arquivo: `usuaio_repository.go`, `unity_of_work_sqlc.go`
 - [ ] **P2** `cmd/cli/main/` com nível extra; padronizar para `cmd/cli/`
 - [ ] **P2** `Dockerfile` da API não usava `--parseInternal` (Makefile usava); alinhado na reestruturação — validar Swagger da imagem
 - [ ] **P2** Handlers `usuario/*` misturam regra de "quem pode" (admin) entre handler e caso de uso; padronizar no caso de uso

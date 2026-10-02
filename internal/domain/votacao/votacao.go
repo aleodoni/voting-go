@@ -32,8 +32,9 @@ func (v *Votacao) Abrir(projetoID string) {
 	v.Status = StatusVotacaoA
 	v.ProjetoID = &projetoID
 	v.RaiseEvent(VotacaoAbertaEvent{
-		VotacaoID: v.ID,
-		ProjetoID: projetoID,
+		domainEvent: newDomainEvent(),
+		VotacaoID:   v.ID,
+		ProjetoID:   projetoID,
 	})
 }
 
