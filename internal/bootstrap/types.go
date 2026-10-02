@@ -30,6 +30,7 @@ type useCases struct {
 	updateCredencial             *ucUsuario.UpdateCredencialUseCase
 	listUsuarios                 *ucUsuario.ListUsuariosUseCase
 	retornaUsuario               *ucUsuario.RetornaUsuarioUseCase
+	listConnectedUsers           *ucUsuario.ListConnectedUsersUseCase
 	retornaReunioesDia           *ucVotacao.RetornaReunioesDiaUseCase
 	retornaProjetos              *ucVotacao.RetornaProjetosCompletosUseCase
 	retornaProjeto               *ucVotacao.RetornaProjetoCompletoUseCase

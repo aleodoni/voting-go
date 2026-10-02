@@ -12,7 +12,8 @@ Itens resolvidos são **removidos** daqui — o commit que resolveu é o registr
 
 - [ ] **P2** `cmd/cli/main/` com nível extra; padronizar para `cmd/cli/`
 - [ ] **P2** `Dockerfile` da API não usava `--parseInternal` (Makefile usava); alinhado na reestruturação — validar Swagger da imagem
-- [ ] **P2** Handlers `usuario/*` misturam regra de "quem pode" (admin) entre handler e caso de uso; padronizar no caso de uso
+- [ ] **P2** Migrar os demais handlers (`votacao`, `reuniao`, `sincronia`, `jobs`, `relatorio`) para `httperr.Respond`: hoje 12 respondem 403 a qualquer erro e devolvem `err.Error()` ao cliente (vaza texto interno e usa o status errado). Um pacote por vez, estendendo as regras de `httperr` com os erros de cada domínio
+- [ ] **P2** `PATCH /usuarios/{id}/credencial` não é chamado pelo front e duplica `PUT /usuarios/fantasia-credenciais` (as duas chamam `UpdateDisplayNamePermissions`); avaliar remover
 - [ ] **P2** Agrupar `fdw/`, `spl/`, `seeds/`, `migrations/` em `db/` (opcional; ajustar Makefile, CLI e Dockerfile)
 
 ## Testes
@@ -25,6 +26,7 @@ Itens resolvidos são **removidos** daqui — o commit que resolveu é o registr
 - [ ] **P2** Unificar `MeetingSelect/ProjectCard`, `StatusBadge`, `ProjectVotingPanel` com os equivalentes de `VotingPanel/` no admin
 - [ ] **P2** Remover `web/packages/shared/pnpm-lock.yaml` (lockfile único na raiz do workspace) e o campo `workspaces` de `web/package.json` (redundante com `pnpm-workspace.yaml`)
 - [ ] **P2** Padronizar tipagem de `useIsProjectVoting.ts` (SSE + TanStack Query)
+- [ ] **P2** `web/packages/shared/src/api-client.ts` chama `getKeycloak().login()` em 401 **e** 403. Um 403 legítimo (sem permissão) não é sessão expirada; avaliar limitar o login ao 401, depois que o backend parar de usar 403 para qualquer erro
 - [ ] **P2** `ProjectDTO` em `web/apps/admin/src/types/meeting.ts` é idêntico a `ProjetoDTO` de `@voting/shared`; usar o do shared e remover a cópia
 - [ ] **P2** Ao subir o Biome para uma versão com `css.parser.tailwindDirectives`, trocar o override de `noUnknownAtRules` em `web/biome.json` por essa opção (ADR 0006)
 

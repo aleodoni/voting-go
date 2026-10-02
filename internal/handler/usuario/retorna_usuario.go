@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	ucUsuario "github.com/aleodoni/voting-go/internal/application/usuario"
+	"github.com/aleodoni/voting-go/internal/handler/httperr"
 )
 
 type RetornaUsuarioHandler struct {
@@ -26,6 +27,8 @@ func NewRetornaUsuarioHandler(retornaUsuarioUseCase *ucUsuario.RetornaUsuarioUse
 //	@Param			usuarioId	path		string	true	"ID do usuário"
 //	@Success		200			{object}	UsuarioResponse
 //	@Failure		403			{object}	ErrorResponse
+//	@Failure		404			{object}	ErrorResponse
+//	@Failure		500			{object}	ErrorResponse
 //	@Security		BearerAuth
 //	@Router			/usuarios/{usuarioId} [get]
 func (h *RetornaUsuarioHandler) Handle(c *gin.Context) {
@@ -38,7 +41,7 @@ func (h *RetornaUsuarioHandler) Handle(c *gin.Context) {
 
 	output, err := h.retornaUsuarioUseCase.Execute(c.Request.Context(), input)
 	if err != nil {
-		c.JSON(http.StatusForbidden, ErrorResponse{Error: err.Error()})
+		httperr.Respond(c, err)
 		return
 	}
 

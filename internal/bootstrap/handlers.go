@@ -32,7 +32,7 @@ func buildHandlers(cfg *config.Config, uc *useCases, repos *repositories, bus *e
 		GeraRelatorioReuniao:        relatorioHandler.NewGeraRelatorioReuniaoHandler(uc.geraRelatorio),
 		RetornaProjetoVotacaoAberta: votacaoHandler.NewRetornaProjetoVotacaoAbertaHandler(uc.retornaProjetoVotacaoAberta),
 		RetornaStatsVotacao:         votacaoHandler.NewRetornaVotingStatsHandler(uc.retornaStatsVotacao),
-		ConnectedUsers:              usuarioHandler.NewConnectedUsersHandler(bus),
+		ConnectedUsers:              usuarioHandler.NewConnectedUsersHandler(uc.listConnectedUsers),
 		ExecutaSincronia:            sincroniaHandler.NewExecutaSincroniaHandler(uc.executaSincronia, cfg.AppEnv),
 		RetornaUltimasSincronias:    sincroniaHandler.NewRetornaUltimasSincroniasHandler(uc.retornaUltimasSincronias),
 		ExecutaSincroniaJob:         jobsHandler.NewExecutaSincroniaJobHandler(uc.executaSincroniaJob, cfg.AppEnv),

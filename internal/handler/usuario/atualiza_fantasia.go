@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	ucUsuario "github.com/aleodoni/voting-go/internal/application/usuario"
+	"github.com/aleodoni/voting-go/internal/handler/httperr"
 )
 
 type AtualizaFantasiaHandler struct {
@@ -27,6 +28,8 @@ func NewAtualizaFantasiaHandler(updateDisplayNameUseCase *ucUsuario.UpdateDispla
 //	@Success		204
 //	@Failure		400	{object}	ErrorResponse
 //	@Failure		403	{object}	ErrorResponse
+//	@Failure		404	{object}	ErrorResponse
+//	@Failure		500	{object}	ErrorResponse
 //	@Security		BearerAuth
 //	@Router			/usuarios/fantasia [put]
 func (h *AtualizaFantasiaHandler) Handle(c *gin.Context) {
@@ -46,7 +49,7 @@ func (h *AtualizaFantasiaHandler) Handle(c *gin.Context) {
 	}
 
 	if err := h.updateDisplayNameUseCase.Execute(c.Request.Context(), input); err != nil {
-		c.JSON(http.StatusForbidden, ErrorResponse{Error: err.Error()})
+		httperr.Respond(c, err)
 		return
 	}
 

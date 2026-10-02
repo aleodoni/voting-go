@@ -30,8 +30,8 @@ func NewSSEHandler(bus *event.Bus, usuarioRepo domainUsuario.UsuarioRepository) 
 //	@Description	Abre uma conexão Server-Sent Events para receber eventos de votação em tempo real. Requer autenticação: o token JWT vai no header Authorization (Bearer), como nas demais rotas; não é aceito via query string.
 //	@Tags			votação
 //	@Produce		text/event-stream
-//	@Success		200		{string}	string	"Stream de eventos"
-//	@Failure		401		{object}	map[string]interface{}
+//	@Success		200	{string}	string	"Stream de eventos"
+//	@Failure		401	{object}	map[string]interface{}
 //	@Security		BearerAuth
 //	@Router			/eventos [get]
 func (h *SSEHandler) Handle(c *gin.Context) {

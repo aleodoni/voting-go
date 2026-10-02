@@ -5,7 +5,8 @@
 > Mantida pelo Claude ao final de cada iteração: é daqui que a próxima sessão parte.
 
 1. Definir o caminho de deploy oficial (compose/SSH × AWS/ECR) e desativar o que não for usado (`docs/runbooks/deploy.md`). Depende de decisão do Alexandre.
-2. Backend P2, do `BACKLOG.md`: os handlers `usuario/*` misturam a regra de "quem pode" (admin) entre handler e caso de uso; padronizar no caso de uso. Depois, `cmd/cli/main/` com nível extra.
+2. Backend P2: migrar os demais handlers (`votacao`, `reuniao`, `sincronia`, `jobs`, `relatorio`) para `httperr.Respond`, um pacote por vez, e decidir com o Alexandre se o front deve chamar `login()` só em 401 (`BACKLOG.md`).
+3. Backend P2: `cmd/cli/main/` com nível extra.
 
 ## Concluído
 

@@ -3,16 +3,18 @@ package usuario
 import (
 	"net/http"
 
-	"github.com/aleodoni/voting-go/internal/platform/event"
 	"github.com/gin-gonic/gin"
+
+	ucUsuario "github.com/aleodoni/voting-go/internal/application/usuario"
+	"github.com/aleodoni/voting-go/internal/handler/httperr"
 )
 
 type ConnectedUsersHandler struct {
-	bus *event.Bus
+	listConnectedUsersUseCase *ucUsuario.ListConnectedUsersUseCase
 }
 
-func NewConnectedUsersHandler(bus *event.Bus) *ConnectedUsersHandler {
-	return &ConnectedUsersHandler{bus: bus}
+func NewConnectedUsersHandler(listConnectedUsersUseCase *ucUsuario.ListConnectedUsersUseCase) *ConnectedUsersHandler {
+	return &ConnectedUsersHandler{listConnectedUsersUseCase: listConnectedUsersUseCase}
 }
 
 type ConnectedUserResponse struct {
@@ -24,15 +26,24 @@ type ConnectedUserResponse struct {
 // Handle godoc
 //
 //	@Summary		Retorna usuários conectados via SSE
-//	@Description	Retorna a lista de usuários com conexão SSE ativa no momento
+//	@Description	Retorna a lista de usuários com conexão SSE ativa no momento (requer admin)
 //	@Tags			usuários
 //	@Produce		json
 //	@Success		200	{array}		ConnectedUserResponse
 //	@Failure		401	{object}	map[string]interface{}
+//	@Failure		403	{object}	ErrorResponse
+//	@Failure		404	{object}	ErrorResponse
+//	@Failure		500	{object}	ErrorResponse
 //	@Security		BearerAuth
 //	@Router			/usuarios-conectados [get]
 func (h *ConnectedUsersHandler) Handle(c *gin.Context) {
-	subscribers := h.bus.ConnectedUsers()
+	subscribers, err := h.listConnectedUsersUseCase.Execute(c.Request.Context(), ucUsuario.ListConnectedUsersInput{
+		LoggedInUserKeycloakID: c.GetString("loggedUserKeycloakID"),
+	})
+	if err != nil {
+		httperr.Respond(c, err)
+		return
+	}
 
 	users := make([]ConnectedUserResponse, 0, len(subscribers))
 	for _, s := range subscribers {

@@ -128,7 +128,7 @@ Prefixo `/api/v1`. Detalhes de request/response no Swagger UI.
 | `PUT` | `/usuarios/fantasia` | Atualiza nome fantasia | ✅ |
 | `PUT` | `/usuarios/fantasia-credenciais` | Atualiza nome fantasia e permissões | ✅ |
 | `PATCH` | `/usuarios/{id}/credencial` | Atualiza credencial de um usuário | ✅ |
-| `GET` | `/usuarios-conectados` | Usuários com conexão SSE ativa | ✅ |
+| `GET` | `/usuarios-conectados` | Usuários com conexão SSE ativa (admin) | ✅ |
 | `GET` | `/reunioes-dia` | Reuniões do dia | ✅ |
 | `GET` | `/reunioes/{reuniaoId}/projetos` | Projetos de uma reunião (admin) | ✅ |
 | `GET` | `/reunioes/{reuniaoId}/relatorio` | Relatório PDF da reunião | ✅ |

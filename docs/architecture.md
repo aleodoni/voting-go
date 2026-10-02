@@ -27,6 +27,7 @@ Regra de dependência: `domain` não importa nenhuma outra camada; `application`
 - `/api/v1/eventos` (SSE) é protegido como as demais rotas: `Authorization: Bearer`, sem token na query string (ADR 0007).
 - `/internal/jobs/*` usa `InternalJobMiddleware` (token estático `JOBS_TOKEN`, comparação em tempo constante) — feito para chamadas de agendadores, não de usuários.
 - Autorização de negócio (admin, pode votar) vem da **credencial** do usuário no banco, verificada nos casos de uso — não apenas do token.
+- Erros de caso de uso viram resposta HTTP em `internal/handler/httperr`: 404 (não encontrado), 403 (sem permissão) e 500 genérico, com o erro real no log. Hoje só os handlers `usuario/*` usam; os demais ainda respondem 403 a qualquer erro (`BACKLOG.md`).
 
 ## Fluxo de votação
 
@@ -41,7 +42,7 @@ Restrições no banco: um voto por usuário por votação (`uq_usuario_voto`), u
 
 ## SSE / Event bus
 
-`platform/event.Bus` mantém os assinantes em memória (`map[chan Event]*Subscriber`), com canal bufferizado (10). Uma nova conexão do mesmo usuário substitui a anterior. `GET /usuarios-conectados` lê essa lista.
+`platform/event.Bus` mantém os assinantes em memória (`map[chan Event]*Subscriber`), com canal bufferizado (10). Uma nova conexão do mesmo usuário substitui a anterior. `GET /usuarios-conectados` (admin) lê essa lista.
 
 Consequência: o estado dos assinantes é **por instância** da API. Escalar para mais de uma réplica exige um broker externo (ver roadmap).
 

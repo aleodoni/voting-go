@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	ucUsuario "github.com/aleodoni/voting-go/internal/application/usuario"
+	"github.com/aleodoni/voting-go/internal/handler/httperr"
 )
 
 type PesquisaUsuariosHandler struct {
@@ -31,6 +32,8 @@ func NewPesquisaUsuariosHandler(listUsuariosUseCase *ucUsuario.ListUsuariosUseCa
 //	@Param			limit			query		int		false	"Limite"			default(20)
 //	@Success		200				{object}	ListUsuariosResponse
 //	@Failure		403				{object}	ErrorResponse
+//	@Failure		404				{object}	ErrorResponse
+//	@Failure		500				{object}	ErrorResponse
 //	@Security		BearerAuth
 //	@Router			/usuarios [get]
 func (h *PesquisaUsuariosHandler) Handle(c *gin.Context) {
@@ -58,7 +61,7 @@ func (h *PesquisaUsuariosHandler) Handle(c *gin.Context) {
 
 	output, err := h.listUsuariosUseCase.Execute(c.Request.Context(), input)
 	if err != nil {
-		c.JSON(http.StatusForbidden, ErrorResponse{Error: err.Error()})
+		httperr.Respond(c, err)
 		return
 	}
 

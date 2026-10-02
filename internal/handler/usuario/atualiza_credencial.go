@@ -4,11 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 
 	ucCredencial "github.com/aleodoni/voting-go/internal/application/usuario"
-	domain "github.com/aleodoni/voting-go/internal/domain"
-	jwtutil "github.com/aleodoni/voting-go/internal/platform/jwt"
+	"github.com/aleodoni/voting-go/internal/handler/httperr"
 )
 
 type UpdateCredencialHandler struct {
@@ -32,16 +30,11 @@ func NewUpdateCredencialHandler(updateUseCase *ucCredencial.UpdateCredencialUseC
 //	@Failure		400		{object}	ErrorResponse
 //	@Failure		401		{object}	ErrorResponse
 //	@Failure		403		{object}	ErrorResponse
+//	@Failure		404		{object}	ErrorResponse
 //	@Failure		500		{object}	ErrorResponse
 //	@Security		BearerAuth
 //	@Router			/usuarios/{id}/credencial [patch]
 func (h *UpdateCredencialHandler) Handle(c *gin.Context) {
-	claims, ok := c.MustGet("claims").(jwt.MapClaims)
-	if !ok {
-		c.JSON(http.StatusUnauthorized, ErrorResponse{Error: "invalid claims"})
-		return
-	}
-
 	var req UpdateCredencialRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "invalid request body"})
@@ -49,7 +42,7 @@ func (h *UpdateCredencialHandler) Handle(c *gin.Context) {
 	}
 
 	input := ucCredencial.UpdateCredencialInput{
-		AdminKeycloakID: jwtutil.ClaimString(claims, "sub"),
+		AdminKeycloakID: c.GetString("loggedUserKeycloakID"),
 		UsuarioID:       c.Param("id"),
 		Ativo:           req.Ativo,
 		PodeVotar:       req.PodeVotar,
@@ -58,12 +51,7 @@ func (h *UpdateCredencialHandler) Handle(c *gin.Context) {
 
 	cred, err := h.updateUseCase.Execute(c.Request.Context(), input)
 	if err != nil {
-		switch err {
-		case domain.ErrForbidden:
-			c.JSON(http.StatusForbidden, ErrorResponse{Error: "acesso negado"})
-		default:
-			c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "erro ao atualizar credencial"})
-		}
+		httperr.Respond(c, err)
 		return
 	}
 
