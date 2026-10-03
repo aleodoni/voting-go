@@ -2,7 +2,7 @@ package votacao
 
 import "errors"
 
-var ErrReuniaoNotFound = errors.New("reuniao não encontrada")
+var ErrReuniaoNotFound = errors.New("reunião não encontrada")
 var ErrProjetoNotFound = errors.New("projeto não encontrado")
 var ErrProjetoVoted = errors.New("projeto já votado")
 var ErrVotacaoNaoCriada = errors.New("votação não criada")

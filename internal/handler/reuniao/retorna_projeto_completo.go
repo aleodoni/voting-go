@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	ucReuniao "github.com/aleodoni/voting-go/internal/application/votacao"
+	"github.com/aleodoni/voting-go/internal/handler/httperr"
 )
 
 type RetornaProjetoCompletoHandler struct {
@@ -26,6 +27,8 @@ func NewRetornaProjetoCompletoHandler(retornaProjetoCompletoUseCase *ucReuniao.R
 //	@Param			projetoId	path		string	true	"ID do projeto"
 //	@Success		200			{object}	ProjetoResponse
 //	@Failure		403			{object}	ErrorResponse
+//	@Failure		404			{object}	ErrorResponse
+//	@Failure		500			{object}	ErrorResponse
 //	@Security		BearerAuth
 //	@Router			/projetos/{projetoId} [get]
 func (h *RetornaProjetoCompletoHandler) Handle(c *gin.Context) {
@@ -39,7 +42,7 @@ func (h *RetornaProjetoCompletoHandler) Handle(c *gin.Context) {
 
 	projeto, err := h.retornaProjetoCompletoUseCase.Execute(c.Request.Context(), input)
 	if err != nil {
-		c.JSON(http.StatusForbidden, ErrorResponse{Error: err.Error()})
+		httperr.Respond(c, err)
 		return
 	}
 

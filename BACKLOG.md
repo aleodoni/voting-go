@@ -12,7 +12,7 @@ Itens resolvidos são **removidos** daqui — o commit que resolveu é o registr
 
 - [ ] **P2** `cmd/cli/main/` com nível extra; padronizar para `cmd/cli/`
 - [ ] **P2** `Dockerfile` da API não usava `--parseInternal` (Makefile usava); alinhado na reestruturação — validar Swagger da imagem
-- [ ] **P2** Migrar os handlers restantes para `httperr.Respond`, um pacote por vez, estendendo as regras com os erros de cada domínio: `votacao` (6 handlers) e `reuniao` (3) respondem 403 a qualquer erro; `relatorio` responde 500 com `err.Error()`; o job `fecha_votacoes_abertas` responde 403 com o erro. Todos devolvem texto interno ao cliente
+- [ ] **P2** Migrar os handlers restantes para `httperr.Respond`, um pacote por vez, estendendo as regras com os erros de cada domínio: `votacao` (6 handlers) responde 403 a qualquer erro; `relatorio` responde 500 com `err.Error()`; o job `fecha_votacoes_abertas` responde 403 com o erro. Todos devolvem texto interno ao cliente
 - [ ] **P2** `PATCH /usuarios/{id}/credencial` não é chamado pelo front e duplica `PUT /usuarios/fantasia-credenciais` (as duas chamam `UpdateDisplayNamePermissions`); avaliar remover
 - [ ] **P2** Agrupar `fdw/`, `spl/`, `seeds/`, `migrations/` em `db/` (opcional; ajustar Makefile, CLI e Dockerfile)
 

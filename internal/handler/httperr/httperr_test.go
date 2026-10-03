@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
+	domainVotacao "github.com/aleodoni/voting-go/internal/domain/votacao"
 	"github.com/aleodoni/voting-go/internal/handler/httperr"
 )
 
@@ -43,6 +44,8 @@ func TestRespond_ErrosConhecidos(t *testing.T) {
 	}{
 		{"usuário não encontrado", domainUsuario.ErrUserNotFound, http.StatusNotFound, "usuário não encontrado"},
 		{"credencial não encontrada", domainUsuario.ErrCredencialNotFound, http.StatusNotFound, "credencial não encontrada"},
+		{"reunião não encontrada", domainVotacao.ErrReuniaoNotFound, http.StatusNotFound, "reunião não encontrada"},
+		{"projeto não encontrado", domainVotacao.ErrProjetoNotFound, http.StatusNotFound, "projeto não encontrado"},
 		{"usuário não é admin", domainUsuario.ErrUserNotAdmin, http.StatusForbidden, "usuário não tem permissões de admin"},
 		{"usuário não é votante", domainUsuario.ErrUserNotVoter, http.StatusForbidden, "usuário não tem permissões de votante"},
 		{"usuário inativo", domainUsuario.ErrUserNotActive, http.StatusForbidden, "usuário não está ativo"},

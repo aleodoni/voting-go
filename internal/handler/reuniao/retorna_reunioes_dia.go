@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	ucReuniao "github.com/aleodoni/voting-go/internal/application/votacao"
+	"github.com/aleodoni/voting-go/internal/handler/httperr"
 )
 
 type RetornaReunioesDiaHandler struct {
@@ -25,6 +26,8 @@ func NewRetornaReunioesDiaHandler(retornaReunioesDiaUseCase *ucReuniao.RetornaRe
 //	@Produce		json
 //	@Success		200	{array}		ReuniaoResponse
 //	@Failure		403	{object}	ErrorResponse
+//	@Failure		404	{object}	ErrorResponse
+//	@Failure		500	{object}	ErrorResponse
 //	@Security		BearerAuth
 //	@Router			/reunioes-dia [get]
 func (h *RetornaReunioesDiaHandler) Handle(c *gin.Context) {
@@ -36,7 +39,7 @@ func (h *RetornaReunioesDiaHandler) Handle(c *gin.Context) {
 
 	reunioes, err := h.retornaReunioesDiaUseCase.Execute(c.Request.Context(), input)
 	if err != nil {
-		c.JSON(http.StatusForbidden, ErrorResponse{Error: err.Error()})
+		httperr.Respond(c, err)
 		return
 	}
 

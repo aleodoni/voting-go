@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	domainUsuario "github.com/aleodoni/voting-go/internal/domain/usuario"
+	domainVotacao "github.com/aleodoni/voting-go/internal/domain/votacao"
 )
 
 // mensagemErroInterno é o texto devolvido ao cliente para erros inesperados.
@@ -24,6 +25,8 @@ var regras = []struct {
 }{
 	{domainUsuario.ErrUserNotFound, http.StatusNotFound},
 	{domainUsuario.ErrCredencialNotFound, http.StatusNotFound},
+	{domainVotacao.ErrReuniaoNotFound, http.StatusNotFound},
+	{domainVotacao.ErrProjetoNotFound, http.StatusNotFound},
 	{domainUsuario.ErrUserNotAdmin, http.StatusForbidden},
 	{domainUsuario.ErrUserNotVoter, http.StatusForbidden},
 	{domainUsuario.ErrUserNotActive, http.StatusForbidden},
