@@ -6,11 +6,11 @@ import (
 	"github.com/gin-gonic/gin"
 
 	ucJobs "github.com/aleodoni/voting-go/internal/application/jobs"
+	"github.com/aleodoni/voting-go/internal/handler/httperr"
 )
 
 type FechaVotacoesAbertasJobHandler struct {
 	fechaVotacoesAbertasUseCase *ucJobs.FechaVotacoesAbertasJobUseCase
-	appEnv                      string
 }
 
 func NewFechaVotacoesAbertasJobHandler(fechaVotacoesAbertasUseCase *ucJobs.FechaVotacoesAbertasJobUseCase) *FechaVotacoesAbertasJobHandler {
@@ -25,14 +25,14 @@ func NewFechaVotacoesAbertasJobHandler(fechaVotacoesAbertasUseCase *ucJobs.Fecha
 //	@Produce		json
 //	@Success		200	{object}	map[string]interface{}	"Job executado com sucesso"
 //	@Failure		401	{object}	map[string]interface{}	"Token inválido ou ausente"
-//	@Failure		403	{object}	map[string]interface{}	"Erro ao executar job"
+//	@Failure		500	{object}	map[string]interface{}	"Erro ao executar job"
 //	@Security		BearerAuth
 //	@Router			/internal/jobs/fecha_abertas [post]
 func (h *FechaVotacoesAbertasJobHandler) Handle(c *gin.Context) {
 
 	err := h.fechaVotacoesAbertasUseCase.Execute(c.Request.Context())
 	if err != nil {
-		c.JSON(http.StatusForbidden, gin.H{"error": "Erro ao executar job: " + err.Error()})
+		httperr.Respond(c, err)
 		return
 	}
 

@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	ucRelatorio "github.com/aleodoni/voting-go/internal/application/relatorio"
+	"github.com/aleodoni/voting-go/internal/handler/httperr"
 )
 
 type GeraRelatorioReuniaoHandler struct {
@@ -25,6 +26,7 @@ func NewGeraRelatorioReuniaoHandler(geraRelatorioReuniaoUseCase *ucRelatorio.Ger
 //	@Produce		application/pdf
 //	@Param			reuniaoId	path		string	true	"ID da reunião"
 //	@Success		200			{file}		binary
+//	@Failure		404			{object}	ErrorResponse
 //	@Failure		500			{object}	ErrorResponse
 //	@Security		BearerAuth
 //	@Router			/reunioes/{reuniaoId}/relatorio [get]
@@ -35,7 +37,7 @@ func (h *GeraRelatorioReuniaoHandler) Handle(c *gin.Context) {
 		ReuniaoID: reuniaoID,
 	})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
+		httperr.Respond(c, err)
 		return
 	}
 
