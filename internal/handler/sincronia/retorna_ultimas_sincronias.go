@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	ucSincronia "github.com/aleodoni/voting-go/internal/application/sincronia"
+	"github.com/aleodoni/voting-go/internal/handler/httperr"
 )
 
 type RetornaUltimasSincroniasHandler struct {
@@ -24,6 +25,8 @@ func NewRetornaUltimasSincroniasHandler(retornaUltimasSincroniasUseCase *ucSincr
 //	@Produce		json
 //	@Success		200	{object}	ListUltimasSincroniasResponse
 //	@Failure		403	{object}	ErrorResponse
+//	@Failure		404	{object}	ErrorResponse
+//	@Failure		500	{object}	ErrorResponse
 //	@Security		BearerAuth
 //	@Router			/sincronia [get]
 func (h *RetornaUltimasSincroniasHandler) Handle(c *gin.Context) {
@@ -35,7 +38,7 @@ func (h *RetornaUltimasSincroniasHandler) Handle(c *gin.Context) {
 
 	output, err := h.retornaUltimasSincroniasUseCase.Execute(c.Request.Context(), input)
 	if err != nil {
-		c.JSON(http.StatusForbidden, ErrorResponse{Error: err.Error()})
+		httperr.Respond(c, err)
 		return
 	}
 

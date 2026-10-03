@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	ucSincronia "github.com/aleodoni/voting-go/internal/application/sincronia"
+	"github.com/aleodoni/voting-go/internal/handler/httperr"
 )
 
 type ExecutaSincroniaHandler struct {
@@ -28,9 +29,24 @@ func NewExecutaSincroniaHandler(executaSincroniaUseCase *ucSincronia.ExecutaSinc
 //	@Produce		json
 //	@Success		202	{object}	map[string]interface{}	"Sincronia iniciada"
 //	@Failure		403	{object}	ErrorResponse
+//	@Failure		404	{object}	ErrorResponse
+//	@Failure		500	{object}	ErrorResponse
 //	@Security		BearerAuth
 //	@Router			/sincronia [post]
 func (h *ExecutaSincroniaHandler) Handle(c *gin.Context) {
+	loggedUserKeycloakID := c.GetString("loggedUserKeycloakID")
+
+	input := ucSincronia.ExecutaSincroniaInput{
+		LoggedInUserKeycloakID: loggedUserKeycloakID,
+	}
+
+	// Recusa antes de responder 202: a execução é assíncrona, e um erro de
+	// permissão dentro da goroutine só apareceria no log.
+	if err := h.executaSincroniaUseCase.Autorizar(c.Request.Context(), input); err != nil {
+		httperr.Respond(c, err)
+		return
+	}
+
 	if h.appEnv == "staging" {
 		log.Printf(
 			"Sincronia ignorada em ambiente %s",
@@ -43,12 +59,6 @@ func (h *ExecutaSincroniaHandler) Handle(c *gin.Context) {
 		})
 
 		return
-	}
-
-	loggedUserKeycloakID := c.GetString("loggedUserKeycloakID")
-
-	input := ucSincronia.ExecutaSincroniaInput{
-		LoggedInUserKeycloakID: loggedUserKeycloakID,
 	}
 
 	// EXECUTA ASYNC

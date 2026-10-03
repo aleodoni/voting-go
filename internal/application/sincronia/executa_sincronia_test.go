@@ -122,3 +122,56 @@ func TestExecutaSincronia_ErroRepositorio(t *testing.T) {
 		t.Fatalf("esperava erro do repositório, obteve: %v", err)
 	}
 }
+
+func TestAutorizar_AdminAtivo(t *testing.T) {
+	usuarioRepo := fakes.NewFakeUsuarioRepository()
+	sincroniaRepo := fakes.NewFakeSincroniaRepository()
+	usuarioRepo.Seed(adminAtivo())
+
+	uc := ucSincronia.NewExecutaSincroniaUseCase(sincroniaRepo, usuarioRepo)
+	err := uc.Autorizar(context.Background(), ucSincronia.ExecutaSincroniaInput{
+		LoggedInUserKeycloakID: "keycloak-admin",
+	})
+
+	if err != nil {
+		t.Fatalf("esperava nil, obteve: %v", err)
+	}
+
+	if sincroniaRepo.SyncCalls != 0 {
+		t.Fatalf("Autorizar não deveria executar a sincronização, chamadas a Sync: %d", sincroniaRepo.SyncCalls)
+	}
+}
+
+func TestAutorizar_UsuarioNaoEncontrado(t *testing.T) {
+	uc := ucSincronia.NewExecutaSincroniaUseCase(fakes.NewFakeSincroniaRepository(), fakes.NewFakeUsuarioRepository())
+
+	err := uc.Autorizar(context.Background(), ucSincronia.ExecutaSincroniaInput{
+		LoggedInUserKeycloakID: "keycloak-inexistente",
+	})
+
+	if !errors.Is(err, domainUsuario.ErrUserNotFound) {
+		t.Fatalf("esperava ErrUserNotFound, obteve: %v", err)
+	}
+}
+
+func TestAutorizar_UsuarioSemPermissaoAdmin(t *testing.T) {
+	usuarioRepo := fakes.NewFakeUsuarioRepository()
+	usuarioRepo.Seed(&domainUsuario.Usuario{
+		AggregateRoot: domain.NewAggregateRoot("user-vereador"),
+		KeycloakID:    "keycloak-vereador",
+		Credencial: &domainUsuario.Credencial{
+			Ativo:           true,
+			PodeAdministrar: false,
+		},
+	})
+
+	uc := ucSincronia.NewExecutaSincroniaUseCase(fakes.NewFakeSincroniaRepository(), usuarioRepo)
+
+	err := uc.Autorizar(context.Background(), ucSincronia.ExecutaSincroniaInput{
+		LoggedInUserKeycloakID: "keycloak-vereador",
+	})
+
+	if !errors.Is(err, domainUsuario.ErrUserNotAdmin) {
+		t.Fatalf("esperava ErrUserNotAdmin, obteve: %v", err)
+	}
+}

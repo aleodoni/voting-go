@@ -12,6 +12,8 @@ Copia reuniões, projetos e pareceres do banco SPL (via `postgres_fdw`) para o b
 | Job interno | `POST /internal/jobs/sincronia` com `Authorization: Bearer $JOBS_TOKEN` |
 | Direto no banco | `CALL public.p_spl_daily_sync();` |
 
+No `POST /api/v1/sincronia` a permissão é verificada **antes** de responder: um não-admin recebe 403 e nada é iniciado. A sincronização em si roda em segundo plano e a resposta é 202; o resultado aparece em `GET /api/v1/sincronia` e, se falhar, no log (`[SINCRONIA]`). Em staging a execução é ignorada.
+
 Job auxiliar: `POST /internal/jobs/fecha_abertas` fecha votações que ficaram abertas.
 
 ## Setup do FDW
