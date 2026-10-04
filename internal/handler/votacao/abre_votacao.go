@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	ucVotacao "github.com/aleodoni/voting-go/internal/application/votacao"
+	"github.com/aleodoni/voting-go/internal/handler/httperr"
 )
 
 type AbreVotacaoHandler struct {
@@ -25,6 +26,9 @@ func NewAbreVotacaoHandler(abreVotacaoUseCase *ucVotacao.AbreVotacaoUseCase) *Ab
 //	@Param			projetoId	path	string	true	"ID do projeto"
 //	@Success		204
 //	@Failure		403	{object}	ErrorResponse
+//	@Failure		404	{object}	ErrorResponse
+//	@Failure		422	{object}	ErrorResponse
+//	@Failure		500	{object}	ErrorResponse
 //	@Security		BearerAuth
 //	@Router			/projetos/{projetoId}/votacao/abrir [post]
 func (h *AbreVotacaoHandler) Handle(c *gin.Context) {
@@ -37,7 +41,7 @@ func (h *AbreVotacaoHandler) Handle(c *gin.Context) {
 	}
 
 	if err := h.abreVotacaoUseCase.Execute(c.Request.Context(), input); err != nil {
-		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		httperr.Respond(c, err)
 		return
 	}
 

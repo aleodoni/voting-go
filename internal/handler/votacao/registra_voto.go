@@ -8,6 +8,7 @@ import (
 
 	ucVotacao "github.com/aleodoni/voting-go/internal/application/votacao"
 	"github.com/aleodoni/voting-go/internal/domain/votacao"
+	"github.com/aleodoni/voting-go/internal/handler/httperr"
 )
 
 // type RegistraVotoRequest struct {
@@ -44,6 +45,9 @@ func NewRegistraVotoHandler(registraVotoUseCase *ucVotacao.RegistraVotoUseCase) 
 //	@Success		204
 //	@Failure		400	{object}	ErrorResponse
 //	@Failure		403	{object}	ErrorResponse
+//	@Failure		404	{object}	ErrorResponse
+//	@Failure		422	{object}	ErrorResponse
+//	@Failure		500	{object}	ErrorResponse
 //	@Security		BearerAuth
 //	@Router			/votacao/{votacaoId}/voto [post]
 func (h *RegistraVotoHandler) Handle(c *gin.Context) {
@@ -80,7 +84,7 @@ func (h *RegistraVotoHandler) Handle(c *gin.Context) {
 	}
 
 	if err := h.registraVotoUseCase.Execute(c.Request.Context(), input); err != nil {
-		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		httperr.Respond(c, err)
 		return
 	}
 

@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	ucVotacao "github.com/aleodoni/voting-go/internal/application/votacao"
+	"github.com/aleodoni/voting-go/internal/handler/httperr"
 )
 
 type VotingStatsResponse struct {
@@ -29,6 +30,8 @@ func NewRetornaVotingStatsHandler(retornaVotingStatsUseCase *ucVotacao.RetornaVo
 //	@Produce		json
 //	@Success		200	{object}	VotingStatsResponse
 //	@Failure		403	{object}	ErrorResponse
+//	@Failure		404	{object}	ErrorResponse
+//	@Failure		500	{object}	ErrorResponse
 //	@Security		BearerAuth
 //	@Router			/votacao/stats [get]
 func (h *RetornaVotingStatsHandler) Handle(c *gin.Context) {
@@ -40,7 +43,7 @@ func (h *RetornaVotingStatsHandler) Handle(c *gin.Context) {
 
 	stats, err := h.retornaVotingStatsUseCase.Execute(c.Request.Context(), input)
 	if err != nil {
-		c.JSON(http.StatusForbidden, ErrorResponse{Error: err.Error()})
+		httperr.Respond(c, err)
 		return
 	}
 

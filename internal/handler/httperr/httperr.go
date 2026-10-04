@@ -27,14 +27,21 @@ var regras = []struct {
 	{domainUsuario.ErrCredencialNotFound, http.StatusNotFound},
 	{domainVotacao.ErrReuniaoNotFound, http.StatusNotFound},
 	{domainVotacao.ErrProjetoNotFound, http.StatusNotFound},
+	{domainVotacao.ErrVotacaoNaoEncontrada, http.StatusNotFound},
+	{domainVotacao.ErrProjetoVoted, http.StatusUnprocessableEntity},
+	{domainVotacao.ErrVotacaoAberta, http.StatusUnprocessableEntity},
+	{domainVotacao.ErrVotacaoNaoAberta, http.StatusUnprocessableEntity},
+	{domainVotacao.ErrVotacaoNaoFechada, http.StatusUnprocessableEntity},
+	{domainVotacao.ErrUsuarioJaVotou, http.StatusUnprocessableEntity},
 	{domainUsuario.ErrUserNotAdmin, http.StatusForbidden},
 	{domainUsuario.ErrUserNotVoter, http.StatusForbidden},
 	{domainUsuario.ErrUserNotActive, http.StatusForbidden},
 }
 
 // Respond escreve a resposta JSON {"error": "..."} correspondente ao erro:
-// 404 para "não encontrado", 403 para "sem permissão" e 500 com mensagem
-// genérica para qualquer outro erro, que é registrado no log.
+// 404 para "não encontrado", 403 para "sem permissão", 422 para uma regra de
+// negócio violada (a requisição é válida, mas o estado atual não a permite) e
+// 500 com mensagem genérica para qualquer outro erro, que é registrado no log.
 func Respond(c *gin.Context, err error) {
 	status, mensagem := traduz(err)
 

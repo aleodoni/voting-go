@@ -149,6 +149,19 @@ Prefixo `/api/v1`. Detalhes de request/response no Swagger UI.
 
 ---
 
+### Códigos de erro
+
+Erros respondem JSON `{"error": "mensagem"}`:
+
+| Código | Quando |
+| ------ | ------ |
+| `400` | Corpo da requisição inválido |
+| `401` | Token ausente, inválido ou expirado |
+| `403` | Usuário sem permissão (não é admin, não pode votar ou está inativo) |
+| `404` | Usuário, reunião, projeto ou votação não encontrados |
+| `422` | Regra de negócio violada: votar duas vezes, abrir votação com outra aberta, projeto já votado, fechar votação que não está aberta |
+| `500` | Erro inesperado; a resposta é genérica e o detalhe fica no log do servidor |
+
 ## Testes
 
 ```bash

@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	ucVotacao "github.com/aleodoni/voting-go/internal/application/votacao"
+	"github.com/aleodoni/voting-go/internal/handler/httperr"
 	mappers "github.com/aleodoni/voting-go/internal/handler/reuniao"
 )
 
@@ -25,6 +26,8 @@ func NewRetornaProjetoVotacaoAbertaHandler(retornaProjetoVotacaoAbertaUseCase *u
 //	@Produce		json
 //	@Success		200	{object}	reuniao.ProjetoResponse
 //	@Failure		403	{object}	ErrorResponse
+//	@Failure		404	{object}	ErrorResponse
+//	@Failure		500	{object}	ErrorResponse
 //	@Security		BearerAuth
 //	@Router			/votacao/aberta [get]
 func (h *RetornaProjetoVotacaoAbertaHandler) Handle(c *gin.Context) {
@@ -36,7 +39,7 @@ func (h *RetornaProjetoVotacaoAbertaHandler) Handle(c *gin.Context) {
 
 	projeto, err := h.retornaProjetoVotacaoAbertaUseCase.Execute(c.Request.Context(), input)
 	if err != nil {
-		c.JSON(http.StatusForbidden, ErrorResponse{Error: err.Error()})
+		httperr.Respond(c, err)
 		return
 	}
 

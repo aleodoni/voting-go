@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/aleodoni/voting-go/internal/application/votacao"
+	"github.com/aleodoni/voting-go/internal/handler/httperr"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,6 +24,9 @@ func NewCancelaVotacaoHandler(cancelaVotacaoUseCase *votacao.CancelaVotacaoUseCa
 //	@Param			projetoId	path	string	true	"ID do projeto"
 //	@Success		204
 //	@Failure		403	{object}	ErrorResponse
+//	@Failure		404	{object}	ErrorResponse
+//	@Failure		422	{object}	ErrorResponse
+//	@Failure		500	{object}	ErrorResponse
 //	@Security		BearerAuth
 //	@Router			/projetos/{projetoId}/votacao [delete]
 func (h *CancelaVotacaoHandler) Handle(c *gin.Context) {
@@ -35,7 +39,7 @@ func (h *CancelaVotacaoHandler) Handle(c *gin.Context) {
 	}
 
 	if err := h.cancelaVotacaoUseCase.Execute(c.Request.Context(), input); err != nil {
-		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		httperr.Respond(c, err)
 		return
 	}
 

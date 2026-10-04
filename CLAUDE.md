@@ -37,7 +37,7 @@ SSE.
 - Casos de uso: um arquivo por caso de uso (`<verbo>_<objeto>.go`), tipo `XxxUseCase`, `NewXxxUseCase`, `Execute(ctx, input)` com `Input` próprio. Autorização de admin via `shared.VerificarAdmin`.
 - Cada caso de uso tem `_test.go` usando fakes de `internal/test/fakes`.
 - Handlers: um arquivo por endpoint, com anotações swaggo; request/response/mapper no pacote do handler.
-- Handlers traduzem o erro do caso de uso com `httperr.Respond` (`internal/handler/httperr`): 404 para não encontrado, 403 para sem permissão, 500 genérico com o erro real no log. Nunca devolver `err.Error()` direto ao cliente. Os handlers de `votacao` ainda não migraram (`BACKLOG.md`). Handlers que respondem 202 e executam em goroutine devem checar a permissão **antes** de responder.
+- Handlers traduzem o erro do caso de uso com `httperr.Respond` (`internal/handler/httperr`): 404 para não encontrado, 403 para sem permissão, 422 para regra de negócio violada, 500 genérico com o erro real no log. Nunca devolver `err.Error()` direto ao cliente. Erro de domínio novo: acrescente a regra em `httperr` e um caso na tabela do teste. Só o `sse.go` não usa o `httperr`. Handlers que respondem 202 e executam em goroutine devem checar a permissão **antes** de responder.
 - SQL novo em `internal/infrastructure/persistence/sqlc/queries/*.sql` + `sqlc generate`. Nunca editar `sqlc/generated/`.
 - Migrations: sempre par `.up.sql`/`.down.sql`, numeração sequencial (`make migrate-create name=...`). Nunca editar migration já aplicada.
 - Front: Biome (tabs, aspas simples) é o único linter/formatter (ADR 0006): `make lint-web` verifica e `cd web && pnpm lint:fix` corrige. JSON e CSS não são formatados. Código usado pelos dois apps vai para `@voting/shared`.
