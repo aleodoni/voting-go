@@ -1,7 +1,7 @@
 lockfileVersion: '9.0'
 
 settings:
-  autoInstallPeers: true
+  autoInstallPeers: false
   excludeLinksFromLockfile: false
 
 importers:
@@ -211,12 +211,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.0.0
         version: 5.95.2(react@18.3.1)
-      '@tanstack/react-router':
-        specifier: ^1.168.3
-        version: 1.168.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       axios:
         specifier: ^1.7.0
-        version: 1.13.6(debug@4.4.3)
+        version: 1.13.6
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -229,12 +226,6 @@ importers:
       lucide-react:
         specifier: ^1.6.0
         version: 1.6.0(react@18.3.1)
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
       react-hook-form:
         specifier: ^7.72.0
         version: 7.72.0(react@18.3.1)
@@ -5180,9 +5171,9 @@ snapshots:
 
   asynckit@0.4.0: {}
 
-  axios@1.13.6(debug@4.4.3):
+  axios@1.13.6:
     dependencies:
-      follow-redirects: 1.15.11(debug@4.4.3)
+      follow-redirects: 1.15.11
       form-data: 4.0.5
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
@@ -5599,9 +5590,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  follow-redirects@1.15.11(debug@4.4.3):
-    optionalDependencies:
-      debug: 4.4.3
+  follow-redirects@1.15.11: {}
 
   form-data@4.0.5:
     dependencies:
