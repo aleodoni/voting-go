@@ -28,14 +28,15 @@ Itens resolvidos são **removidos** daqui — o commit que resolveu é o registr
 - [ ] **P2** Unificar `MeetingSelect/ProjectCard`, `StatusBadge`, `ProjectVotingPanel` com os equivalentes de `VotingPanel/` no admin
 - [ ] **P2** Remover `web/packages/shared/pnpm-lock.yaml` (lockfile único na raiz do workspace) e o campo `workspaces` de `web/package.json` (redundante com `pnpm-workspace.yaml`)
 - [ ] **P2** Padronizar tipagem de `useIsProjectVoting.ts` (SSE + TanStack Query)
-- [ ] **P2** `web/packages/shared/src/api-client.ts` chama `getKeycloak().login()` em 401 **e** 403. Um 403 legítimo (sem permissão) não é sessão expirada; avaliar limitar o login ao 401. O backend já só usa 403 para falta de permissão (os handlers migraram para `httperr`)
+- [ ] **P2** Os apps não mostram a mensagem do servidor: o toast de voto é genérico ("Erro ao registrar voto") e o `VotingCard` exibe a mensagem do axios ("Request failed with status code 422"). Criar um helper em `@voting/shared` que extraia `error.response.data.error` e usá-lo nesses pontos (o 422 traz, por exemplo, "usuário já votou nesta votação")
+- [ ] **P2** O app admin não tem tela de "acesso negado": um usuário sem permissão de admin recebe 403 em todas as chamadas e vê telas de erro vazias (antes o `login()` em 403 o prendia num loop de redirecionamentos). Avaliar um guard de rota que explique a falta de permissão
 - [ ] **P2** `ProjectDTO` em `web/apps/admin/src/types/meeting.ts` é idêntico a `ProjetoDTO` de `@voting/shared`; usar o do shared e remover a cópia
 - [ ] **P2** Ao subir o Biome para uma versão com `css.parser.tailwindDirectives`, trocar o override de `noUnknownAtRules` em `web/biome.json` por essa opção (ADR 0006)
 
 ## CI/CD
 
 - [ ] **P1** Documentar qual caminho de deploy é o oficial (compose/SSH × AWS/ECR) e desativar o que não for usado
-- [ ] **P2** A versão do pnpm (10.33.0) está fixada em três lugares (`ci.yml` e os Dockerfiles de `admin` e `vereador`), e os Dockerfiles instalam com `--no-frozen-lockfile` enquanto o CI usa `--frozen-lockfile`. Fixar `packageManager` em `web/package.json` e alinhar os Dockerfiles
+- [ ] **P1** Fixar a versão do pnpm do front em um só lugar (`packageManager` em `web/package.json`). Hoje 10.33.0 está repetida no `ci.yml` e nos Dockerfiles, e um pnpm local mais novo ignora o `web/.npmrc` (`auto-install-peers=false`, `shamefully-hoist=true`) e reescreve o `pnpm-lock.yaml` (`autoInstallPeers: true`), o que quebra o `pnpm install --frozen-lockfile` do CI. Os Dockerfiles ainda instalam com `--no-frozen-lockfile`; alinhar
 - [ ] **P2** `infra/Makefile` referencia `docker-compose.production.yml` e `docker-compose.orange.yml`, que não estão no repo; alinhar ou documentar
 
 ## Documentação

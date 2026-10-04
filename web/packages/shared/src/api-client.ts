@@ -22,7 +22,10 @@ export function initApi(baseURL: string) {
 	apiInstance.interceptors.response.use(
 		(response) => response,
 		(error) => {
-			if (error.response?.status === 401 || error.response?.status === 403) {
+			// Só o 401 indica sessão inválida ou expirada. O 403 é falta de permissão:
+			// o usuário está autenticado, e redirecionar para o login não resolve (a
+			// sessão do Keycloak segue ativa, a página volta direto e repete o 403 num loop).
+			if (error.response?.status === 401) {
 				getKeycloak().login();
 			}
 			return Promise.reject(error);

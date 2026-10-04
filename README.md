@@ -33,7 +33,7 @@ Documentação técnica e de processo em [`docs/`](docs/README.md). Contexto par
 
 ### 1. Pré-requisitos
 
-Go, Docker, [`golang-migrate`](https://github.com/golang-migrate/migrate), [`sqlc`](https://sqlc.dev), [`swag`](https://github.com/swaggo/swag), `psql`, `envsubst`, `pnpm` (front) e opcionalmente `air`, `gotestsum` e `k6`.
+Go, Docker, [`golang-migrate`](https://github.com/golang-migrate/migrate), [`sqlc`](https://sqlc.dev), [`swag`](https://github.com/swaggo/swag), `psql`, `envsubst`, `pnpm` 10.33.0 (front; versões mais novas reescrevem o `pnpm-lock.yaml` de forma incompatível com o CI) e opcionalmente `air`, `gotestsum` e `k6`.
 
 ### 2. Variáveis de ambiente
 
