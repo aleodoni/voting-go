@@ -33,7 +33,7 @@ Documentação técnica e de processo em [`docs/`](docs/README.md). Contexto par
 
 ### 1. Pré-requisitos
 
-Go, Docker, [`golang-migrate`](https://github.com/golang-migrate/migrate), [`sqlc`](https://sqlc.dev), [`swag`](https://github.com/swaggo/swag), `psql`, `envsubst`, `pnpm` 10.33.0 (front; versões mais novas reescrevem o `pnpm-lock.yaml` de forma incompatível com o CI) e opcionalmente `air`, `gotestsum` e `k6`.
+Go, Docker, [`golang-migrate`](https://github.com/golang-migrate/migrate), [`sqlc`](https://sqlc.dev), [`swag`](https://github.com/swaggo/swag), `psql`, `envsubst`, `pnpm` (front; use a versão fixada em `web/package.json`, hoje 10.33.0: versões mais novas ignoram o `web/.npmrc` e reescrevem o `pnpm-lock.yaml`) e opcionalmente `air`, `gotestsum` e `k6`.
 
 ### 2. Variáveis de ambiente
 
@@ -180,7 +180,7 @@ O `make test-api` roda só os testes de leitura (`health`, `me` e `retorna-sincr
 ```
 cmd/
   api/                 # Entrypoint da API e anotações gerais do Swagger
-  cli/                 # voting-cli (migrate, seed, fdw) + TUI
+  cli/                 # voting-cli (migrate, seed, fdw, fdw-drop)
 
 internal/
   application/         # Casos de uso (votacao, usuario, sincronia, relatorio, jobs)

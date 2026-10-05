@@ -41,7 +41,7 @@ SSE.
 - SQL novo em `internal/infrastructure/persistence/sqlc/queries/*.sql` + `sqlc generate`. Nunca editar `sqlc/generated/`.
 - Migrations: sempre par `.up.sql`/`.down.sql`, numeração sequencial (`make migrate-create name=...`). Nunca editar migration já aplicada.
 - Front: Biome (tabs, aspas simples) é o único linter/formatter (ADR 0006): `make lint-web` verifica e `cd web && pnpm lint:fix` corrige. JSON e CSS não são formatados. Código usado pelos dois apps vai para `@voting/shared`. O `api-client` chama `login()` só em 401; o 403 (sem permissão) é um erro comum da requisição e não redireciona.
-- Front: use o **pnpm 10.33.0**, o mesmo do CI e dos Dockerfiles. Versões mais novas ignoram o `web/.npmrc` e reescrevem o `pnpm-lock.yaml` (`autoInstallPeers`), o que quebra o `pnpm install --frozen-lockfile` do CI. Não commitar um `pnpm-lock.yaml` nem um `pnpm-workspace.yaml` gerados por outra versão.
+- Front: a versão do pnpm é a do campo `packageManager` de `web/package.json` (hoje 10.33.0) e é lida pelo CI e pelos Dockerfiles; use essa versão. Versões mais novas ignoram o `web/.npmrc` e reescrevem o `pnpm-lock.yaml` (`autoInstallPeers`), o que quebra o `pnpm install --frozen-lockfile`. Os Dockerfiles copiam o `.npmrc` e instalam com `--frozen-lockfile`: depois de mudar dependências, rode `pnpm install` na versão fixada e commite o `pnpm-lock.yaml`. Não commitar `pnpm-lock.yaml` nem `pnpm-workspace.yaml` gerados por outra versão.
 - Não versionar segredos.
 
 ## Comandos úteis

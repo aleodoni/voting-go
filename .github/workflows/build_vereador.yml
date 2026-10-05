@@ -9,6 +9,7 @@ on:
       - 'web/apps/vereador/**'
       - 'web/packages/shared/**'
       - 'web/package.json'
+      - 'web/.npmrc'
       - 'web/pnpm-lock.yaml'
       - 'web/pnpm-workspace.yaml'
       - 'infra/docker/vereador/Dockerfile'

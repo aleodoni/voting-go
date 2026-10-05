@@ -3,11 +3,13 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Ativa pnpm
-RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
+# Ativa o pnpm. A versão vem do campo "packageManager" do package.json.
+RUN corepack enable
 
-# Copia arquivos de lock e workspace
+# Copia arquivos de lock, workspace e a configuração do pnpm (.npmrc).
+# Sem o .npmrc o pnpm usa outras configurações e reescreve o lockfile.
 COPY package.json ./package.json
+COPY .npmrc ./.npmrc
 COPY pnpm-lock.yaml ./pnpm-lock.yaml
 COPY pnpm-workspace.yaml ./pnpm-workspace.yaml
 
@@ -16,7 +18,7 @@ COPY apps ./apps
 COPY packages ./packages
 
 # Instala dependências
-RUN pnpm install --no-frozen-lockfile
+RUN pnpm install --frozen-lockfile
 
 # --- Build do Vite com variáveis de ambiente ---
 ARG VITE_API_URL

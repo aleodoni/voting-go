@@ -2,7 +2,7 @@ SHELL := /bin/bash
 .SHELLFLAGS := -c
 # ============================================================
 # Voting Makefile — desenvolvimento local apenas
-# Para CI/CD use o voting-cli (cmd/cli/main/main.go)
+# Para CI/CD use o voting-cli (cmd/cli)
 # ============================================================
 
 APP_NAME=voting-api
@@ -178,8 +178,9 @@ swagger:
 
 .PHONY: build-cli
 build-cli:
-	go build -ldflags="-s -w" -o voting-cli cmd/cli/main/main.go
+	go build -ldflags="-s -w" -o voting-cli ./cmd/cli
 
 .PHONY: run-cli
+# Ex.: make run-cli ARGS=migrate
 run-cli:
-	go run cmd/cli/main/main.go
+	go run ./cmd/cli $(ARGS)

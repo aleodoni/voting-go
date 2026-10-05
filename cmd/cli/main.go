@@ -1,3 +1,6 @@
+// Command voting-cli executa tarefas de operação do banco: migrations, seed e FDW.
+//
+// Uso: voting-cli <migrate|seed|fdw|fdw-drop>
 package main
 
 import (
@@ -45,6 +48,6 @@ func main() {
 		}
 
 	default:
-		log.Fatalf("unknown command: %s — usage: voting-cli <migrate|seed|fdw>", os.Args[1])
+		log.Fatalf("unknown command: %s — usage: voting-cli <migrate|seed|fdw|fdw-drop>", os.Args[1])
 	}
 }

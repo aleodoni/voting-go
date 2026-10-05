@@ -10,7 +10,6 @@ Itens resolvidos são **removidos** daqui — o commit que resolveu é o registr
 
 ## Backend
 
-- [ ] **P2** `cmd/cli/main/` com nível extra; padronizar para `cmd/cli/`
 - [ ] **P2** `Dockerfile` da API não usava `--parseInternal` (Makefile usava); alinhado na reestruturação — validar Swagger da imagem
 - [ ] **P2** `domain/votacao/errors.go` tem erros sem uso em lugar nenhum: `ErrVotacaoNaoCriada`, `ErrVotacaoAlreadyExists` e `ErrVotacaoFechada` (esta repete a mensagem de `ErrVotacaoNaoAberta`); remover
 - [ ] **P2** `handler/votacao/sse.go` responde 401 quando o usuário logado não existe no banco (o front trata 401 com `login()`) e tem respostas próprias; avaliar usar `httperr.Respond`
@@ -36,7 +35,6 @@ Itens resolvidos são **removidos** daqui — o commit que resolveu é o registr
 ## CI/CD
 
 - [ ] **P1** Documentar qual caminho de deploy é o oficial (compose/SSH × AWS/ECR) e desativar o que não for usado
-- [ ] **P1** Fixar a versão do pnpm do front em um só lugar (`packageManager` em `web/package.json`). Hoje 10.33.0 está repetida no `ci.yml` e nos Dockerfiles, e um pnpm local mais novo ignora o `web/.npmrc` (`auto-install-peers=false`, `shamefully-hoist=true`) e reescreve o `pnpm-lock.yaml` (`autoInstallPeers: true`), o que quebra o `pnpm install --frozen-lockfile` do CI. Os Dockerfiles ainda instalam com `--no-frozen-lockfile`; alinhar
 - [ ] **P2** `infra/Makefile` referencia `docker-compose.production.yml` e `docker-compose.orange.yml`, que não estão no repo; alinhar ou documentar
 
 ## Documentação

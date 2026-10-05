@@ -32,7 +32,7 @@ jobs:
           go-version-file: go.mod
 
       - name: Build CLI
-        run: go build -ldflags="-s -w" -o voting-cli cmd/cli/main/main.go
+        run: go build -ldflags="-s -w" -o voting-cli ./cmd/cli
 
       - name: Run migrations
         run: ./voting-cli migrate
