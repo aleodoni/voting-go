@@ -1,5 +1,6 @@
-import { Button } from '@voting/shared';
+import { Button, getApiErrorMessage } from '@voting/shared';
 import { Loader2, Play } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useOpenVoting } from '@/hooks/useOpenVoting';
 import type { ProjectDTO } from '@/types/meeting';
 
@@ -19,6 +20,7 @@ export function OpenVotingButton({
 			await mutation.mutateAsync(project.id);
 		} catch (error) {
 			console.error(error);
+			toast.error(getApiErrorMessage(error, 'Erro ao abrir a votação'));
 		}
 	}
 

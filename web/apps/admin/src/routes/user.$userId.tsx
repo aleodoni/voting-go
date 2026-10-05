@@ -10,6 +10,7 @@ import {
 	FormItem,
 	FormLabel,
 	FormMessage,
+	getApiErrorMessage,
 	H2,
 	Input,
 	Switch,
@@ -78,7 +79,13 @@ function UserDetail() {
 	}, [user, form]);
 
 	async function onSubmit(values: FormData) {
-		await updateUser(userId, values);
+		try {
+			await updateUser(userId, values);
+		} catch (error) {
+			toast.error(getApiErrorMessage(error, 'Erro ao atualizar o usuário'));
+			return;
+		}
+
 		toast.success('Usuário atualizado com sucesso!');
 		navigate({ to: '/manage-users', search: returnSearch ?? {} });
 	}

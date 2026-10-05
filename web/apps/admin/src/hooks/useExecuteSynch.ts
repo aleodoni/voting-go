@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { getApi } from '@voting/shared';
+import { getApi, getApiErrorMessage } from '@voting/shared';
 import toast from 'react-hot-toast';
 import { LAST_SYNCHRONIZATIONS_QUERY_KEY } from './useLastSyncs';
 
@@ -33,8 +33,8 @@ export function useExecuteSynch() {
 				queryKey: [LAST_SYNCHRONIZATIONS_QUERY_KEY],
 			});
 		},
-		onError: () => {
-			toast.error('Erro ao executar a sincronia');
+		onError: (error) => {
+			toast.error(getApiErrorMessage(error, 'Erro ao executar a sincronia'));
 		},
 	});
 }

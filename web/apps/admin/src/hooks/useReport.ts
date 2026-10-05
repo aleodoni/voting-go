@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { getApi } from '@voting/shared';
+import toast from 'react-hot-toast';
 import { MeetingDTO } from '@/hooks/useTodayMeetings';
 
 async function fetchMeetingReport(meeting: MeetingDTO) {
@@ -28,6 +29,10 @@ export function useMeetingReport() {
       */
 
 			window.URL.revokeObjectURL(url);
+		},
+		// O erro vem como Blob (responseType: 'blob'), então a mensagem do servidor não é legível.
+		onError: () => {
+			toast.error('Erro ao gerar o relatório');
 		},
 	});
 }

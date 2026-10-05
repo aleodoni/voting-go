@@ -5,6 +5,7 @@ import { toast } from 'react-hot-toast';
 import { z } from 'zod';
 import { useAuth } from '../AuthContext';
 import { getApi } from '../api-client';
+import { getApiErrorMessage } from '../api-error';
 import type { User } from '../types';
 import { Button } from './ui/button';
 import {
@@ -47,7 +48,7 @@ export function FormUserInfo({ userInfo }: FormUserInfoProps) {
 			await refreshUser();
 		} catch (error) {
 			console.error(error);
-			toast.error('Erro ao atualizar o nome');
+			toast.error(getApiErrorMessage(error, 'Erro ao atualizar o nome'));
 		} finally {
 			setIsLoading(false);
 		}

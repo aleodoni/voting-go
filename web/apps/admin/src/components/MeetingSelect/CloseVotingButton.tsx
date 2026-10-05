@@ -1,7 +1,8 @@
 // components/CloseVotingButton.tsx
 
-import { Button } from '@voting/shared';
+import { Button, getApiErrorMessage } from '@voting/shared';
 import { Loader2, Square } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useCloseVoting } from '@/hooks/useCloseVoting';
 import { ProjectDTO } from '@/types/meeting';
 
@@ -17,6 +18,7 @@ export function CloseVotingButton({ project }: CloseVotingButtonProps) {
 			await mutation.mutateAsync(project.id);
 		} catch (error) {
 			console.error(error);
+			toast.error(getApiErrorMessage(error, 'Erro ao finalizar a votação'));
 		}
 	}
 

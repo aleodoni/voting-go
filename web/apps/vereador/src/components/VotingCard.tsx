@@ -10,6 +10,7 @@ import {
 	calcularTotaisVotos,
 	EVoteType,
 	EVotingStatus,
+	getApiErrorMessage,
 	ProjetoDTO,
 	useAuth,
 	VotingTotals,
@@ -216,7 +217,7 @@ export function VotingCard({ projectVoting }: VotingCardProps) {
 
 					{mutation.isError && (
 						<p className="text-sm text-destructive w-full text-center">
-							{mutation.error.message}
+							{getApiErrorMessage(mutation.error, 'Erro ao registrar voto')}
 						</p>
 					)}
 				</CardFooter>

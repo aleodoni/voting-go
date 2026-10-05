@@ -1,7 +1,8 @@
 // components/CancelVotingButton.tsx
 
-import { Button } from '@voting/shared';
+import { Button, getApiErrorMessage } from '@voting/shared';
 import { Loader2, X } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useCancelVoting } from '@/hooks/useCancelVoting';
 import { ProjectDTO } from '@/types/meeting';
 
@@ -17,6 +18,7 @@ export function CancelVotingButton({ project }: CancelVotingButtonProps) {
 			await mutation.mutateAsync(project.id);
 		} catch (error) {
 			console.error(error);
+			toast.error(getApiErrorMessage(error, 'Erro ao cancelar a votação'));
 		}
 	}
 

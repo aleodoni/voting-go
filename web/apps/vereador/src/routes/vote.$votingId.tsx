@@ -1,5 +1,9 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router';
-import { EVoteType, useIsProjectVoting } from '@voting/shared';
+import {
+	EVoteType,
+	getApiErrorMessage,
+	useIsProjectVoting,
+} from '@voting/shared';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { VoteModal } from '@/components/VoteModal';
@@ -119,8 +123,8 @@ function VoteSelection() {
 
 			toast.success('Voto realizado com sucesso! 🎉');
 			router.navigate({ to: '/' });
-		} catch {
-			toast.error('Erro ao registrar voto');
+		} catch (error) {
+			toast.error(getApiErrorMessage(error, 'Erro ao registrar voto'));
 		} finally {
 			setVoteData((prev) => ({ ...prev, isLoading: false }));
 			setShowModal(false);
