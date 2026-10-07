@@ -5,7 +5,7 @@
 > Mantida pelo Claude ao final de cada iteração: é daqui que a próxima sessão parte.
 
 1. Definir o caminho de deploy oficial (compose/SSH × AWS/ECR) e desativar o que não for usado (`docs/runbooks/deploy.md`). Depende de decisão do Alexandre.
-2. Escolher o próximo P2 do `BACKLOG.md`. Dois de bom retorno: a tela de "acesso negado" no app admin (sem ela, um usuário sem permissão vê telas de erro vazias) e ligar os testes k6 que alteram estado no `make test-api`.
+2. Escolher o próximo P2 do `BACKLOG.md`. Dois de bom retorno: ligar os testes k6 que alteram estado no `make test-api`, e adicionar o vitest ao front (hoje o `getApiErrorMessage` e a `AuthStatusScreen` foram verificados por scripts avulsos).
 
 ## Concluído
 

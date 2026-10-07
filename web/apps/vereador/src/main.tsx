@@ -23,6 +23,8 @@ const authConfig = {
 		clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID,
 	},
 	authorize: (user: User) => user.credencial.pode_votar,
+	deniedMessage:
+		'Este sistema é exclusivo para usuários com permissão de voto.',
 };
 
 const rootElement = document.getElementById('root');

@@ -29,7 +29,7 @@ Itens resolvidos são **removidos** daqui — o commit que resolveu é o registr
 - [ ] **P2** Padronizar tipagem de `useIsProjectVoting.ts` (SSE + TanStack Query)
 - [ ] **P2** O front não tem runner de testes: o `getApiErrorMessage` foi verificado por um script avulso. Adicionar o vitest ao `@voting/shared` e cobrir o helper
 - [ ] **P2** `voting-panel.$projectId.tsx` mostra "Projeto não encontrado" para qualquer erro da consulta (inclusive 403 e 500); distinguir o 404 dos demais
-- [ ] **P2** O app admin não tem tela de "acesso negado": um usuário sem permissão de admin recebe 403 em todas as chamadas e vê telas de erro vazias (antes o `login()` em 403 o prendia num loop de redirecionamentos). Avaliar um guard de rota que explique a falta de permissão
+- [ ] **P2** `AuthProvider.refreshUser` só atualiza o usuário: não reavalia `credencial.ativo` nem `authorize`. Uma permissão revogada durante a sessão só barra ao recarregar a página; até lá as chamadas falham com 403 (e mostram o toast com a mensagem do servidor)
 - [ ] **P2** `ProjectDTO` em `web/apps/admin/src/types/meeting.ts` é idêntico a `ProjetoDTO` de `@voting/shared`; usar o do shared e remover a cópia
 - [ ] **P2** Ao subir o Biome para uma versão com `css.parser.tailwindDirectives`, trocar o override de `noUnknownAtRules` em `web/biome.json` por essa opção (ADR 0006)
 

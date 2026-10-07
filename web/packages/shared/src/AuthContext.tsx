@@ -7,7 +7,7 @@ import {
 	useState,
 } from 'react';
 import { getApi, initApi } from './api-client';
-import { Button } from './components';
+import { AuthStatusScreen, type AuthStatusVariant } from './components';
 import { getKeycloak, initKeycloak } from './keycloak';
 import type { User } from './types';
 
@@ -19,6 +19,15 @@ interface AuthConfig {
 		clientId: string;
 	};
 	authorize: (user: User) => boolean;
+	// Texto da tela de acesso negado; padrão genérico se omitido.
+	deniedMessage?: string;
+}
+
+// Motivo pelo qual a sessão não pôde ser aberta; vira a AuthStatusScreen.
+interface AuthProblem {
+	variant: AuthStatusVariant;
+	message: string;
+	username?: string;
 }
 
 interface AuthContextValue {
@@ -38,7 +47,7 @@ export function AuthProvider({
 }) {
 	const [user, setUser] = useState<User | null>(null);
 	const [ready, setReady] = useState(false);
-	const [error, setError] = useState<string | null>(null);
+	const [problem, setProblem] = useState<AuthProblem | null>(null);
 	const initialized = useRef(false);
 
 	useEffect(() => {
@@ -78,12 +87,23 @@ export function AuthProvider({
 					const { data } = await api.get<User>('/me');
 
 					if (!data.credencial.ativo) {
-						setError('Usuário inativo. Entre em contato com o administrador.');
+						setProblem({
+							variant: 'inactive',
+							message:
+								'Sua conta está inativa. Entre em contato com o administrador.',
+							username: data.username,
+						});
 						return;
 					}
 
 					if (!config.authorize(data)) {
-						setError('Você não tem permissão para acessar este sistema.');
+						setProblem({
+							variant: 'forbidden',
+							message:
+								config.deniedMessage ??
+								'Você não tem permissão para acessar este sistema.',
+							username: data.username,
+						});
 						return;
 					}
 
@@ -91,18 +111,24 @@ export function AuthProvider({
 					setReady(true);
 				} catch (err) {
 					console.error('Erro ao buscar dados do usuário:', err);
-					setError('Erro ao buscar dados do usuário.');
+					setProblem({
+						variant: 'failure',
+						message: 'Erro ao buscar dados do usuário.',
+					});
 				}
 			})
 			.catch((err) => {
 				console.error('Erro ao inicializar Keycloak:', err);
-				setError('Erro ao inicializar autenticação.');
+				setProblem({
+					variant: 'failure',
+					message: 'Erro ao inicializar autenticação.',
+				});
 			});
 
 		return () => {
 			if (interval) clearInterval(interval);
 		};
-	}, [config.apiUrl, config.keycloak, config.authorize]);
+	}, [config.apiUrl, config.keycloak, config.authorize, config.deniedMessage]);
 
 	const logout = () => {
 		getKeycloak().logout({ redirectUri: window.location.origin });
@@ -114,27 +140,26 @@ export function AuthProvider({
 			setUser(data);
 		} catch (err) {
 			console.error('Erro ao atualizar usuário:', err);
-			setError('Erro ao buscar dados do usuário.');
+			setProblem({
+				variant: 'failure',
+				message: 'Erro ao buscar dados do usuário.',
+			});
 		}
 	};
 
-	if (error) {
+	if (problem) {
 		return (
-			<div
-				style={{
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-					height: '100vh',
-					flexDirection: 'column',
-					gap: '1rem',
-				}}
-			>
-				<p style={{ color: 'red' }}>{error}</p>
-				<Button variant="outline" onClick={logout}>
-					Sair
-				</Button>
-			</div>
+			<AuthStatusScreen
+				variant={problem.variant}
+				message={problem.message}
+				username={problem.username}
+				onLogout={logout}
+				onRetry={
+					problem.variant === 'failure'
+						? () => window.location.reload()
+						: undefined
+				}
+			/>
 		);
 	}
 

@@ -23,6 +23,7 @@ const authConfig = {
 		clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID,
 	},
 	authorize: (user: User) => user.credencial.pode_administrar,
+	deniedMessage: 'Este painel é exclusivo para administradores do sistema.',
 };
 
 const rootElement = document.getElementById('root');
